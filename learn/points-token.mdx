@@ -48,21 +48,9 @@ Every PointsToken should correspond to a real exchange point in ArcX's exchange 
 
 $$\text{PointsToken supply} \leq \text{real points held by ArcX}$$
 
-This invariant is enforced by **trust, not code**. When ArcX reports `totalPoints = 1,000`, users trust those points exist. There is no on-chain mechanism that proves the claimed number of airdrop tokens actually corresponds to the correct PointsToken amounts.
+This invariant is enforced by **trust, not code**. ArcX reports `totalPoints` via its own oracle — there is no on-chain proof that the number is accurate. You are trusting ArcX to report points honestly, bridge airdrop tokens faithfully after TGE, and maintain 1:1 backing between PointsToken supply and real points held.
 
-**What exactly are you trusting?** You are trusting ArcX to:
-
-1. **Accurately report `totalPoints`** — The Final Points Oracle is operated by ArcX. When it reports that 12,500 Pacifica points were earned, there is no independent on-chain proof. The number could be inflated (minting excess PointsTokens) or deflated (shortchanging holders).
-2. **Faithfully bridge and distribute airdrop tokens** — After TGE, ArcX receives airdrop tokens from the exchange and must deposit them into the Redemption Module. Users trust that ArcX bridges the full amount rather than withholding a portion.
-3. **Maintain 1:1 backing** — Between finalization and TGE, the PointsToken supply should not exceed the real points held. There is no real-time audit or third-party attestation enforcing this.
-
-**There is no on-chain verification.** No ZK proof, no oracle cross-check, no public dashboard showing real-time point balances. Community members can partially verify by cross-referencing post-TGE airdrop amounts with PointsToken supply, but this is retrospective — it only works after the exchange distributes tokens, not during the holding period.
-
-**What recourse exists?** The Trust Model deep dive documents step-by-step verification procedures that community members can follow to audit ArcX's reporting after each epoch. These checks do not prevent misreporting but can detect it after the fact.
-
-This is the protocol's most significant trust assumption. See [Trust Model](/deep-dives/trust-model-and-security) for the full analysis.
-
-<Tip>Want to verify ArcX's PointsToken backing? See the step-by-step verification guide in [Trust Model & Security](/deep-dives/trust-model-and-security).</Tip>
+This is the protocol's most significant trust assumption. Community members can retrospectively verify by cross-referencing post-TGE airdrop amounts with PointsToken supply. For the complete analysis — what exactly you're trusting, what could go wrong, and how to verify — see [Trust Model & Security](/deep-dives/trust-model-and-security).
 
 <AccordionGroup>
 <Accordion title="Are PointsTokens safe if ArcX shuts down?">

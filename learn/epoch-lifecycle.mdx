@@ -233,7 +233,7 @@ If any check fails, the transaction reverts and your USDC stays in your wallet.
 
 **Deposit fee:** Covers operational costs and defends against sandwich attacks. Varies by strategy, as low as 0.01% for funding arb, up to 0.5% for market making. See [Fee Structure](/learn/token-economics#fee-structure).
 
-For the full deposit validation pseudocode, see [Developer Integration Guide](/build/developer-integration-guide).
+For the full deposit validation pseudocode, see the contract reference documentation.
 
 <AccordionGroup>
 <Accordion title="What if the NAV oracle goes down during the epoch?">
@@ -392,4 +392,4 @@ Credits accrue at the last known rate. If the strategy's actual activity changed
 
 ## Sequence Diagrams
 
-For detailed sequence diagrams of every operation (deposit, cross-chain deposit, refund, finalization, redemption, claiming), see [Integration & Deployment](/build/integration-and-deployment).
+For deposit validation pseudocode and detailed contract mechanics, see the deep dive pages.

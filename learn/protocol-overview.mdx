@@ -16,7 +16,7 @@ ArcX is like a fund manager who separates your principal receipt from your loyal
 
 ## The Problem: Points Farming is Broken
 
-On platforms like <Tooltip tip="A perp trading terminal and aggregator where users trade across exchanges to earn points from volume. Points are non-transferable and tied to your trading activity.">TreadFi</Tooltip>, you earn points by trading volume — but your capital is tied up in open positions, your points are non-transferable, and there's no way to separate the trading PnL from the points exposure.
+On perp trading terminals, you earn points by trading volume — but your capital is tied up in open positions, your points are non-transferable, and there's no way to separate the trading PnL from the points exposure.
 
 On perp DEXes like Pacifica, Hyperliquid, or Extended:
 
@@ -26,6 +26,13 @@ On perp DEXes like Pacifica, Hyperliquid, or Extended:
 4. **No way to speculate on points alone.** Want more points exposure? You have to deposit more capital into the strategy.
 
 **ArcX flips this:** Buy point tokens directly. No mental gymnastics. No trading PnL risk.
+
+| Before ArcX | After ArcX |
+|---|---|
+| Earn points? Must lock capital in strategy | Deposit + flash loop: leveraged points, fraction of the capital |
+| Want only USDC returns? Must hold points risk | Buy discounted ST on ArcX AMM: pure USDC exposure |
+| Sell points pre-TGE? No market exists | Sell ST from deposit, keep EPT: monetize immediately |
+| Trade for points, eat losses along the way | Buy point tokens directly, no trading PnL risk |
 
 ---
 
@@ -41,13 +48,6 @@ $$1 \text{ USDC deposited} = \frac{1}{R} \text{ ST} + 1 \text{ EPT}$$
 ST is tradeable on the ArcX AMM. EPT is obtained only via deposit (no secondary market).
 
 <FlashLoop />
-
-| Before ArcX | After ArcX |
-|---|---|
-| Earn points? Must lock capital in strategy | Deposit + flash loop: leveraged points, fraction of the capital |
-| Want only USDC returns? Must hold points risk | Buy discounted ST on ArcX AMM: pure USDC exposure |
-| Sell points pre-TGE? No market exists | Sell ST from deposit, keep EPT: monetize immediately |
-| Trade for points, eat losses along the way (TreadFi) | Buy point tokens directly, no trading PnL risk |
 
 ---
 
@@ -93,7 +93,7 @@ Alice has \$100 and wants Pacifica points.
 4. She re-deposits the \$90, sells ST again, repeats
 5. After 3 loops: ~270 EPT from \$100 of capital
 
-**Result:** Alice has ~270 EPT (points exposure) from only \$100. Effective cost per EPT: ~\$0.037. Compare to TreadFi where you'd need to actively trade \$100 — earning points from volume but eating trading losses along the way.
+**Result:** Alice has ~270 EPT (points exposure) from only \$100. Net outlay: ~\$27 (\$100 minus ~\$73 from the final ST sale). Effective cost: **~\$0.10 per EPT** instead of \$1.00 from a single deposit. Compare to trading on a perp aggregator where you'd need to actively trade \$100 — earning points from volume but eating trading losses along the way.
 
 **Risk:** Strategy loss reduces the USDC she recovers from ST sales. If points turn out worthless, EPT has no value.
 
@@ -172,7 +172,7 @@ flowchart TB
     ESC --> LZ --> STV
 ```
 
-For the full component spec, see [Developer Integration Guide](/build/developer-integration-guide).
+For the full contract reference and sequence diagrams, see the deep dives.
 
 ---
 

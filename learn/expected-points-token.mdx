@@ -64,19 +64,19 @@ This is lazy evaluation: gas-efficient and mathematically equivalent to continuo
 
 ## Worked Example: Two Depositors at Different Times
 
-<Note>Time is shown in seconds for mathematical precision. 604,800s = 1 week. 259,200s = 3 days.</Note>
+<Note>This example uses a simplified 8-week epoch. The math works identically for any epoch length.</Note>
 
 ```mermaid
 gantt
     title Credit Accrual: Alice vs Bob
-    dateFormat X
-    axisFormat %s
+    dateFormat YYYY-MM-DD
+    axisFormat %b %d
 
     section Alice (100 EPT)
-    Full epoch (100 EPT)    :0, 604800
+    Full epoch (100 EPT)    :a1, 2025-01-01, 56d
 
     section Bob (100 EPT)
-    Deposits mid-epoch (100 EPT)    :259200, 604800
+    Deposits mid-epoch (100 EPT)    :b1, 2025-01-22, 35d
 ```
 
 Alice deposits \$100 on Day 0. Bob deposits \$100 on Day 3 (mid-epoch). CreditRate = 10 (constant for simplicity).
@@ -111,7 +111,7 @@ $100 deposit → 100 EPT + ST shares
       ...
 ```
 
-After multiple iterations, you hold ~270 EPT from a \$100 starting deposit. Your effective cost per EPT drops from \$1.00 to ~\$0.037.
+After multiple iterations, you hold ~270 EPT from a \$100 starting deposit. Your net outlay is ~\$27 (\$100 minus the ~\$73 from the final ST sale), so your effective cost per EPT is ~\$0.10 instead of \$1.00 from a single deposit.
 
 **Why this works:** Each deposit creates EPT (which you keep) and ST (which you sell at a discount). The ST discount is the "price" you pay for points. The flash loop amplifies this by recycling the ST sale proceeds. For the full mathematical derivation and convergence formula, see [EPT Pricing & Flash Loop Economics](/deep-dives/ept-pricing).
 
