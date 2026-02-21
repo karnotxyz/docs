@@ -42,9 +42,9 @@ $$1 \text{ USDC deposited} = \frac{1}{R} \text{ ST} + 1 \text{ EPT}$$
 
 Where R = ST exchange rate (NAV / totalShares). One dollar deposited produces a fixed combination of ST shares and EPT. But unlike Pendle, you can't reverse this. There's no early redemption to burn ST + EPT back into USDC before finalization.
 
-**What the equations share:** Both define a conservation law. The value of the parts equals the value of the whole. Both enable "upward arbitrage": if the tokens' combined market price exceeds the underlying, someone can mint and sell at a profit.
+**What the equations share:** Both are conservation equations. The parts add up to the whole. Both enable "upward arbitrage": if the tokens' combined market price exceeds the underlying, someone can mint and sell at a profit.
 
-**Where they diverge:** Pendle's equation is reversible (mint and redeem at any time). ArcX's equation is one-directional (mint only, no early redemption). This single difference cascades through the entire pricing structure.
+**Where they diverge:** Pendle's equation is reversible (mint and redeem at any time). ArcX's equation is one-directional (mint only, no early redemption). This one difference changes the entire pricing model.
 
 ---
 
@@ -85,7 +85,7 @@ flowchart TB
 | **Yield/points source** | Native yield from the asset (staking rewards, lending interest) | Exchange points from strategy activity (trading, OI) |
 | **Who runs the strategy** | The underlying protocol (Lido, Ethena, GMX...) | ArcX (centralized strategy execution) |
 
-**In plain English:** Pendle splits *what an asset earns* (yield). ArcX splits *what a strategy earns* (PnL + points). Pendle wraps existing yield-bearing positions. ArcX wraps an actively managed trading strategy that runs on perp DEXes.
+Pendle splits *what an asset earns* (yield). ArcX splits *what a strategy earns* (PnL + points). Pendle wraps existing yield-bearing positions. ArcX wraps an actively managed trading strategy that runs on perp DEXes.
 
 ### 2. Terminal Value: YT Goes to Zero, EPT Doesn't
 
@@ -107,7 +107,7 @@ This is the most important structural difference.
 
 **ArcX** only has the upward half: deposit + sell if overpriced. No early redemption to correct underpricing.
 
-**Consequence:** The implied cost of EPT (via the flash loop) can diverge from theoretical fair value. This is structurally identical to how closed-end funds in TradFi trade at discounts to NAV.
+**Consequence:** The implied cost of EPT (via the flash loop) can diverge from theoretical fair value. Same thing as closed-end funds trading at NAV discounts.
 
 ### 4. AMM Design
 
@@ -188,7 +188,7 @@ This is the most important structural difference.
 | **Redemption** | Trustless: PT+YT → underlying via smart contract | Admin-triggered finalization → then trustless redemption |
 | **Overall trust level** | High (on-chain, audited, battle-tested) | Lower (centralized oracles, trust in strategy execution) |
 
-**Honest assessment:** Pendle is significantly more trustless. ArcX trades trustlessness for access to off-chain perp DEX strategies and pre-TGE points markets. See [Trust Model & Security](/deep-dives/trust-model-and-security).
+Pendle is significantly more trustless. ArcX trades trustlessness for access to off-chain perp DEX strategies and pre-TGE points markets. See [Trust Model & Security](/deep-dives/trust-model-and-security).
 
 ---
 
@@ -204,7 +204,7 @@ A single ArcX deposit into a cross-exchange strategy (e.g., Pacifica-Extended fu
 
 ### Deposit-Only EPT Model
 
-Instead of a tradeable YT with time-decay AMM pricing, ArcX uses a deposit-only EPT model where the flash loop replaces secondary market trading. This simplifies the system while still enabling leveraged points exposure.
+Instead of a tradeable YT with time-decay AMM pricing, ArcX uses a deposit-only EPT model where the flash loop replaces secondary market trading. Simpler system, still gives you leveraged points.
 
 ---
 
@@ -241,6 +241,6 @@ Pendle YT holders can claim yield at any time. ArcX EPT holders must wait for fi
 
 <AccordionGroup>
 <Accordion title="Can I use both Pendle and ArcX?">
-Yes. They serve different purposes. Pendle is for yield optimization on DeFi assets. ArcX is for accessing and trading perp DEX strategy outcomes (PnL + points). A sophisticated farmer might use Pendle for fixed yield on staked assets and ArcX for points exposure on perp DEX strategies.
+Yes. They serve different purposes. Pendle is for yield optimization on DeFi assets. ArcX is for accessing and trading perp DEX strategy outcomes (PnL + points). You could use both: Pendle for fixed yield on staked assets, ArcX for points on perp strategies.
 </Accordion>
 </AccordionGroup>

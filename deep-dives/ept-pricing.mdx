@@ -11,7 +11,7 @@ $$1 \text{ USDC deposited} = \frac{1}{R} \text{ ST} + 1 \text{ EPT}$$
 
 Where R = ST exchange rate = NAV / totalShares.
 
-This is a **physical law** of the protocol. It's enforced by the deposit contract. When you deposit 1 USDC (ignoring fees for clarity), you receive exactly `1/R` ST shares and exactly 1 EPT. Always.
+This always holds. No exceptions. It's enforced by the deposit contract. When you deposit 1 USDC (ignoring fees for clarity), you receive exactly `1/R` ST shares and exactly 1 EPT.
 
 ### Deriving EPT Implied Cost
 
@@ -21,7 +21,7 @@ $$\text{EPT}\_\text{cost} = 1 - \frac{X}{R}$$
 
 Where X = ST market price on the ArcX AMM and R = ST exchange rate.
 
-**In plain English:** You deposit \$1, receive ST + EPT, then sell the ST on the ArcX AMM. The EPT's cost is whatever USDC you don't recover from selling the ST. If your ST sale returns \$0.92, the EPT cost you \$0.08.
+You deposit \$1, receive ST + EPT, then sell the ST on the ArcX AMM. The EPT's cost is whatever USDC you don't recover from selling the ST. If your ST sale returns \$0.92, the EPT cost you \$0.08.
 
 ### Worked Example
 
@@ -53,7 +53,7 @@ The equation `1 USDC = (1/R) ST + 1 EPT` ignores fees. With a deposit fee `f`, y
 
 ## Flash Loop Economics
 
-The flash loop is the primary mechanism for acquiring EPT. Understanding its economics is key to understanding EPT pricing.
+The flash loop is the primary mechanism for acquiring EPT. Here's how it works.
 
 ### The Basic Loop
 
@@ -96,7 +96,7 @@ $$\text{cost per EPT} = \frac{\text{USDC spent (net)}}{\text{total EPT received}
 
 With X/R = 0.9 (10% discount): **\$0.10 per EPT**, regardless of how many iterations you run. The number of iterations determines *how many* EPT you get, not the cost per unit.
 
-**Key insight:** The flash loop is a capital multiplier, not a cost reducer. Each \$1 of capital buys EPT at the same effective cost. More iterations just let you deploy more of your initial capital into EPT.
+The flash loop is a capital multiplier, not a cost reducer. Each \$1 of capital buys EPT at the same effective cost. More iterations just let you deploy more of your initial capital into EPT.
 
 ### What Determines Leverage
 
@@ -151,7 +151,7 @@ If the ST discount is "too wide" (EPT is too expensive), the correcting trade wo
 **What this means:** The ST discount can be wider than "fair" with no mechanical correction. Yield seekers buying cheap ST provide some natural floor, but there's no guaranteed arbitrage.
 
 <Info>
-**Why no early redemption?** ArcX currently does not support redeeming ST or EPT before epoch maturity. This is a deliberate simplification — it eliminates the need for complex reserve management and allows the full deposit to work in the strategy for the entire epoch. See the [decentralization roadmap](/deep-dives/trust-model-and-security) for plans to add this capability.
+**Why no early redemption?** ArcX currently does not support redeeming ST or EPT before epoch maturity. This is a deliberate simplification. It eliminates the need for complex reserve management and allows the full deposit to work in the strategy for the entire epoch. See the [decentralization roadmap](/deep-dives/trust-model-and-security) for plans to add this capability.
 </Info>
 
 <AccordionGroup>
@@ -250,7 +250,7 @@ The ST discount has a well-studied TradFi parallel.
 | **Correction mechanism** | Redemption arbitrage | Activist investors, fund termination | Time-decay curve + yield seeker demand |
 | **Why discount persists** | It doesn't | Illiquidity, sentiment, fees | No early redemption, flash loop selling pressure |
 
-ST's discount is structurally identical to a CEF discount. The key difference: ArcX's time-decay AMM curve provides a built-in convergence mechanism that CEFs lack. ST *will* converge to NAV at maturity, making the discount a known, bounded opportunity for yield seekers.
+ST's discount is the same thing as closed-end funds trading at NAV discounts. The difference: ArcX's AMM pushes ST price toward NAV as maturity approaches. CEFs don't have that. ST *will* converge to NAV at maturity, making the discount a known, bounded opportunity for yield seekers.
 
 ---
 
@@ -266,7 +266,7 @@ ST's discount is structurally identical to a CEF discount. The key difference: A
 | **AMM curve** | Custom logit with time-decay for YT | Pendle-style time-decay for ST (not EPT) |
 | **Yield/points during epoch** | Continuous SY streaming to YT holders | Abstract credit accrual (settled at finalization) |
 
-**The key structural difference:** Pendle YT decays to \$0 because all yield has been streamed by maturity. ArcX EPT doesn't trade at all --- its cost is determined indirectly through the ST discount on the ArcX AMM. This is simpler (no EPT AMM needed) but means EPT cost depends entirely on ST market dynamics.
+Pendle YT decays to \$0 because all yield has been streamed by maturity. ArcX EPT doesn't trade at all --- its cost is determined indirectly through the ST discount on the ArcX AMM. Simpler (no EPT AMM needed), but it means EPT cost depends entirely on ST market dynamics.
 
 ---
 
@@ -313,7 +313,7 @@ This would close the arb loop entirely, creating Pendle-style two-way pricing.
 
 <AccordionGroup>
 <Accordion title="Is the ST discount a problem for ArcX's growth?">
-It's a feature, not a bug. The discount is what makes the two-sided market work. Points farmers need someone to buy their ST. Yield seekers need a discount to earn returns. The discount is the price that clears the market between these two groups. A "correct" discount is one where both sides are satisfied.
+The discount is what makes the two-sided market work. Points farmers need someone to buy their ST. Yield seekers need a discount to earn returns. The discount is the price that clears the market between these two groups. A "correct" discount is one where both sides are satisfied.
 </Accordion>
 </AccordionGroup>
 
@@ -331,7 +331,7 @@ Your effective EPT cost is determined by the ST discount at the time you flash l
 | 10% | \$0.10 | ~271 | 2.71x |
 | 15% | \$0.15 | ~271 | 2.71x |
 
-<Note>All rows show the same number of iterations (3). The key difference is **cost per EPT**: at a 5% discount, each EPT costs ~$0.05, while at a 15% discount, each costs ~$0.15. Deeper discounts mean you pay more per EPT but get more ST proceeds per loop.</Note>
+<Note>All rows show the same number of iterations (3). What changes is **cost per EPT**: at a 5% discount, each EPT costs ~$0.05, while at a 15% discount, each costs ~$0.15. Deeper discounts mean you pay more per EPT but get more ST proceeds per loop.</Note>
 
 *Note: 3 iterations give the same ~271 EPT regardless of discount depth. The discount determines the cost per EPT, not the number of EPT per iteration count. Deeper discounts mean each \$1 of unrecovered USDC buys more EPT, but you also recover less USDC per loop.*
 
@@ -349,7 +349,7 @@ Your return is the spread between ST purchase price and finalNAV:
 | \$0.90 | -2% | \$0.98 | **8.9%** in one epoch |
 | \$0.90 | -5% | \$0.95 | **5.6%** in one epoch |
 
-**Key insight:** The discount provides a buffer against strategy losses. At a 10% discount, the strategy can lose up to 10% of NAV before your ST investment goes underwater. This is why yield seekers tolerate the strategy risk: the discount compensates them.
+The discount provides a buffer against strategy losses. At a 10% discount, the strategy can lose up to 10% of NAV before your ST investment goes underwater. This is why yield seekers tolerate the strategy risk: the discount compensates them.
 
 **Annualized returns:** If epochs run ~3 months, a 10% per-epoch return annualizes to ~46%. Even a conservative 5% per-epoch return annualizes to ~22%.
 

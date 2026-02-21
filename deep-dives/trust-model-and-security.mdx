@@ -6,7 +6,7 @@ icon: "shield"
 
 ## TL;DR: The Six Trust Assumptions
 
-Every interaction with ArcX requires you to trust ArcX with specific things. Here they all are, in one table:
+Every interaction with ArcX requires you to trust ArcX with specific things.
 
 | # | What You Trust ArcX With | What Could Go Wrong | How You Can Verify | Decentralization Path |
 |---|---|---|---|---|
@@ -17,7 +17,7 @@ Every interaction with ArcX requires you to trust ArcX with specific things. Her
 | 5 | **Strategy execution** | Bugs, negligence, or malfeasance causing unexpected losses | Strategy PnL reflected in NAV. Performance is observable over time | Isolated vaults, insurance mechanisms |
 | 6 | **Cross-chain escrow** | Multisig misappropriates locked USDC during bridge transit | On-chain escrow balances are publicly visible | Trustless bridge integration |
 
-**The honest version:** ArcX trades trustlessness for speed to market. Every trust assumption is documented here, every oracle is operated by ArcX, and every risk is bounded. Progressive decentralization is on the roadmap, but today, you are trusting ArcX.
+ArcX trades trustlessness for speed to market. Every trust assumption is documented here, and every oracle is operated by ArcX. Decentralization is planned, but today, you are trusting ArcX.
 
 ```mermaid
 flowchart TB
@@ -81,13 +81,13 @@ NAV is the single most important number in the protocol. If it's wrong, deposits
 
 2. **Partial verifiability.** NAV is derived from positions on perp DEXes (Pacifica, Hyperliquid, Extended, etc.). These exchanges have public dashboards showing account positions. While you can't see ArcX's exact account, the strategy's expected exposure (e.g., "funding arb with \$500K OI") is checkable against on-chain and exchange data.
 
-3. **Reputation enforcement.** ArcX's business depends on accurate reporting. Systematic misreporting would be detectable over time (depositors comparing expected vs. actual returns) and would destroy the protocol's credibility.
+3. **Reputation enforcement.** ArcX's business depends on accurate reporting. Systematic misreporting would be detectable over time (depositors comparing expected vs. actual returns) and would be visible and would end the protocol.
 
 4. **Bounded impact per epoch.** Each epoch is independent. Even if NAV is slightly off for a few oracle updates, the final NAV at finalization determines actual redemptions. A single bad update doesn't compound.
 
 #### Decentralization Path
 
-ZK proofs of exchange balances. A future system could generate zero-knowledge proofs that ArcX's exchange account holds the reported positions, without revealing the account itself. This technology is promising but not production-ready today.
+ZK proofs of exchange balances. A future system could generate zero-knowledge proofs that ArcX's exchange account holds the reported positions, without revealing the account itself. Not production-ready yet.
 
 <AccordionGroup>
 <Accordion title="Why not just use Chainlink or Pyth for the NAV oracle?">
@@ -333,7 +333,7 @@ The deposit fee is calibrated per strategy to exceed the worst-case sandwich pro
 | **Finalization** | Delayed until oracle recovers and submits final NAV |
 | **Admin action** | Can pause deposits as an additional safeguard |
 
-The 30-minute freshness check is the key defense. New capital cannot enter at a stale price. The system protects itself automatically.
+The 30-minute freshness check is the key defense. New capital cannot enter at a stale price. Deposits revert automatically if the oracle is stale.
 
 ### Attack 5: Cross-Chain Double-Spend
 
@@ -548,11 +548,11 @@ These verification steps can be performed by anyone with access to a block explo
 | **Worst-case loss** | Deposit (ST --- \$0) | Opportunity cost (PT/YT mispricing) | Deposit (vault --- \$0) | Full balance (exchange hack) |
 | **Verifiability** | Partial (oracles trust-dependent) | Full (all on-chain) | Full (all on-chain) | None |
 
-ArcX's trust model is closer to a managed fund than a pure DeFi protocol. The tradeoff is intentional: off-chain strategy execution (perp DEX trading) requires off-chain data feeds. Fully on-chain alternatives (Pendle, Yearn) work because their underlying yield sources are themselves on-chain.
+ArcX's trust model is closer to a managed fund than a pure DeFi protocol. Off-chain strategy execution (perp DEX trading) requires off-chain data feeds. Fully on-chain alternatives (Pendle, Yearn) work because their underlying yield sources are themselves on-chain.
 
 <AccordionGroup>
 <Accordion title="Is this more or less risky than using Pendle?">
-Different risk profile. Pendle is fully on-chain. You trust only smart contract risk. ArcX adds oracle risk (trusting ArcX's data feeds) and strategy risk (trusting ArcX's execution). In exchange, ArcX gives you access to perp DEX strategy returns and pre-TGE points markets that Pendle doesn't offer. The additional trust is the cost of accessing off-chain yield sources.
+Different risk profile. Pendle is fully on-chain. You trust only smart contract risk. ArcX adds oracle risk (trusting ArcX's data feeds) and strategy risk (trusting ArcX's execution). In exchange, ArcX gives you access to perp DEX strategy returns and pre-TGE points markets that Pendle doesn't offer. Accessing off-chain yield means accepting additional trust.
 </Accordion>
 </AccordionGroup>
 
@@ -560,7 +560,7 @@ Different risk profile. Pendle is fully on-chain. You trust only smart contract 
 
 ## Decentralization Roadmap
 
-ArcX is designed for progressive decentralization. Each trust assumption has a planned path toward trustless verification:
+ArcX plans to decentralize these components over time. Each trust assumption has a planned path toward trustless verification:
 
 | Trust Assumption | Current | Next Step | End State |
 |---|---|---|---|

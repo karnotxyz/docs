@@ -1,6 +1,6 @@
 ---
 title: "Credit Mathematics"
-description: "How the credit system ensures fair, time-and-activity-weighted points distribution."
+description: "How the credit system distributes points based on time and activity."
 icon: "calculator"
 ---
 ## Why Credits Exist
@@ -27,7 +27,7 @@ In the general case, where both balance and creditRate change over time, credits
 
 $$\text{credits}_i = \int_0^T \text{balance}_i(t) \times \text{creditRate}(t) \, dt$$
 
-**In plain English:** Your credits are the area under the curve of `(your EPT balance) x (the credit rate)` over time. More EPT, higher rate, longer duration: all increase your credits.
+Your credits are the area under the curve of `(your EPT balance) x (the credit rate)` over time. Holding more EPT, for longer, at higher rates = more credits.
 
 ```mermaid
 xychart-beta
@@ -109,7 +109,7 @@ With constant rate, Bob gets 30% of points even though he held EPT only during t
 
 Variable creditRate makes EPT valuation more informationally efficient. When creditRate is high (strategy is active), EPT accrues credits faster, making it more valuable to hold *right now*. This information flows into flash loop economics: during high-activity periods, the implied cost of EPT through the flash loop better reflects its true value.
 
-With constant rate, EPT's only value driver is time remaining. The market can't distinguish "strategy is crushing it" from "strategy is idle."
+With constant rate, EPT's only value driver is time remaining. The market can't distinguish "strategy has high OI" from "strategy is idle."
 
 <AccordionGroup>
 <Accordion title="Why not just use a simple time-weighted average balance?">
@@ -141,7 +141,7 @@ Per-user state:
   userCredits[addr]     : u256 // User's accumulated settled credits
 ```
 
-**Key insight:** `globalCreditIndex` increases monotonically. The difference between two snapshots of globalCreditIndex tells you how many credit-seconds per EPT accrued in that interval. Multiply by the user's balance, and that's how many credits they earned.
+`globalCreditIndex` increases monotonically. The difference between two snapshots of globalCreditIndex tells you how many credit-seconds per EPT accrued in that interval. Multiply by the user's balance, and that's how many credits they earned.
 
 ### Algorithm: Global Checkpoint
 
@@ -414,7 +414,7 @@ Points:
 ```
 
 <Tip>
-**Key takeaway:** The contract "absorbs" credits for the period it held EPT. This is correct: those credits belong to whoever controls the contract, not to Alice after she transferred EPT. If the contract is an ArcX AMM pool holding ST/USDC liquidity that happens to receive EPT, the PointsCollector mechanism ensures these credits reach the actual participants.
+The contract "absorbs" credits for the period it held EPT. Those credits belong to whoever controls the contract, not to Alice after she transferred EPT. If the contract is an ArcX AMM pool holding ST/USDC liquidity that happens to receive EPT, the PointsCollector mechanism ensures these credits reach the actual participants.
 </Tip>
 </Tab>
 
@@ -584,4 +584,4 @@ No credits accrue. If creditRate is zero for the entire epoch, `totalCredits = 0
 | **Maturity value** | YT → \$0 (all yield has streamed) | EPT → redeemable for PointsTokens (retains value) |
 | **Checkpoint pattern** | Interest index (similar to Aave/Compound) | globalCreditIndex (same mathematical pattern) |
 
-ArcX's credit system is architecturally similar to the interest accrual patterns used across DeFi (Aave's liquidity index, Compound's exchange rate). The key difference: credits don't represent real yield. They represent a *claim on a future discrete allocation* (points), not a *continuous stream of real tokens*.
+ArcX's credit system is architecturally similar to the interest accrual patterns used across DeFi (Aave's liquidity index, Compound's exchange rate). Credits don't represent real yield, though. They represent a claim on points that get distributed later, not a continuous stream of real tokens.

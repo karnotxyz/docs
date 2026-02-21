@@ -16,7 +16,7 @@ ArcX is like a fund manager who separates your principal receipt from your loyal
 
 ## The Problem: Points Farming is Broken
 
-On perp trading terminals, you earn points by trading volume — but your capital is tied up in open positions, your points are non-transferable, and there's no way to separate the trading PnL from the points exposure.
+On perp trading terminals, you earn points by trading volume, but your capital is tied up in open positions, your points are non-transferable, and there's no way to separate the trading PnL from the points exposure.
 
 On perp DEXes like Pacifica, Hyperliquid, or Extended:
 
@@ -25,7 +25,7 @@ On perp DEXes like Pacifica, Hyperliquid, or Extended:
 3. **No liquidity for points.** Pre-TGE points have no market.
 4. **No way to speculate on points alone.** Want more points exposure? You have to deposit more capital into the strategy.
 
-**ArcX flips this:** Buy point tokens directly. No mental gymnastics. No trading PnL risk.
+**ArcX does this differently:** Buy point tokens directly. No mental gymnastics. No trading PnL risk.
 
 | Before ArcX | After ArcX |
 |---|---|
@@ -93,7 +93,7 @@ Alice has \$100 and wants Pacifica points.
 4. She re-deposits the \$90, sells ST again, repeats
 5. After 3 loops: ~270 EPT from \$100 of capital
 
-**Result:** Alice has ~270 EPT (points exposure) from only \$100. Net outlay: ~\$27 (\$100 minus ~\$73 from the final ST sale). Effective cost: **~\$0.10 per EPT** instead of \$1.00 from a single deposit. Compare to trading on a perp aggregator where you'd need to actively trade \$100 — earning points from volume but eating trading losses along the way.
+**Result:** Alice has ~270 EPT (points exposure) from only \$100. Net outlay: ~\$27 (\$100 minus ~\$73 from the final ST sale). Effective cost: **~\$0.10 per EPT** instead of \$1.00 from a single deposit. Compare to trading on a perp aggregator where you'd need to actively trade \$100, earning points from volume but eating trading losses along the way.
 
 **Risk:** Strategy loss reduces the USDC she recovers from ST sales. If points turn out worthless, EPT has no value.
 
@@ -180,4 +180,4 @@ For the full contract reference and sequence diagrams, see the deep dives.
 
 **Epochs:** ArcX runs in fixed epoch windows that progress through three stages: ACTIVE (deposits open, credits accruing), MATURITY (strategy unwinds, no new deposits), and FINALIZED (redemption unlocked). Each epoch is independent -- there is no automatic rollover. When one epoch finalizes, you redeem your ST for USDC and claim your EPT for PointsTokens, then decide whether to deposit into the next epoch. Epoch duration is strategy-specific but typically runs 1-3 months. See [How Epochs Work](/learn/epoch-lifecycle) for the full lifecycle, timing, and edge cases.
 
-**Trust model:** ArcX operates all oracles (NAV, credits, final points), executes the underlying strategy off-chain, and is the sole backer of PointsTokens. This is an explicitly centralized system that trades trustlessness for speed to market and operational flexibility. The key trust assumptions are: ArcX reports NAV honestly, distributes points fairly, and does not misappropriate deposited funds. Every assumption, the attack vectors it opens, and the planned decentralization roadmap are documented in detail. See [Trust Model & Security](/deep-dives/trust-model-and-security) for the full analysis.
+**Trust model:** ArcX operates all oracles (NAV, credits, final points), executes the underlying strategy off-chain, and is the sole backer of PointsTokens. This is an explicitly centralized system that trades trustlessness for speed to market and operational flexibility. The trust assumptions are: ArcX reports NAV honestly, distributes points fairly, and doesn't redirect deposited funds. See [Trust Model & Security](/deep-dives/trust-model-and-security) for the full analysis.

@@ -6,7 +6,7 @@ icon: "vault"
 
 ## What ST Does For You
 
-Want exposure to a perp DEX strategy's USDC returns, without managing positions yourself? ST gives you that. Deposit USDC, receive ST shares. At the end of the epoch, redeem your shares for USDC based on how the strategy performed.
+ST is your claim on the strategy's USDC returns at maturity. Deposit USDC, receive ST shares. Hold them, sell them on the AMM, or redeem them when the epoch finalizes.
 
 ST is an ERC4626-like vault share. Each epoch creates a new ST contract instance, e.g., `ST-PacificaFundingArb-E007` for Epoch 7. Think of it as a share in a **closed-end fund**.
 
@@ -95,7 +95,7 @@ Before finalization, the only way to exit is selling ST on the ArcX AMM's ST/USD
 - **ST below fair value:** Arbitrageurs buy (price corrects upward)
 - **ST above fair value:** Arbitrageurs sell (price corrects downward)
 
-The time-decay curve steepens as maturity approaches, naturally pulling ST toward its redemption value. This means ST prices stay close to NAV during the epoch, with tighter spreads as finalization nears. As maturity approaches, the ST discount narrows because less time remains for uncertainty about the strategy's final performance. This benefits early yield seekers who bought ST at deeper discounts earlier in the epoch, since they locked in a wider gap between purchase price and eventual redemption value.
+The time-decay curve steepens as maturity approaches, naturally pulling ST toward its redemption value. ST prices stay close to NAV during the epoch, with tighter spreads as finalization nears. The discount narrows as maturity approaches. Less time for things to go wrong. Early yield seekers benefit most: they bought at a deeper discount and locked in a wider gap between purchase price and redemption value.
 
 **Yield seeker worked example:** A yield seeker buys ST at $0.90 when the strategy earns 1% over the epoch. At maturity, each ST is worth ~$1.01. That's an 11% return in one epoch --- the 10% discount capture plus the 1% strategy performance.
 
@@ -110,7 +110,7 @@ The time-decay curve steepens as maturity approaches, naturally pulling ST towar
 | Yield seeker demand | ↑ ST price | Yield seekers buy discounted ST for fixed APR |
 | Time to maturity | Converges to final NAV | ArcX AMM time-decay curve steepens near maturity |
 
-**The two-sided market:** Points farmers sell ST at a discount (creating supply), yield seekers buy discounted ST (creating demand). This is the core flywheel that makes ArcX work. The ST discount reflects the "price" of points --- yield seekers capture this discount as their return.
+**The two-sided market:** Points farmers sell ST at a discount (creating supply), yield seekers buy discounted ST (creating demand). The ST discount reflects the "price" of points. Yield seekers capture this discount as their return.
 
 <Warning title="What can go wrong">
 - **Strategy loss:** NAV drops, your ST redeems for less than deposited. Worst case: \$0.

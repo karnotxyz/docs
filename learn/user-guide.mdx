@@ -150,7 +150,7 @@ After depositing, you hold ST + EPT(s). What you do next depends on your goal.
 
 **Goal:** Maximum points exposure with minimal capital.
 
-This is ArcX's core innovation. The flash loop recycles your ST into more EPT:
+The flash loop recycles your ST into more EPT:
 
 <Steps>
   <Step title="Deposit USDC">
@@ -187,7 +187,7 @@ Points farmers dump ST on the ArcX AMM at a discount. You buy it.
     Buy ST at \$0.90 (10% discount to NAV).
   </Step>
   <Step title="Hold until maturity">
-    The strategy earns ~1% over the epoch. ST redeems at ~\$1.01. Monitor the strategy's NAV via the ArcX dashboard. No action required — your ST accrues yield automatically.
+    The strategy earns ~1% over the epoch. ST redeems at ~\$1.01. Monitor the strategy's NAV via the ArcX dashboard.
   </Step>
   <Step title="Redeem after finalization">
     After the admin finalizes the epoch, call `redeemST()` to receive your USDC. Your return = (redemption price - purchase price) per ST. Example: (\$1.01 - \$0.90) / \$0.90 = **12.2% in one epoch**.

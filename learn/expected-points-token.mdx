@@ -6,19 +6,19 @@ icon: "star"
 
 ## What EPT Does For You
 
-Want leveraged exposure to exchange points without locking all your capital into a strategy? EPT lets you do that through the flash loop: deposit USDC, sell the ST you receive, re-deposit the proceeds, and repeat. Each cycle gives you more EPT.
+EPT is your claim on exchange points earned during the epoch. Deposit USDC, get EPT. Use the flash loop to multiply your exposure: deposit, sell the ST you receive, re-deposit the proceeds, repeat.
 
 EPT is an ERC20 with a built-in credit accrual system. Each epoch creates a new EPT per exchange per strategy, e.g., `EPT-Pacifica-E007` for Pacifica points from Epoch 7. Think of it as a **pre-market futures contract** on exchange loyalty points.
 
 **Multi-EPT:** If a strategy earns points on multiple exchanges, you receive a separate EPT for each. A \$100 deposit into Pacifica-Extended Funding Arb gives you 1 ST + 99.50 EPT_Pacifica + 99.50 EPT_Extended.
 
-**EPT is deposit-only.** There is no secondary market for EPT. You obtain EPT by depositing USDC into a strategy. The flash loop is the primary mechanism for acquiring leveraged EPT exposure.
+**EPT is deposit-only.** No secondary market. You get it by depositing USDC, and the flash loop is how you stack more of it.
 
 ---
 
 ## The Credit System
 
-The credit formula at its core:
+The credit formula:
 
 $$\text{credits} = \text{balance} \times \text{creditRate} \times \Delta t$$
 
@@ -50,7 +50,7 @@ Every time EPT moves (transfer, mint), the contract checkpoints both sender and 
 3. Do the same for the receiver
 4. Execute the transfer
 
-This is lazy evaluation: gas-efficient and mathematically equivalent to continuous tracking.
+Lazy evaluation. Same result as continuous tracking, fraction of the gas.
 
 | Action | Effect on your credits |
 |---|---|
@@ -115,7 +115,7 @@ After multiple iterations, you hold ~270 EPT from a \$100 starting deposit. Your
 
 **Why this works:** Each deposit creates EPT (which you keep) and ST (which you sell at a discount). The ST discount is the "price" you pay for points. The flash loop amplifies this by recycling the ST sale proceeds. For the full mathematical derivation and convergence formula, see [EPT Pricing & Flash Loop Economics](/deep-dives/ept-pricing).
 
-**Key insight:** All EPT from the flash loop accrues credits from the moment of each deposit. Earlier loop iterations earn more credits than later ones (more time remaining). This is why executing the flash loop early in the epoch is optimal.
+All EPT from the flash loop accrues credits from the moment of each deposit. Earlier loop iterations earn more credits than later ones (more time remaining). So run the flash loop early.
 
 ---
 

@@ -14,7 +14,7 @@ Every epoch is independent:
 - Each epoch has its own NAV, its own credit accrual, and its own points total
 - Multiple epochs can coexist in different states (Epoch 7 finalized while Epoch 8 is active)
 
-**Why fixed windows?** Fixed epochs create clean boundaries: clear start/end times for credit accrual, predictable maturity dates for traders, and isolated risk per period. They also simplify the contract model. Each epoch is a self-contained unit with its own state.
+**Why fixed windows?** Fixed windows give you clear start/end times, predictable maturity dates, and isolated risk per period.
 
 ---
 
@@ -342,9 +342,9 @@ gantt
 
 ### Why No Rollover?
 
-Each epoch has a potentially different risk profile. Market conditions change across epochs. The strategy's exposure, exchange counterparty risk, and points programs may shift. Requiring explicit re-deposit ensures:
+Each epoch has a potentially different risk profile. Risk profiles change between epochs. Requiring explicit re-deposit ensures:
 
-- You make a conscious decision to re-enter
+- You decide whether to re-enter
 - You can evaluate whether the strategy still fits your goals
 - There's no "forgotten capital" sitting in a strategy you didn't re-evaluate
 - Risk isolation is clean: each epoch is fully independent
@@ -376,7 +376,7 @@ The admin can pause deposits in an emergency situation (security incident, strat
 - Does not trigger early maturity
 - Does not affect existing positions in any way
 
-Pause is a conservative measure: it stops new money from entering while existing positions continue unchanged. This is appropriate for situations where the strategy may need attention but existing depositors aren't at immediate risk.
+Pause is a conservative measure: it stops new money from entering while existing positions continue unchanged. Good for when the strategy needs attention but existing positions are fine.
 
 <AccordionGroup>
 <Accordion title="Can the admin terminate an epoch early?">

@@ -6,7 +6,7 @@ icon: "gift"
 
 ## What PointsToken Does For You
 
-Want to hold a tradeable, liquid representation of exchange points before TGE? PointsToken is that. Unlike ST and EPT which reset each epoch, there's **one PointsToken per exchange** that accumulates across all epochs.
+PointsToken is a standard ERC20 that represents actual exchange points, 1:1. Unlike ST and EPT which reset each epoch, there's **one PointsToken per exchange** that stacks across all epochs.
 
 | PointsToken | Exchange | Chain | Meaning |
 |---|---|---|---|
@@ -48,9 +48,9 @@ Every PointsToken should correspond to a real exchange point in ArcX's exchange 
 
 $$\text{PointsToken supply} \leq \text{real points held by ArcX}$$
 
-This invariant is enforced by **trust, not code**. ArcX reports `totalPoints` via its own oracle — there is no on-chain proof that the number is accurate. You are trusting ArcX to report points honestly, bridge airdrop tokens faithfully after TGE, and maintain 1:1 backing between PointsToken supply and real points held.
+This invariant is enforced by **trust, not code**. ArcX reports `totalPoints` via its own oracle. There is no on-chain proof that the number is accurate. You are trusting ArcX to report points honestly, bridge airdrop tokens faithfully after TGE, and maintain 1:1 backing between PointsToken supply and real points held.
 
-This is the protocol's most significant trust assumption. Community members can retrospectively verify by cross-referencing post-TGE airdrop amounts with PointsToken supply. For the complete analysis — what exactly you're trusting, what could go wrong, and how to verify — see [Trust Model & Security](/deep-dives/trust-model-and-security).
+The biggest trust assumption in the protocol. Community members can retrospectively verify by cross-referencing post-TGE airdrop amounts with PointsToken supply. For the complete analysis (what exactly you're trusting, what could go wrong, and how to verify), see [Trust Model & Security](/deep-dives/trust-model-and-security).
 
 <AccordionGroup>
 <Accordion title="Are PointsTokens safe if ArcX shuts down?">
@@ -58,7 +58,7 @@ PointsTokens are on-chain ERC20s. They stay in your wallet regardless. However, 
 </Accordion>
 
 <Accordion title="What happens if finalization never occurs?">
-If an epoch is never finalized, EPT credits cannot be claimed and PointsTokens cannot be minted for that epoch. Users retain their ST and can redeem for the strategy's USDC returns once finalization eventually happens, but their points exposure for that epoch is lost. In effect, you keep the USDC side (ST) but lose the points side (EPT cannot convert to PointsTokens without finalization reporting `totalPoints`).
+If an epoch is never finalized, EPT credits cannot be claimed and PointsTokens cannot be minted for that epoch. Users retain their ST and can redeem for the strategy's USDC returns once finalization eventually happens, but their points exposure for that epoch is lost. You keep the USDC side (ST) but lose the points side (EPT cannot convert to PointsTokens without finalization reporting `totalPoints`).
 </Accordion>
 </AccordionGroup>
 
