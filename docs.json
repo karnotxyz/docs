@@ -3,7 +3,7 @@
   "theme": "mint",
   "name": "ArcX",
   "description": "ArcX splits perp DEX trading strategies into separately tradeable tokens: one for USDC returns, one for exchange points.",
-  "favicon": "/favicon.svg",
+  "favicon": "/favicon.png",
   "logo": {
     "light": "/logo/light.svg",
     "dark": "/logo/dark.svg",
@@ -11,7 +11,7 @@
   },
   "colors": {
     "primary": "#40C873",
-    "light": "#8AE06C",
+    "light": "#40C873",
     "dark": "#2d8a4e"
   },
   "appearance": {
