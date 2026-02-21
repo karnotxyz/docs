@@ -33,12 +33,12 @@ All contracts are Cairo contracts on Starknet. You interact with them using stan
 flowchart TB
     subgraph STARKNET["Starknet"]
         direction TB
-        STV["ST Vault\n(per epoch per strategy)"]
-        EPT["EPT\n(per epoch per exchange)"]
-        PT["PointsToken\n(per exchange, persists)"]
-        RM["Redemption Module\n(post-TGE burn->claim)"]
-        AMM["ArcX AMM\n(ST/USDC, Pendle-style)"]
-        PC["PointsCollector\n(LP credit distribution)"]
+        STV["ST Vault<br/>(per epoch per strategy)"]
+        EPT["EPT<br/>(per epoch per exchange)"]
+        PT["PointsToken<br/>(per exchange, persists)"]
+        RM["Redemption Module<br/>(post-TGE burn->claim)"]
+        AMM["ArcX AMM<br/>(ST/USDC, Pendle-style)"]
+        PC["PointsCollector<br/>(LP credit distribution)"]
 
         STV --> EPT
         EPT --> PT
@@ -48,10 +48,10 @@ flowchart TB
 
     subgraph OFFCHAIN["Off-Chain (ArcX)"]
         direction TB
-        NAV["NAV Oracle\n(every 5 min)"]
-        CR["Credits Oracle\n(activity-weighted)"]
-        FP["Final Points Oracle\n(at finalization)"]
-        SR["Strategy Runner\n(perp DEX trading)"]
+        NAV["NAV Oracle<br/>(every 5 min)"]
+        CR["Credits Oracle<br/>(activity-weighted)"]
+        FP["Final Points Oracle<br/>(at finalization)"]
+        SR["Strategy Runner<br/>(perp DEX trading)"]
     end
 
     subgraph CROSSCHAIN["Cross-Chain (EVM / Solana)"]

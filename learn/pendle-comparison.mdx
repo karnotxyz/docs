@@ -63,21 +63,21 @@ Where R = ST exchange rate (NAV / totalShares). One dollar deposited produces a 
 flowchart TB
     subgraph PENDLE["Pendle"]
         direction TB
-        SY["SY Wrapper\n(stETH, sUSDe)"] --> PT["PT\n(Principal Token)"]
-        SY --> YT["YT\n(Yield Token)"]
-        PT --> PAMM["Custom Logit AMM\n(PT/SY pool)"]
+        SY["SY Wrapper<br/>(stETH, sUSDe)"] --> PT["PT<br/>(Principal Token)"]
+        SY --> YT["YT<br/>(Yield Token)"]
+        PT --> PAMM["Custom Logit AMM<br/>(PT/SY pool)"]
         YT --> PAMM
         PAMM --> |"Two-way arb"| SY
     end
 
     subgraph ARCX["ArcX"]
         direction TB
-        VAULT["Strategy Vault\n(USDC → perp DEX)"] --> ST["ST\n(Strategy Token)"]
-        VAULT --> EPT["EPT\n(Expected Points Token)"]
-        ST --> AAMM["Pendle-style AMM\n(ST/USDC pool)"]
-        EPT --> |"Deposit-only\n(no secondary market)"| FLASH["Flash Loop\n(deposit → sell ST → re-deposit)"]
+        VAULT["Strategy Vault<br/>(USDC → perp DEX)"] --> ST["ST<br/>(Strategy Token)"]
+        VAULT --> EPT["EPT<br/>(Expected Points Token)"]
+        ST --> AAMM["Pendle-style AMM<br/>(ST/USDC pool)"]
+        EPT --> |"Deposit-only<br/>(no secondary market)"| FLASH["Flash Loop<br/>(deposit → sell ST → re-deposit)"]
         FLASH --> VAULT
-        EPT --> PTOK["PointsToken\n(xPC, xHL)"]
+        EPT --> PTOK["PointsToken<br/>(xPC, xHL)"]
     end
 ```
 

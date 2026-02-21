@@ -32,10 +32,10 @@ Your xPC from Epoch 1 and Epoch 7 are the same token. They stack.
 
 ```mermaid
 flowchart LR
-    A["Hold EPT\n(credits accrue)"] --> B["Epoch finalizes\n(totalPoints reported)"]
-    B --> C["Call claimPoints()\n(credits → PointsTokens)"]
-    C --> D["PointsToken in wallet\n(standard ERC20)"]
-    D --> E["Post-TGE:\nBurn → Airdrop tokens"]
+    A["Hold EPT<br/>(credits accrue)"] --> B["Epoch finalizes<br/>(totalPoints reported)"]
+    B --> C["Call claimPoints()<br/>(credits → PointsTokens)"]
+    C --> D["PointsToken in wallet<br/>(standard ERC20)"]
+    D --> E["Post-TGE:<br/>Burn → Airdrop tokens"]
 ```
 
 PointsTokens are only minted post-finalization. The path:

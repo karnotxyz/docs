@@ -72,19 +72,19 @@ Every token passes through a single <Tooltip tip="A fixed time window (typically
 
 ```mermaid
 flowchart TB
-    DEP["DEPOSIT (Epoch Active)\nUser deposits 100 USDC"]
+    DEP["DEPOSIT (Epoch Active)<br/>User deposits 100 USDC"]
     FEE["Fee: 0.50 USDC"]
-    MST["Mint: 99.5 ST shares\n(at current NAV)"]
+    MST["Mint: 99.5 ST shares<br/>(at current NAV)"]
     ME1["Mint: 99.5 EPT_Pacifica"]
     ME2["Mint: 99.5 EPT_Extended"]
 
-    DURING["DURING EPOCH\nST: tradeable on ArcX AMM\nEPT: credits accruing\nPointsToken: not minted yet"]
+    DURING["DURING EPOCH<br/>ST: tradeable on ArcX AMM<br/>EPT: credits accruing<br/>PointsToken: not minted yet"]
 
-    MAT["MATURITY\nStrategy unwinds\nNo new deposits"]
+    MAT["MATURITY<br/>Strategy unwinds<br/>No new deposits"]
 
-    FIN["FINALIZATION\nNAV + points reported\nAdmin finalizes"]
+    FIN["FINALIZATION<br/>NAV + points reported<br/>Admin finalizes"]
 
-    RED["REDEMPTION (no expiry)\nST → USDC\nEPT → PointsToken\nPointsToken → Airdrop tokens"]
+    RED["REDEMPTION (no expiry)<br/>ST → USDC<br/>EPT → PointsToken<br/>PointsToken → Airdrop tokens"]
 
     DEP --> FEE --> MST & ME1 & ME2
     MST & ME1 & ME2 --> DURING --> MAT --> FIN --> RED

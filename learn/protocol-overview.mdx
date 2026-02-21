@@ -145,12 +145,12 @@ For complete step-by-step instructions, see [Using ArcX](/learn/user-guide).
 ```mermaid
 flowchart TB
     subgraph STARKNET["StarkNet"]
-        STV["ST Vault\n(per epoch per strategy)"]
-        EPT["EPT\n(per epoch, per exchange)"]
-        PT["PointsToken\n(per exchange)"]
-        AMM["ArcX AMM\n(ST/USDC, Pendle-style)"]
-        PC["Points Collector\n(LP claims)"]
-        RM["Redemption Module\n(burn → claim)"]
+        STV["ST Vault<br/>(per epoch per strategy)"]
+        EPT["EPT<br/>(per epoch, per exchange)"]
+        PT["PointsToken<br/>(per exchange)"]
+        AMM["ArcX AMM<br/>(ST/USDC, Pendle-style)"]
+        PC["Points Collector<br/>(LP claims)"]
+        RM["Redemption Module<br/>(burn → claim)"]
 
         STV --> AMM
         STV --> EPT
@@ -160,8 +160,8 @@ flowchart TB
 
     subgraph OFFCHAIN["Off-Chain (ArcX)"]
         SR["Strategy Runner"]
-        NO["NAV Oracle\n(every 5 min)"]
-        CO["Credits Oracle\n(activity-weighted)"]
+        NO["NAV Oracle<br/>(every 5 min)"]
+        CO["Credits Oracle<br/>(activity-weighted)"]
         FPO["Final Points Oracle"]
     end
 

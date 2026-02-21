@@ -34,18 +34,18 @@ Every interaction with ArcX requires you to trust ArcX with specific things. Her
 flowchart TB
     subgraph ON_CHAIN["On-Chain (Verifiable)"]
         direction TB
-        ST["ST Token\n(balances, transfers)"]
-        EPT["EPT Token\n(balances, credits)"]
-        PT["PointsToken\n(supply, burns)"]
-        ESC["Cross-Chain Escrow\n(locked balances)"]
+        ST["ST Token<br/>(balances, transfers)"]
+        EPT["EPT Token<br/>(balances, credits)"]
+        PT["PointsToken<br/>(supply, burns)"]
+        ESC["Cross-Chain Escrow<br/>(locked balances)"]
     end
 
     subgraph OFF_CHAIN["Off-Chain (Trust Required)"]
         direction TB
-        NAV["NAV Oracle\n(strategy value)"]
-        CR["Credits Oracle\n(creditRate)"]
-        FP["Final Points Oracle\n(totalPoints)"]
-        STRAT["Strategy Execution\n(perp DEX trading)"]
+        NAV["NAV Oracle<br/>(strategy value)"]
+        CR["Credits Oracle<br/>(creditRate)"]
+        FP["Final Points Oracle<br/>(totalPoints)"]
+        STRAT["Strategy Execution<br/>(perp DEX trading)"]
     end
 
     NAV -->|"reports NAV"| ST

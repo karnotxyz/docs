@@ -105,19 +105,6 @@
         ]
       },
       {
-        "tab": "Build",
-        "groups": [
-          {
-            "group": "Developer Guide",
-            "pages": [
-              "build/developer-integration-guide",
-              "build/contract-reference",
-              "build/integration-and-deployment"
-            ]
-          }
-        ]
-      },
-      {
         "tab": "Reference",
         "groups": [
           {
