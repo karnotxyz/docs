@@ -1,74 +1,89 @@
 ---
-title: "ArcX Documentation"
+title: "Introduction"
 description: "ArcX splits perp DEX trading strategies into separately tradeable tokens: one for USDC returns, one for exchange points."
+sidebarTitle: "Introduction"
+icon: "house"
 ---
 
-ArcX tokenizes perp DEX strategies into two outcomes. Deposit USDC into a strategy, receive a **Strategy Token** (your claim on USDC returns) and an **Expected Points Token** (your claim on exchange points). Sell ST on the ArcX AMM, hold EPT for leveraged points exposure, or use the **flash loop** to maximize capital efficiency.
+## Getting started
+
+Deposit USDC into a strategy, receive a **Strategy Token** and an **Expected Points Token**. Sell ST on the ArcX AMM, hold EPT for leveraged points exposure, or use the **flash loop** to maximize capital efficiency.
 
 $$
 1 \text{ USDC deposited} = \frac{1}{R} \text{ ST} + 1 \text{ EPT}
 $$
 
-*Ignoring deposit fees. See [The Three Tokens](/learn/token-economics) for the precise formula.*
+<Card
+  title="Start here"
+  icon="rocket"
+  href="/learn/protocol-overview"
+  horizontal
+>
+  Learn how the protocol works, the flash loop, and why splitting matters.
+</Card>
 
-## Get Started
+## Learn the protocol
 
 <Columns cols={2}>
-
-  <Card title="What is ArcX?" icon="book-open" href="/learn/protocol-overview">
-    How the protocol works, the flash loop, and why splitting matters.
+  <Card
+    title="Using ArcX"
+    icon="user"
+    href="/learn/user-guide"
+  >
+    Step-by-step: deposit, flash loop, redeem.
   </Card>
-
-  <Card title="Using ArcX" icon="user" href="/learn/user-guide">
-    Step-by-step: deposit, flash loop, redeem. Start here if you want to use the product.
+  <Card
+    title="The Three Tokens"
+    icon="coins"
+    href="/learn/token-economics"
+  >
+    ST, EPT, and PointsToken: minting, pricing, and redemption.
   </Card>
-
-  <Card title="The Three Tokens" icon="coins" href="/learn/token-economics">
-    ST, EPT, and PointsToken: minting, pricing, and redemption mechanics.
-  </Card>
-
-  <Card title="How Epochs Work" icon="clock" href="/learn/epoch-lifecycle">
+  <Card
+    title="How Epochs Work"
+    icon="clock"
+    href="/learn/epoch-lifecycle"
+  >
     The epoch cycle: deposits, maturity, finalization, redemption.
   </Card>
-
-</Columns>
-
-## Go Deeper
-
-<Columns cols={3}>
-
-  <Card title="Credit Mathematics" icon="calculator" href="/deep-dives/credit-mathematics">
-    How the credit system distributes points fairly across time and activity.
-  </Card>
-
-  <Card title="EPT Pricing" icon="chart-line" href="/deep-dives/ept-pricing">
-    The pricing equation, flash loop economics, and market dynamics.
-  </Card>
-
-  <Card title="Trust Model & Security" icon="shield" href="/deep-dives/trust-model-and-security">
-    What you're trusting ArcX with, attack vectors, and the decentralization roadmap.
-  </Card>
-
-</Columns>
-
-## Build & Reference
-
-<Columns cols={2}>
-
-  <Card title="Developer Guide" icon="code" href="/build/developer-integration-guide">
-    Contract interfaces, events, and integration patterns.
-  </Card>
-
-  <Card title="Glossary & Parameters" icon="book" href="/reference/glossary-and-reference">
-    Every term defined, every parameter listed.
-  </Card>
-
-  <Card title="ArcX vs Pendle" icon="scale-balanced" href="/learn/pendle-comparison">
+  <Card
+    title="ArcX vs Pendle"
+    icon="scale-balanced"
+    href="/learn/pendle-comparison"
+  >
     Coming from Pendle? Side-by-side concept mapping.
   </Card>
+</Columns>
 
-  <Card title="Strategy Token" icon="vault" href="/learn/strategy-token">
-    NAV tracking, share pricing, redemption, early exit.
+## Go deeper
+
+<Columns cols={2}>
+  <Card
+    title="Credit Mathematics"
+    icon="calculator"
+    href="/deep-dives/credit-mathematics"
+  >
+    How the credit system distributes points fairly across time and activity.
   </Card>
-
+  <Card
+    title="EPT Pricing"
+    icon="chart-line"
+    href="/deep-dives/ept-pricing"
+  >
+    The pricing equation, flash loop economics, and market dynamics.
+  </Card>
+  <Card
+    title="Trust Model & Security"
+    icon="shield"
+    href="/deep-dives/trust-model-and-security"
+  >
+    What you're trusting ArcX with, attack vectors, and the decentralization roadmap.
+  </Card>
+  <Card
+    title="Developer Guide"
+    icon="code"
+    href="/build/developer-integration-guide"
+  >
+    Contract interfaces, events, and integration patterns.
+  </Card>
 </Columns>
