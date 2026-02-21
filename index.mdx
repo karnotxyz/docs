@@ -5,52 +5,72 @@ sidebarTitle: "Introduction"
 icon: "house"
 ---
 
-## Getting started
-
-Deposit USDC into a strategy, receive a **Strategy Token** and an **Expected Points Token**. Sell ST on the ArcX AMM, hold EPT for leveraged points exposure, or use the **flash loop** to maximize capital efficiency.
+ArcX tokenizes perp DEX trading strategies. Deposit USDC, receive two tokens: a **Strategy Token** (ST) for USDC returns and an **Expected Points Token** (EPT) for exchange points. Trade them separately or use the **flash loop** to maximize capital efficiency.
 
 $$
 1 \text{ USDC deposited} = \frac{1}{R} \text{ ST} + 1 \text{ EPT}
 $$
 
-<Card
-  title="Start here"
-  icon="rocket"
-  href="/learn/protocol-overview"
-  horizontal
->
-  Learn how the protocol works, the flash loop, and why splitting matters.
-</Card>
+## Choose your path
+
+<Tabs>
+  <Tab title="Points Farmer">
+    Maximize your exchange points exposure with leveraged EPT.
+
+    1. Deposit \$100 USDC into a strategy
+    2. Receive 100 EPT + ST tokens
+    3. Sell ST on the ArcX AMM at a ~10% discount (\$90)
+    4. Flash loop: re-deposit the \$90 for more EPT
+    5. Result: ~270 EPT for ~\$27 effective cost
+
+    Much more capital efficient than locking funds on TreadFi.
+
+    [Get started](/learn/user-guide) | [How flash loops work](/learn/protocol-overview)
+  </Tab>
+  <Tab title="Yield Seeker">
+    Earn fixed APR by buying discounted Strategy Tokens from points farmers.
+
+    1. Buy ST at \$0.90 on the ArcX AMM (points farmers dump ST)
+    2. Strategy earns ~1% over the epoch
+    3. Redeem at ~\$1.01 at maturity
+    4. **11% return per epoch = ~44% annualized APR**
+
+    No points exposure, no directional risk on exchange tokens.
+
+    [Get started](/learn/user-guide) | [ST pricing mechanics](/deep-dives/ept-pricing)
+  </Tab>
+</Tabs>
+
+## What ArcX does
+
+<AccordionGroup>
+  <Accordion title="Splits strategies into two tradeable tokens" icon="scissors">
+    Every USDC deposit mints a Strategy Token (tracks USDC returns) and an Expected Points Token (tracks exchange points). Each can be held, sold, or redeemed independently.
+  </Accordion>
+  <Accordion title="Flash loop for leveraged points exposure" icon="bolt">
+    Atomically deposit, sell ST, and re-deposit in a single transaction. Get 3-10x more EPT exposure than a simple deposit, without borrowing or liquidation risk.
+  </Accordion>
+  <Accordion title="Custom AMM with time-decay pricing" icon="chart-line">
+    ST trades on a Pendle-style AMM where the discount narrows as maturity approaches. Points farmers sell ST at a discount; yield seekers buy it for guaranteed returns.
+  </Accordion>
+  <Accordion title="Cross-chain from any major L1/L2" icon="bridge">
+    Deposit from Ethereum, Arbitrum, Solana, and more via LayerZero. Strategies run on StarkNet for low-cost execution across Pacifica, Extended, and other perp DEXs.
+  </Accordion>
+</AccordionGroup>
 
 ## Learn the protocol
 
 <Columns cols={2}>
-  <Card
-    title="Using ArcX"
-    icon="user"
-    href="/learn/user-guide"
-  >
-    Step-by-step: deposit, flash loop, redeem.
+  <Card title="Protocol Overview" icon="book" href="/learn/protocol-overview">
+    How token splitting works, the flash loop, and the two-sided market.
   </Card>
-  <Card
-    title="The Three Tokens"
-    icon="coins"
-    href="/learn/token-economics"
-  >
+  <Card title="The Three Tokens" icon="coins" href="/learn/token-economics">
     ST, EPT, and PointsToken: minting, pricing, and redemption.
   </Card>
-  <Card
-    title="How Epochs Work"
-    icon="clock"
-    href="/learn/epoch-lifecycle"
-  >
+  <Card title="How Epochs Work" icon="clock" href="/learn/epoch-lifecycle">
     The epoch cycle: deposits, maturity, finalization, redemption.
   </Card>
-  <Card
-    title="ArcX vs Pendle"
-    icon="scale-balanced"
-    href="/learn/pendle-comparison"
-  >
+  <Card title="ArcX vs Pendle" icon="scale-balanced" href="/learn/pendle-comparison">
     Coming from Pendle? Side-by-side concept mapping.
   </Card>
 </Columns>
@@ -58,32 +78,16 @@ $$
 ## Go deeper
 
 <Columns cols={2}>
-  <Card
-    title="Credit Mathematics"
-    icon="calculator"
-    href="/deep-dives/credit-mathematics"
-  >
+  <Card title="Credit Mathematics" icon="calculator" href="/deep-dives/credit-mathematics">
     How the credit system distributes points fairly across time and activity.
   </Card>
-  <Card
-    title="EPT Pricing"
-    icon="chart-line"
-    href="/deep-dives/ept-pricing"
-  >
+  <Card title="EPT Pricing" icon="chart-line" href="/deep-dives/ept-pricing">
     The pricing equation, flash loop economics, and market dynamics.
   </Card>
-  <Card
-    title="Trust Model & Security"
-    icon="shield"
-    href="/deep-dives/trust-model-and-security"
-  >
+  <Card title="Trust Model & Security" icon="shield" href="/deep-dives/trust-model-and-security">
     What you're trusting ArcX with, attack vectors, and the decentralization roadmap.
   </Card>
-  <Card
-    title="Developer Guide"
-    icon="code"
-    href="/build/developer-integration-guide"
-  >
+  <Card title="Developer Guide" icon="code" href="/build/developer-integration-guide">
     Contract interfaces, events, and integration patterns.
   </Card>
 </Columns>
