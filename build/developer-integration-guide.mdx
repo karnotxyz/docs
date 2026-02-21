@@ -1,0 +1,83 @@
+---
+title: "Developer Integration Guide"
+description: "Everything you need to build on ArcX: contract interfaces, integration patterns, and deployment."
+icon: "code"
+---
+
+<Info>
+**Course level: Advanced**
+
+Building on ArcX? Five on-chain contracts, three off-chain oracles, one cross-chain escrow, and a Pendle-style AMM. This section covers every interface, event, and integration pattern.
+</Info>
+
+**Prerequisites:** [What is ArcX?](/learn/protocol-overview), [The Three Tokens](/learn/token-economics), [How Epochs Work](/learn/epoch-lifecycle)
+
+---
+
+## Architecture
+
+```mermaid
+flowchart TB
+    subgraph STARKNET["Starknet"]
+        direction TB
+        STV["ST Vault\n(per epoch per strategy)"]
+        EPT["EPT\n(per epoch per exchange)"]
+        PT["PointsToken\n(per exchange, persists)"]
+        RM["Redemption Module\n(post-TGE burn→claim)"]
+        AMM["ArcX AMM\n(ST/USDC, Pendle-style)"]
+        PC["PointsCollector\n(LP credit distribution)"]
+
+        STV --> EPT
+        EPT --> PT
+        PT --> RM
+        STV --> AMM
+    end
+
+    subgraph OFFCHAIN["Off-Chain (ArcX)"]
+        direction TB
+        NAV["NAV Oracle\n(every 5 min)"]
+        CR["Credits Oracle\n(activity-weighted)"]
+        FP["Final Points Oracle\n(at finalization)"]
+        SR["Strategy Runner\n(perp DEX trading)"]
+    end
+
+    subgraph CROSSCHAIN["Cross-Chain (EVM / Solana)"]
+        direction TB
+        ESC["SourceChainDepositEscrow"]
+        LZ["LayerZero"]
+    end
+
+    NAV -->|"updateNAV()"| STV
+    CR -->|"updateCreditRate()"| EPT
+    FP -->|"finalizePoints()"| EPT
+    ESC -->|"deposit msg"| LZ
+    LZ -->|"deliver"| STV
+```
+
+| Contract | Instances | Key Functions |
+|---|---|---|
+| **ST Vault** | Per epoch per strategy | `deposit()`, `redeem()`, `flashLoop()` |
+| **EPT** | Per epoch per exchange | `claimPoints()`, `transfer()` with checkpointing |
+| **PointsToken** | Per exchange (persists) | `mint()`, `redeem()` (post-TGE) |
+| **PointsCollector** | Global | `claimPoolCredits()`, merkle distribution |
+| **ArcX AMM** | Per epoch (ST/USDC pool) | Pendle-style time-decay curve, `swap()` |
+| **Escrow** | Per source chain | `depositUSDC()`, `cancel()` |
+
+### Supported Source Chains
+
+| Chain | Escrow Contract | Bridge |
+|---|---|---|
+| Ethereum | SourceChainDepositEscrow (EVM) | LayerZero |
+| Arbitrum | SourceChainDepositEscrow (EVM) | LayerZero |
+| Solana | SourceChainDepositEscrow (SVM) | LayerZero |
+
+---
+
+<CardGroup cols={2}>
+  <Card title="Contract Reference" icon="file-code" href="/build/contract-reference">
+    Every state variable, function signature, validation rule, and event across all contracts.
+  </Card>
+  <Card title="Integration & Deployment" icon="plug" href="/build/integration-and-deployment">
+    Frontend patterns, indexer setup, AMM integration, common pitfalls, and deployment checklist.
+  </Card>
+</CardGroup>

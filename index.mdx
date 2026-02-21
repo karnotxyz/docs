@@ -1,97 +1,77 @@
 ---
-title: "Introduction"
-description: "Welcome to the new home for your documentation"
+title: "ArcX Documentation"
+description: "ArcX splits perp DEX trading strategies into separately tradeable tokens: one for USDC returns, one for exchange points."
 ---
 
-## Setting up
+ArcX tokenizes perp DEX strategies into two outcomes. Deposit USDC into a strategy, receive a **Strategy Token** (your claim on USDC returns) and an **Expected Points Token** (your claim on exchange points). Sell ST on the ArcX AMM, hold EPT for leveraged points exposure, or use the **flash loop** to maximize capital efficiency.
 
-Get your documentation site up and running in minutes.
+$$
+1 \text{ USDC deposited} = \frac{1}{R} \text{ ST} + 1 \text{ EPT}
+$$
 
-<Card
-  title="Start here"
-  icon="rocket"
-  href="/quickstart"
-  horizontal
->
-  Follow our three step quickstart guide.
-</Card>
+*Ignoring deposit fees. See [The Three Tokens](/learn/token-economics) for the precise formula.*
 
-## Make it yours
+<CardGroup cols={2}>
 
-Design a docs site that looks great and empowers your users.
-
-<Columns cols={2}>
-  <Card
-    title="Edit locally"
-    icon="pen-to-square"
-    href="/development"
-  >
-    Edit your docs locally and preview them in real time.
+  <Card title="What is ArcX?" icon="book-open" href="/learn/protocol-overview">
+    How the protocol works, the flash loop, and why splitting matters.
   </Card>
-  <Card
-    title="Customize your site"
-    icon="palette"
-    href="/essentials/settings"
-  >
-    Customize the design and colors of your site to match your brand.
-  </Card>
-    <Card
-    title="Set up navigation"
-    icon="map"
-    href="/essentials/navigation"
-  >
-    Organize your docs to help users find what they need and succeed with your product.
-  </Card>
-  <Card
-    title="API documentation"
-    icon="terminal"
-    href="/api-reference/introduction"
-  >
-    Auto-generate API documentation from OpenAPI specifications.
-  </Card>
-</Columns>
 
-## Create beautiful pages
-
-Everything you need to create world-class documentation.
-
-<Columns cols={2}>
-  <Card
-    title="Write with MDX"
-    icon="pen-fancy"
-    href="/essentials/markdown"
-  >
-    Use MDX to style your docs pages.
+  <Card title="Using ArcX" icon="user" href="/learn/user-guide">
+    Step-by-step: deposit, flash loop, redeem. Start here if you want to use the product.
   </Card>
-  <Card
-    title="Code samples"
-    icon="code"
-    href="/essentials/code"
-  >
-    Add sample code to demonstrate how to use your product.
-  </Card>
-  <Card
-    title="Images"
-    icon="image"
-    href="/essentials/images"
-  >
-    Display images and other media.
-  </Card>
-  <Card
-    title="Reusable snippets"
-    icon="recycle"
-    href="/essentials/reusable-snippets"
-  >
-    Write once and reuse across your docs.
-  </Card>
-</Columns>
 
-## Need inspiration?
+  <Card title="The Three Tokens" icon="coins" href="/learn/token-economics">
+    ST, EPT, and PointsToken: minting, pricing, and redemption mechanics.
+  </Card>
 
-<Card
-  title="See complete examples"
-  icon="stars"
-  href="https://mintlify.com/customers"
->
-  Browse our showcase of exceptional documentation sites.
-</Card>
+  <Card title="How Epochs Work" icon="clock" href="/learn/epoch-lifecycle">
+    The epoch cycle: deposits, maturity, finalization, redemption.
+  </Card>
+
+</CardGroup>
+
+---
+
+## Go Deeper
+
+<CardGroup cols={3}>
+
+  <Card title="Credit Mathematics" icon="calculator" href="/deep-dives/credit-mathematics">
+    How the credit system distributes points fairly across time and activity.
+  </Card>
+
+  <Card title="EPT Pricing" icon="chart-line" href="/deep-dives/ept-pricing">
+    The pricing equation, flash loop economics, and market dynamics.
+  </Card>
+
+  <Card title="Trust Model & Security" icon="shield" href="/deep-dives/trust-model-and-security">
+    What you're trusting ArcX with, attack vectors, and the decentralization roadmap.
+  </Card>
+
+</CardGroup>
+
+---
+
+## Build & Reference
+
+<CardGroup cols={2}>
+
+  <Card title="Developer Integration Guide" icon="code" href="/build/developer-integration-guide">
+    Contract interfaces, events, and integration patterns.
+  </Card>
+
+  <Card title="Glossary & Parameters" icon="book" href="/reference/glossary-and-reference">
+    Every term defined, every parameter listed.
+  </Card>
+
+</CardGroup>
+
+<CardGroup cols={2}>
+  <Card title="ArcX vs Pendle" icon="scale-balanced" href="/learn/pendle-comparison">
+    Coming from Pendle? Side-by-side concept mapping.
+  </Card>
+  <Card title="Strategy Token" icon="vault" href="/learn/strategy-token">
+    NAV tracking, share pricing, redemption, early exit.
+  </Card>
+</CardGroup>
