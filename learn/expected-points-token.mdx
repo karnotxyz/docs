@@ -43,9 +43,11 @@ Your credits grow continuously while you hold EPT. The rate, `creditRate`, is se
 
 **Fallback:** If the Credits Oracle goes down, credits accrue at the last known rate. If creditRate were constant, it cancels out in the final ratio, as proven in [Credit Mathematics](/deep-dives/credit-mathematics).
 
+<AccordionGroup>
 <Accordion title="What happens to my credits if I transfer EPT?">
 Both sender and receiver are checkpointed at the moment of transfer. The sender keeps all credits accrued up to that point. The receiver starts accruing fresh. No credits are lost. They just stop growing for the sender and start growing for the receiver.
 </Accordion>
+</AccordionGroup>
 
 ---
 

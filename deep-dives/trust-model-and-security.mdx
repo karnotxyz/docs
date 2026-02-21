@@ -62,9 +62,14 @@ flowchart TB
 
 ---
 
-## Trust Assumption 1: NAV Oracle
+## Trust Assumptions In Detail
 
-### What It Does
+<Tabs>
+  <Tab title="Oracle Integrity (NAV)">
+
+### Trust Assumption 1: NAV Oracle
+
+#### What It Does
 
 The NAV oracle reports the total USDC value of the strategy's positions every 5 minutes. This number determines:
 
@@ -73,7 +78,7 @@ The NAV oracle reports the total USDC value of the strategy's positions every 5 
 
 NAV is the single most important number in the protocol. If it's wrong, deposits and redemptions are mispriced.
 
-### What Could Go Wrong
+#### What Could Go Wrong
 
 **Scenario: Inflated NAV.** ArcX reports NAV higher than reality. Late depositors receive fewer shares than they should (they're buying in at an inflated price). Early depositors benefit. Their shares are worth more relative to the actual underlying.
 
@@ -81,7 +86,7 @@ NAV is the single most important number in the protocol. If it's wrong, deposits
 
 **Scenario: Stale NAV.** The oracle stops updating. If the strategy's value changes while the oracle is stale, deposits happen at an outdated price.
 
-### Mitigations
+#### Mitigations
 
 1. **NAV freshness check.** The contract enforces `MAX_NAV_STALENESS = 30 minutes`. If the oracle hasn't updated in 30 minutes, all deposits automatically revert. Your USDC stays in your wallet. You can't be harmed by stale data.
 
@@ -91,10 +96,11 @@ NAV is the single most important number in the protocol. If it's wrong, deposits
 
 4. **Bounded impact per epoch.** Each epoch is independent. Even if NAV is slightly off for a few oracle updates, the final NAV at finalization determines actual redemptions. A single bad update doesn't compound.
 
-### Decentralization Path
+#### Decentralization Path
 
 ZK proofs of exchange balances. A future system could generate zero-knowledge proofs that ArcX's exchange account holds the reported positions, without revealing the account itself. This technology is promising but not production-ready today.
 
+<AccordionGroup>
 <Accordion title="Why not just use Chainlink or Pyth for the NAV oracle?">
 No exchange exposes a "strategy NAV" data feed. NAV is computed from ArcX's own exchange positions (principal + unrealized PnL across multiple perp DEXes). No third-party oracle can compute this without access to ArcX's exchange accounts. This is fundamentally different from price feeds (which aggregate public market data).
 </Accordion>
@@ -106,12 +112,15 @@ ArcX controls the oracles that determine deposit pricing and redemption values. 
 <Accordion title="How do I know ArcX isn't front-running its own oracle updates?">
 ArcX publishes NAV on-chain every 5 minutes. If ArcX were trading against its own NAV updates (e.g., depositing before publishing a favorable NAV), the pattern would be visible in on-chain transaction timing. Additionally, ArcX already knows the NAV in real-time (it runs the strategy). This informational advantage is used for market-making (setting fair spreads), which benefits users, not for exploiting deposits.
 </Accordion>
+</AccordionGroup>
 
----
+  </Tab>
 
-## Trust Assumption 2: Credits Oracle
+  <Tab title="Credit Rate">
 
-### What It Does
+### Trust Assumption 2: Credits Oracle
+
+#### What It Does
 
 The Credits Oracle publishes `creditRate` during the epoch. This rate determines how fast EPT holders accumulate credits:
 
@@ -119,13 +128,13 @@ $$\text{credits} = \int(\text{balance} \times \text{creditRate}) \, dt$$
 
 The creditRate reflects strategy activity: high open interest (funding arb) or high volume (market making) means a higher rate. See [Credit Mathematics](/deep-dives/credit-mathematics) for the full treatment.
 
-### What Could Go Wrong
+#### What Could Go Wrong
 
 **Scenario: Manipulated creditRate.** ArcX inflates creditRate during a period when a favored address holds EPT, then deflates it afterward. The favored address accrues disproportionate credits and receives more points.
 
 **Scenario: Stale creditRate.** The oracle stops updating. Credits continue accruing at the last known rate. If strategy activity changed significantly, some holders are over-weighted and others under-weighted.
 
-### Mitigations
+#### Mitigations
 
 1. **Observable inputs.** creditRate derives from strategy activity metrics (OI, volume) that are observable on exchange dashboards. If ArcX reports high creditRate but the strategy has minimal OI visible on Pacifica, something is wrong.
 
@@ -135,15 +144,17 @@ The creditRate reflects strategy activity: high open interest (funding arb) or h
 
 4. **Mathematical fairness guarantee.** The credit system is provably fair: your share of points equals your share of total credits, regardless of the creditRate schedule. Variable rates change *when* credits accrue fastest, not *whether* the math is correct. See [Credit Mathematics: Fairness Proof](/deep-dives/credit-mathematics#the-fairness-argument).
 
-### Decentralization Path
+#### Decentralization Path
 
 On-chain verifiable activity feeds. If exchanges expose OI/volume data through on-chain oracles or verifiable APIs, creditRate could be computed on-chain rather than reported by ArcX.
 
----
+  </Tab>
 
-## Trust Assumption 3: Points Reporting
+  <Tab title="Points Reporting">
 
-### What It Does
+### Trust Assumption 3: Points Reporting
+
+#### What It Does
 
 At epoch finalization, the Final Points Oracle reports `totalPoints`: how many exchange points the strategy earned during the epoch. This number determines the conversion ratio:
 
@@ -151,13 +162,13 @@ $$\text{pointsPerCredit} = \frac{\text{totalPoints}}{\text{totalCredits}}$$
 
 Every EPT holder's PointsToken allocation depends on this single number.
 
-### What Could Go Wrong
+#### What Could Go Wrong
 
 **Scenario: Underreported points.** ArcX reports fewer points than actually earned, keeping the difference. Users receive fewer PointsTokens than they're owed.
 
 **Scenario: Overreported points.** ArcX reports more points than earned. PointsTokens are over-minted relative to backing. This creates a fractional reserve. Each PointsToken is backed by less than 1 real point.
 
-### Mitigations
+#### Mitigations
 
 1. **Exchange dashboards.** Most exchanges show points earned on public or account-visible dashboards. Community members who also farm on the same exchanges can cross-reference ArcX's reported points against their own observations of point generation rates.
 
@@ -165,25 +176,27 @@ Every EPT holder's PointsToken allocation depends on this single number.
 
 3. **Reputation enforcement.** Points reporting is a one-time event per epoch. Each finalization is a public, verifiable moment. Systematic underreporting would be flagged by the community.
 
-### Decentralization Path
+#### Decentralization Path
 
 On-chain points verification. If exchanges build points verification APIs or attest to account-level points on-chain, the Final Points Oracle could be replaced with a trustless data feed.
 
----
+  </Tab>
 
-## Trust Assumption 4: Points Backing
+  <Tab title="Points Backing">
 
-### What It Does
+### Trust Assumption 4: Points Backing
+
+#### What It Does
 
 PointsTokens (xPC, xHL, etc.) are ERC20 tokens that represent real exchange points, 1:1 backed. When you claim EPT credits after finalization, you receive PointsTokens. Post-TGE, you burn PointsTokens to receive the exchange's airdropped tokens.
 
-### What Could Go Wrong
+#### What Could Go Wrong
 
 **Scenario: Over-minting.** ArcX mints more PointsTokens than the real points it holds. If the exchange conducts a TGE and airdrop is based on real points (not PointsTokens), some PointsToken holders can't redeem at 1:1.
 
 **Scenario: Points custody failure.** ArcX's exchange account is compromised or suspended. Real points are lost, but PointsTokens still exist. The backing is broken.
 
-### Mitigations
+#### Mitigations
 
 1. **Supply transparency.** PointsToken is a standard ERC20 on Starknet. Total supply is publicly visible on-chain. Anyone can compare reported points per epoch against cumulative PointsToken supply.
 
@@ -191,23 +204,25 @@ PointsTokens (xPC, xHL, etc.) are ERC20 tokens that represent real exchange poin
 
 3. **Airdrop verification.** When a TGE occurs, the exchange typically announces total airdrop amounts publicly. The community can verify that ArcX received a proportional share and deposited it into the Redemption Module.
 
-### Current Limitation
+#### Current Limitation
 
 There is no on-chain verification mechanism for points backing. You cannot independently prove that ArcX's exchange account holds the points it claims. This is the hardest trust assumption to verify because exchange points are inherently off-chain and per-account.
 
-### Decentralization Path
+#### Decentralization Path
 
 Exchange APIs for points verification (if exchanges build them), or ZK proofs of exchange account state. Direct exchange-to-contract distribution would eliminate the custody step entirely.
 
----
+  </Tab>
 
-## Trust Assumption 5: Strategy Execution
+  <Tab title="Strategy Execution">
 
-### What It Does
+### Trust Assumption 5: Strategy Execution
+
+#### What It Does
 
 ArcX executes trading strategies (funding arb, market making, etc.) on perp DEXes using deposited capital. Strategy performance determines NAV, which determines ST redemption value.
 
-### What Could Go Wrong
+#### What Could Go Wrong
 
 **Scenario: Negligence.** A bug in the strategy runner causes unintended positions, leading to losses.
 
@@ -215,7 +230,7 @@ ArcX executes trading strategies (funding arb, market making, etc.) on perp DEXe
 
 **Scenario: Malfeasance.** ArcX intentionally extracts value through unfavorable trades.
 
-### Mitigations
+#### Mitigations
 
 1. **Maximum loss is bounded.** ST floors at \$0. Your maximum loss is your deposit. ST can never go negative. There is no margin call or additional liability. Even in a catastrophic strategy failure, your loss is capped.
 
@@ -225,25 +240,27 @@ ArcX executes trading strategies (funding arb, market making, etc.) on perp DEXe
 
 4. **Epoch isolation.** Each epoch is independent. A bad epoch doesn't compound into the next. Your capital doesn't automatically roll over. You make a fresh decision each epoch.
 
-### Decentralization Path
+#### Decentralization Path
 
 Isolated vaults with insurance mechanisms. Future versions could add strategy constraints enforced on-chain (max leverage, max drawdown triggers) and insurance pools that cover losses beyond a threshold.
 
----
+  </Tab>
 
-## Trust Assumption 6: Cross-Chain Escrow
+  <Tab title="Cross-Chain Escrow">
 
-### What It Does
+### Trust Assumption 6: Cross-Chain Escrow
+
+#### What It Does
 
 When you deposit from Ethereum, Arbitrum, Solana, or other chains, your USDC is locked in a `SourceChainDepositEscrow` contract. A LayerZero message is sent to Starknet, where your ST + EPT are minted. An acknowledgment message returns to the source chain.
 
-### What Could Go Wrong
+#### What Could Go Wrong
 
 **Scenario: Stuck message.** The LayerZero message never arrives on Starknet. Your USDC is locked in the escrow indefinitely.
 
 **Scenario: Escrow compromise.** The escrow contract (controlled by an ArcX multisig) is compromised. Locked USDC is stolen.
 
-### Mitigations
+#### Mitigations
 
 1. **Refund timeout (self-rescue).** If no acknowledgment arrives within `REFUND_TIMEOUT`, you can call `cancel(depositId)` on the source chain escrow. Your USDC is refunded directly to your wallet. You are never permanently locked out.
 
@@ -253,9 +270,12 @@ When you deposit from Ethereum, Arbitrum, Solana, or other chains, your USDC is 
 
 4. **On-chain visibility.** Escrow balances are publicly visible. The community can monitor total locked USDC and compare it against expected cross-chain deposit volumes.
 
-### Decentralization Path
+#### Decentralization Path
 
 Trustless bridge integration. As bridge technology matures, the escrow could be replaced with a trustless mechanism that doesn't require a multisig at all.
+
+  </Tab>
+</Tabs>
 
 ---
 
@@ -362,9 +382,11 @@ Understanding what lives where helps you assess what's verifiable:
 
 **The pattern:** Token mechanics (minting, burning, credit accrual, redemption) are fully on-chain and verifiable. The *inputs* to those mechanics (NAV, creditRate, totalPoints) are reported by ArcX and require trust.
 
+<AccordionGroup>
 <Accordion title="Can I see the smart contract code?">
 Contract addresses and verification status will be published in the [Developer Integration Guide](/build/developer-integration-guide). On-chain contracts on Starknet are verifiable through standard block explorer tools.
 </Accordion>
+</AccordionGroup>
 
 ---
 
@@ -418,9 +440,11 @@ LayerZero goes down for an extended period. Your USDC is locked in the escrow.
 
 You are never permanently locked out. The refund timeout is your escape hatch.
 
+<AccordionGroup>
 <Accordion title="What's the worst that can happen to my deposit?">
 Your ST can go to zero if the strategy loses 100% of capital. This is the absolute worst case. Your EPT (points) is unaffected. You still claim PointsTokens regardless of strategy performance. There is no scenario where you owe more than your deposit.
 </Accordion>
+</AccordionGroup>
 
 ---
 
@@ -450,6 +474,7 @@ There is no mechanism to terminate an epoch early. Once an epoch starts, it runs
 
 The tradeoff: in a genuine emergency, the only tool is pausing deposits. Existing positions ride out the epoch.
 
+<AccordionGroup>
 <Accordion title="What if ArcX goes offline?">
 If ArcX disappears entirely: deposits in progress can be refunded via escrow timeout. Existing ST and EPT tokens remain on-chain and tradeable on the ArcX AMM. Finalization would be stuck (no oracle to report final NAV/points). In this extreme scenario, the community would need to coordinate recovery. The contracts exist on Starknet regardless of ArcX's operational status.
 </Accordion>
@@ -457,6 +482,7 @@ If ArcX disappears entirely: deposits in progress can be refunded via escrow tim
 <Accordion title="What happens to the protocol if Starknet goes down?">
 All ArcX contracts live on Starknet. A Starknet outage would pause all on-chain activity (deposits, trading, redemptions). Strategy execution continues off-chain (perp DEX trades don't depend on Starknet). Once Starknet recovers, the protocol resumes. Cross-chain escrow on source chains (Ethereum, Arbitrum, Solana) is unaffected by Starknet outages. Refund timeouts still work.
 </Accordion>
+</AccordionGroup>
 
 ---
 
@@ -464,38 +490,60 @@ All ArcX contracts live on Starknet. A Starknet outage would pause all on-chain 
 
 If you want to independently audit ArcX's reporting, here's what you can check:
 
-### 1. Track NAV Over Time
+<Tip>
+These verification steps can be performed by anyone with access to a block explorer and basic knowledge of the exchange's points program. No special tools or permissions are required.
+</Tip>
 
-- NAV is published on-chain every 5 minutes
-- Record NAV updates throughout the epoch
-- Compare the trajectory against expected strategy performance (e.g., if funding rates on Pacifica average 0.01%/8h, a \$500K strategy should return a predictable amount per epoch)
-- Flag any unexplained jumps or discrepancies
+<Steps>
+  <Step title="Track NAV Over Time">
+    - NAV is published on-chain every 5 minutes
+    - Record NAV updates throughout the epoch
+    - Compare the trajectory against expected strategy performance (e.g., if funding rates on Pacifica average 0.01%/8h, a \$500K strategy should return a predictable amount per epoch)
+    - Flag any unexplained jumps or discrepancies
 
-### 2. Cross-Reference Points
+    <Tip>
+    Check the on-chain NAV oracle contract directly via a Starknet block explorer to see the full history of NAV updates and their timestamps.
+    </Tip>
+  </Step>
 
-- At finalization, `totalPoints` is published on-chain
-- Compare against the exchange's published points program rules
-- If Pacifica grants X points per \$1 of OI per day, and the strategy maintained \$500K OI for the epoch, expected points are estimable
-- Significant discrepancies warrant investigation
+  <Step title="Cross-Reference Points">
+    - At finalization, `totalPoints` is published on-chain
+    - Compare against the exchange's published points program rules
+    - If Pacifica grants X points per \$1 of OI per day, and the strategy maintained \$500K OI for the epoch, expected points are estimable
+    - Significant discrepancies warrant investigation
 
-### 3. Monitor PointsToken Supply
+    <Tip>
+    Review the exchange's points documentation to understand the accrual formula, then estimate expected points based on the strategy's known OI and epoch duration.
+    </Tip>
+  </Step>
 
-- PointsToken totalSupply is on-chain
-- Sum all `totalPoints` from every finalized epoch for that exchange
-- If totalSupply > sum of reported points, PointsTokens may be over-minted
+  <Step title="Monitor PointsToken Supply">
+    - PointsToken totalSupply is on-chain
+    - Sum all `totalPoints` from every finalized epoch for that exchange
+    - If totalSupply > sum of reported points, PointsTokens may be over-minted
 
-### 4. Watch Escrow Balances
+    <Tip>
+    Query the PointsToken ERC20 contract's `totalSupply()` and compare it against the cumulative `totalPoints` values emitted during each epoch's finalization event.
+    </Tip>
+  </Step>
 
-- Cross-chain escrow balances are on-chain on the source chain
-- Track deposits, acknowledgments, and refunds
-- Escrow balance should trend toward zero as deposits are acknowledged
-- Persistent large balances may indicate stuck messages
+  <Step title="Watch Escrow Balances">
+    - Cross-chain escrow balances are on-chain on the source chain
+    - Track deposits, acknowledgments, and refunds
+    - Escrow balance should trend toward zero as deposits are acknowledged
+    - Persistent large balances may indicate stuck messages
+  </Step>
 
-### 5. Compare ST Redemption Values
+  <Step title="Compare ST Redemption Values">
+    - At finalization, compute expected redemption: `shares x finalNAV / totalShares`
+    - Compare against what you actually receive
+    - Any shortfall is evidence of a contract bug or misconfigured finalization
 
-- At finalization, compute expected redemption: `shares x finalNAV / totalShares`
-- Compare against what you actually receive
-- Any shortfall is evidence of a contract bug or misconfigured finalization
+    <Tip>
+    Verify the `finalNAV` and `totalShares` values from the finalization transaction, then compute your expected USDC payout before redeeming.
+    </Tip>
+  </Step>
+</Steps>
 
 ---
 
@@ -513,9 +561,11 @@ If you want to independently audit ArcX's reporting, here's what you can check:
 
 ArcX's trust model is closer to a managed fund than a pure DeFi protocol. The tradeoff is intentional: off-chain strategy execution (perp DEX trading) requires off-chain data feeds. Fully on-chain alternatives (Pendle, Yearn) work because their underlying yield sources are themselves on-chain.
 
+<AccordionGroup>
 <Accordion title="Is this more or less risky than using Pendle?">
 Different risk profile. Pendle is fully on-chain. You trust only smart contract risk. ArcX adds oracle risk (trusting ArcX's data feeds) and strategy risk (trusting ArcX's execution). In exchange, ArcX gives you access to perp DEX strategy returns and pre-TGE points markets that Pendle doesn't offer. The additional trust is the cost of accessing off-chain yield sources.
 </Accordion>
+</AccordionGroup>
 
 ---
 

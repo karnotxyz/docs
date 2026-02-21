@@ -53,9 +53,11 @@ EPT costs zero only if ST trades at exactly its exchange rate, meaning the marke
 
 The EPT implied cost tracks the spread between ST market price and its exchange rate.
 
+<AccordionGroup>
 <Accordion title="How does the deposit fee affect the minting parity equation?">
 The equation `1 USDC = (1/R) ST + 1 EPT` ignores fees. With a deposit fee `f`, you deposit 1 USDC gross but receive tokens on the net amount: `1 USDC deposited = ((1-f)/R) ST + (1-f) EPT`. The implied cost becomes `EPT_cost = (1-f)(1 - X/R)`. The fee widens the no-arb band slightly. The flash loop only nets positive EPT if the EPT value exceeds the deposit fee.
 </Accordion>
+</AccordionGroup>
 
 ---
 
@@ -158,9 +160,11 @@ If the ST discount is "too wide" (EPT is too expensive), the correcting trade wo
 
 **What this means:** The ST discount can be wider than "fair" with no mechanical correction. Yield seekers buying cheap ST provide some natural floor, but there's no guaranteed arbitrage.
 
+<AccordionGroup>
 <Accordion title="Why doesn't ArcX support early redemption?">
 Early redemption requires the strategy to unwind positions to return USDC. This is disruptive. Partially closing a funding arb position changes the strategy's risk profile for remaining holders. It also adds significant contract complexity (pro-rata unwinds, margin management, queuing). The current design prioritizes simplicity and speed to market. Early redemption is on the roadmap.
 </Accordion>
+</AccordionGroup>
 
 ---
 
@@ -311,9 +315,11 @@ Eventually, the protocol could support early redemption (burn ST + EPT --- USDC)
 
 This would close the arb loop entirely, creating Pendle-style two-way pricing.
 
+<AccordionGroup>
 <Accordion title="Is the ST discount a problem for ArcX's growth?">
 It's a feature, not a bug. The discount is what makes the two-sided market work. Points farmers need someone to buy their ST. Yield seekers need a discount to earn returns. The discount is the price that clears the market between these two groups. A "correct" discount is one where both sides are satisfied.
 </Accordion>
+</AccordionGroup>
 
 ---
 

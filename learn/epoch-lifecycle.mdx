@@ -85,9 +85,13 @@ This is the main operating state. Everything is live:
 - Claim EPT credits for PointsTokens (must wait for finalization)
 - Roll capital from a previous epoch (must redeem first, then re-deposit)
 
+<AccordionGroup>
 <Accordion title="What if I miss the deposit window?">
 You wait for the next epoch. There's no penalty for missing a window. You simply deposit into the next one.
 </Accordion>
+</AccordionGroup>
+
+---
 
 ### State 2: MATURITY
 
@@ -112,6 +116,7 @@ The epoch has ended. The strategy is being unwound.
 
 **Why settlement is asynchronous:** Perp DEX positions don't close instantly. A funding arb strategy may have positions across multiple exchanges, each with its own settlement process. Exchange withdrawals can take hours to days. The protocol waits until all capital is returned before finalizing.
 
+<AccordionGroup>
 <Accordion title="What if settlement takes longer than expected?">
 Finalization is delayed until all capital is returned and oracles report. During the delay, your tokens still exist and are tradeable on the ArcX AMM, but you can't redeem. In practice, 1--2 days covers most scenarios.
 </Accordion>
@@ -119,6 +124,9 @@ Finalization is delayed until all capital is returned and oracles report. During
 <Accordion title="What happens to my credits during MATURITY?">
 Credits stop accruing at epoch_end. The MATURITY and FINALIZED states don't generate new credits. Your credit balance is final as of the epoch end timestamp.
 </Accordion>
+</AccordionGroup>
+
+---
 
 ### State 3: FINALIZED
 
@@ -143,11 +151,13 @@ All capital is returned, final NAV and points are reported, and users can redeem
 - Deposit new USDC (epoch is closed)
 - Earn more credits (credit accrual stopped at epoch end)
 
+<AccordionGroup>
 <Accordion title="Can I redeem only some of my ST or EPT?">
 Yes. Both ST redemption and EPT claiming support partial execution:
 - ST: burn any number of your shares → receive proportional USDC
 - EPT: `claimPoints()` tracks `alreadyClaimed`, so you can call it multiple times if you transfer some EPT between claims
 </Accordion>
+</AccordionGroup>
 
 ---
 
@@ -234,6 +244,7 @@ If any check fails, the transaction reverts and your USDC stays in your wallet.
 
 For the full deposit validation pseudocode, see [Developer Integration Guide](/build/developer-integration-guide).
 
+<AccordionGroup>
 <Accordion title="What if the NAV oracle goes down during the epoch?">
 Deposits automatically revert after 30 minutes of staleness (Check 3 fails). The epoch itself continues. Existing positions, credits, and trading are unaffected. Admin can additionally pause deposits as a safeguard. Finalization is delayed until the oracle recovers and submits the final NAV.
 </Accordion>
@@ -241,6 +252,7 @@ Deposits automatically revert after 30 minutes of staleness (Check 3 fails). The
 <Accordion title="Are there multiple deposits allowed per epoch?">
 Yes. You can deposit multiple times during the ACTIVE period. Each deposit mints additional ST shares and EPT at the current NAV. Credits from each deposit accrue independently from their respective mint timestamps.
 </Accordion>
+</AccordionGroup>
 
 ---
 
@@ -298,9 +310,11 @@ You are never permanently locked out. The refund timeout is your self-rescue mec
 
 **What if the message arrives late (after cancellation)?** The Starknet contract checks the `depositId` against the source chain state. A cancelled deposit ID is rejected. No double-minting can occur. Idempotency is enforced at the protocol level.
 
+<AccordionGroup>
 <Accordion title="What if I deposited from Ethereum and the bridge is slow?">
 Typical LayerZero latency is 1--5 minutes (worst case ~30 minutes). Your USDC is locked in the escrow during transit. If the message never arrives, you can self-rescue by calling `cancel(depositId)` after the REFUND_TIMEOUT expires. Your USDC is refunded to your wallet on the source chain.
 </Accordion>
+</AccordionGroup>
 
 ---
 
@@ -344,9 +358,11 @@ Each epoch has a potentially different risk profile. Market conditions change ac
 - There's no "forgotten capital" sitting in a strategy you didn't re-evaluate
 - Risk isolation is clean: each epoch is fully independent
 
+<AccordionGroup>
 <Accordion title="Can I stay in the next epoch automatically?">
 No. There is no automatic rollover. You must redeem from the current epoch and deposit into the next one. This is by design. Each epoch may have different risk conditions, and you should actively choose to re-enter.
 </Accordion>
+</AccordionGroup>
 
 ---
 
@@ -371,6 +387,7 @@ The admin can pause deposits in an emergency situation (security incident, strat
 
 Pause is a conservative measure: it stops new money from entering while existing positions continue unchanged. This is appropriate for situations where the strategy may need attention but existing depositors aren't at immediate risk.
 
+<AccordionGroup>
 <Accordion title="Can the admin terminate an epoch early?">
 No. There is no early termination mechanism. The admin can pause deposits, but the epoch runs to its scheduled end. This simplifies the contract model and avoids the complexity of mid-epoch unwinds.
 </Accordion>
@@ -378,6 +395,7 @@ No. There is no early termination mechanism. The admin can pause deposits, but t
 <Accordion title="What if the Credits Oracle goes down?">
 Credits accrue at the last known rate. If the strategy's actual activity changed significantly during the outage, some holders may be over- or under-weighted for that period. The impact is bounded. Even a multi-hour outage produces modest distortion unless activity changes dramatically. See [Credit Mathematics: Edge Cases](/deep-dives/credit-mathematics#edge-cases-and-invariants).
 </Accordion>
+</AccordionGroup>
 
 ---
 

@@ -10,13 +10,18 @@
     "href": "https://arcx.trade"
   },
   "colors": {
-    "primary": "#6366f1",
-    "light": "#818cf8",
-    "dark": "#4f46e5"
+    "primary": "#40C873",
+    "light": "#8AE06C",
+    "dark": "#2d8a4e"
+  },
+  "appearance": {
+    "default": "dark"
   },
   "mermaid": {},
   "styling": {
-    "latex": true
+    "eyebrows": "breadcrumbs",
+    "latex": true,
+    "codeblocks": "dark"
   },
   "navbar": {
     "links": [
@@ -28,7 +33,7 @@
     "primary": {
       "type": "button",
       "label": "Launch App",
-      "href": "https://arcx.trade"
+      "href": "https://app.arcx.trade"
     }
   },
   "contextual": {

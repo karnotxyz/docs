@@ -79,10 +79,12 @@ $$\text{points}_i = \text{totalPoints} \times \frac{\text{credits}_i}{\text{tota
 
 The constant k cancels in the ratio. **Any constant rate, whether 1, 100, or 1,000,000, produces identical point distribution.**
 
+<Tip>
 **What this means practically:**
 - If strategy activity is roughly uniform across the epoch, the creditRate value is irrelevant
 - Constant rate = 1 is a valid degenerate case: it reduces to pure time-weighted balance
 - Variable rate only changes outcomes when activity varies AND different users hold EPT during different activity periods
+</Tip>
 
 **When does this matter?** In the oracle-down fallback. If the Credits Oracle stops publishing, credits accrue at the last known rate. If that rate stays constant for the rest of the epoch, the exact constant chosen doesn't affect distribution. The system degrades gracefully.
 
@@ -119,6 +121,7 @@ Variable creditRate makes EPT valuation more informationally efficient. When cre
 
 With constant rate, EPT's only value driver is time remaining. The market can't distinguish "strategy is crushing it" from "strategy is idle."
 
+<AccordionGroup>
 <Accordion title="Why not just use a simple time-weighted average balance?">
 Time-weighted average balance is equivalent to the constant-rate credit system (creditRate = 1). It works, but it can't distinguish high-activity from low-activity periods. Variable creditRate adds this dimension, making the distribution fairer when strategy activity fluctuates.
 </Accordion>
@@ -126,6 +129,7 @@ Time-weighted average balance is equivalent to the constant-rate credit system (
 <Accordion title="Can I game the system by depositing right before a creditRate increase?">
 In theory, yes. If you knew creditRate was about to increase, depositing beforehand would earn you more credits during the high-rate period. In practice, creditRate reflects real-time strategy activity (OI, volume), which is partially observable on exchange dashboards. This is public information, and flash loop demand should already reflect expected future rates. You're competing against the market's collective information.
 </Accordion>
+</AccordionGroup>
 
 ---
 
@@ -179,9 +183,11 @@ fn userCheckpoint(addr):
 
 **Why this is gas-efficient:** No iteration over all holders. Each user's credits are settled only when they interact with the contract. Between interactions, credits are implicitly accruing via the global index.
 
+<AccordionGroup>
 <Accordion title="Why settle credits lazily instead of on every block?">
 Gas efficiency. Starknet charges for computation. Settling credits on every block for every holder would be prohibitively expensive. Lazy settlement achieves mathematical equivalence: the result is identical to continuous tracking, but computation only happens when needed (on transfer, claim, or rate change).
 </Accordion>
+</AccordionGroup>
 
 ### Algorithm: Credit Rate Update
 
@@ -193,7 +199,9 @@ fn updateCreditRate(newRate):
     creditRate = newRate    // future credits accrue at the NEW rate
 ```
 
+<Tip>
 **Critical detail:** The global checkpoint *must* run before the rate changes. This ensures credits for the old period are locked in at the old rate. Without this, switching from rate 10 to rate 20 would retroactively apply rate 20 to the old period for any user who hasn't checkpointed yet.
+</Tip>
 
 ### Algorithm: Transfer
 
@@ -234,9 +242,11 @@ fn claimPoints(addr):
     PointsToken.mint(addr, net)
 ```
 
+<AccordionGroup>
 <Accordion title="Can I see my accrued credits before finalization?">
 Yes. A read-only function can compute `(globalCreditIndex + creditRate x timeSinceCheckpoint - userCreditIndex) x balance + userCredits`. This is a view call, no gas cost, and shows your current credit balance at any time.
 </Accordion>
+</AccordionGroup>
 
 ---
 
@@ -244,7 +254,9 @@ Yes. A read-only function can compute `(globalCreditIndex + creditRate x timeSin
 
 *All examples use a 604,800-second epoch (7 days) for simplicity. The math works identically for longer epochs (8--12 weeks). Only the numbers scale.*
 
-### Example 1: Single Holder, Constant Rate
+<Tabs>
+<Tab title="Example 1: Single Holder">
+### Single Holder, Constant Rate
 
 The simplest possible case. One user, no transfers, constant creditRate.
 
@@ -264,8 +276,10 @@ Points:
 
 Alice is the only holder → she gets all 1,000 points. As expected.
 ```
+</Tab>
 
-### Example 2: Two Holders, No Transfers, Constant Rate
+<Tab title="Example 2: Two Holders">
+### Two Holders, No Transfers, Constant Rate
 
 Two users deposit at different times. Neither transfers.
 
@@ -290,8 +304,10 @@ Check: 744.7 + 255.3 = 1,000 ✓
 ```
 
 Alice gets ~74.5% of points despite holding only 62.5% of total EPT supply (100 out of 160). Her advantage: the full epoch of accrual vs Bob's partial period. Time-weighting at work.
+</Tab>
 
-### Example 3: Mid-Epoch Transfer, Constant Rate
+<Tab title="Example 3: Transfer (Constant)">
+### Mid-Epoch Transfer, Constant Rate
 
 Alice transfers half her EPT to Bob on Day 3. Shows credit checkpointing.
 
@@ -327,8 +343,10 @@ Check: 714.3 + 285.7 = 1,000 ✓
 ```
 
 Alice keeps 71.4% even though she only holds 50% of EPT after the transfer. Her first 3 days at full position earned her a permanent credit advantage.
+</Tab>
 
-### Example 4: Mid-Epoch Transfer WITH Variable Rate
+<Tab title="Example 4: Transfer (Variable)">
+### Mid-Epoch Transfer WITH Variable Rate
 
 Same as Example 3, but the strategy's activity doubles on Day 4. This is the key example showing why variable rates change the outcome.
 
@@ -370,8 +388,10 @@ Check: 650 + 350 = 1,000 ✓
 ```
 
 **Compare to constant-rate (Example 3):** Alice got 714.3 points vs 650.0 here. Bob got 285.7 vs 350.0. The variable rate **rewarded Bob more** because he held EPT during the high-activity period (Day 4 onward, rate=20). The constant rate couldn't distinguish high-activity from low-activity periods.
+</Tab>
 
-### Example 5: Smart Contract Holding EPT
+<Tab title="Example 5: Smart Contract">
+### Smart Contract Holding EPT
 
 When EPT sits in a smart contract (e.g., a vault or aggregator), the contract address accrues credits. This example shows how those credits work.
 
@@ -403,9 +423,13 @@ Points:
   Contract:         6,912,000 / 60,480,000 × 1,000 = 114.3 points
 ```
 
+<Tip>
 **Key takeaway:** The contract "absorbs" credits for the period it held EPT. This is correct: those credits belong to whoever controls the contract, not to Alice after she transferred EPT. If the contract is an ArcX AMM pool holding ST/USDC liquidity that happens to receive EPT, the PointsCollector mechanism ensures these credits reach the actual participants.
+</Tip>
+</Tab>
 
-### Example 6: The Last-Second Depositor Attack (Defeated)
+<Tab title="Example 6: Attack Defeated">
+### The Last-Second Depositor Attack (Defeated)
 
 Shows exactly why credits prevent the naive attack.
 
@@ -430,6 +454,8 @@ Points:
 Eve holds the same EPT balance as Alice but gets 0.1 points (0.01% share) vs Alice's 999.9 (99.99%). The attack is economically neutralized. Eve gets almost nothing for her last-second deposit.
 
 **Without credits (naive snapshot):** Eve would get 500 points (50%), making the attack wildly profitable. Credits make it worthless.
+</Tab>
+</Tabs>
 
 ---
 
@@ -512,7 +538,9 @@ Points:
   Bob:   302,400,000 / 864,000,000 × 1,000 = 350.0
 ```
 
+<Tip>
 The index trace matches Example 4 exactly. The key property: **Bob's userCreditIndex was set to 2,592,000 at the transfer (even though he had zero balance), so when he claims at globalCreditIndex = 8,640,000, the delta correctly captures only the period he actually held EPT.**
+</Tip>
 
 ---
 
@@ -547,9 +575,11 @@ This means `totalCredits` at finalization correctly equals the sum of all indivi
 
 The `alreadyClaimed` tracker in `claimPoints()` prevents double-counting. Even if a user calls `claimPoints()` multiple times, `gross - alreadyClaimed` ensures they only receive the incremental amount.
 
+<AccordionGroup>
 <Accordion title="What happens if creditRate is set to zero?">
 No credits accrue. If creditRate is zero for the entire epoch, `totalCredits = 0` and the `pointsPerCredit` calculation would divide by zero. The oracle only sets creditRate = 0 if the strategy has zero activity, in which case `totalPoints` should also be zero. The contract guards against this edge case with a zero-totalCredits check.
 </Accordion>
+</AccordionGroup>
 
 ---
 
