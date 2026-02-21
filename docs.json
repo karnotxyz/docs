@@ -1,8 +1,14 @@
 {
   "$schema": "https://mintlify.com/docs.json",
-  "theme": "maple",
+  "theme": "mint",
   "name": "ArcX",
+  "description": "ArcX splits perp DEX trading strategies into separately tradeable tokens: one for USDC returns, one for exchange points.",
   "favicon": "/favicon.svg",
+  "logo": {
+    "light": "/logo/light.svg",
+    "dark": "/logo/dark.svg",
+    "href": "https://arcx.trade"
+  },
   "colors": {
     "primary": "#6366f1",
     "light": "#818cf8",
@@ -18,7 +24,11 @@
         "label": "Twitter",
         "url": "https://x.com/arcxtrade"
       }
-    ]
+    ],
+    "cta": {
+      "label": "Launch App",
+      "url": "https://arcx.trade"
+    }
   },
   "navigation": {
     "pages": ["index"],
@@ -28,6 +38,7 @@
         "groups": [
           {
             "group": "Getting Started",
+            "icon": "rocket",
             "pages": [
               "learn/protocol-overview",
               "learn/token-economics",
@@ -39,6 +50,7 @@
           },
           {
             "group": "Using ArcX",
+            "icon": "compass",
             "pages": [
               "learn/user-guide",
               "learn/pendle-comparison"
@@ -51,6 +63,7 @@
         "groups": [
           {
             "group": "Technical Analysis",
+            "icon": "microscope",
             "pages": [
               "deep-dives/credit-mathematics",
               "deep-dives/ept-pricing",
@@ -64,6 +77,7 @@
         "groups": [
           {
             "group": "Developer Guide",
+            "icon": "wrench",
             "pages": [
               "build/developer-integration-guide",
               "build/contract-reference",
@@ -77,6 +91,7 @@
         "groups": [
           {
             "group": "Reference",
+            "icon": "book",
             "pages": [
               "reference/glossary-and-reference"
             ]
