@@ -4,6 +4,8 @@ description: "Step-by-step instructions for depositing, flash looping, buying di
 icon: "user"
 ---
 
+import FlashLoop from "/snippets/flash-loop.mdx";
+
 ## The Full Loop in 60 Seconds
 
 ```mermaid
@@ -150,26 +152,7 @@ After depositing, you hold ST + EPT(s). What you do next depends on your goal.
 
 **Goal:** Maximum points exposure with minimal capital.
 
-The flash loop recycles your ST into more EPT:
-
-<Steps>
-  <Step title="Deposit USDC">
-    Deposit \$100 → receive 99.50 EPT + ST shares.
-  </Step>
-  <Step title="Sell ST on ArcX AMM">
-    Swap your ST for USDC on the ArcX AMM. ST trades at a ~10% discount, so you receive ~\$89.55.
-  </Step>
-  <Step title="Re-deposit">
-    Deposit the \$89.55 → receive ~89.05 EPT + more ST.
-  </Step>
-  <Step title="Repeat">
-    Sell ST again (~\$80.15), re-deposit, and so on. Each loop gives you more EPT.
-  </Step>
-</Steps>
-
-**Result after 3 loops:** ~270 EPT from a \$100 starting deposit. Net outlay: ~\$27. Effective cost per EPT: **~\$0.10** instead of \$1.00.
-
-**Why this works:** Each deposit creates EPT (which you keep) and ST (which you sell). The ST discount is the "price" you pay for points. Yield seekers who buy your discounted ST capture that discount as their return.
+<FlashLoop />
 
 **When to flash loop:** As early in the epoch as possible. Earlier deposits accrue credits for longer, maximizing your points share.
 

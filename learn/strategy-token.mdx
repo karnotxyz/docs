@@ -45,14 +45,7 @@ No. ST floors at \$0. The strategy's deposited capital is the margin, and there'
 
 $$\text{sharePrice} = \frac{\text{currentNAV}}{\text{totalShares}}$$
 
-```mermaid
-xychart-beta
-    title "ST Share Price Over an Epoch"
-    x-axis ["Week 1", "Week 2", "Week 3", "Week 4", "Week 5", "Week 6", "Week 7", "Week 8", "Maturity"]
-    y-axis "Share Price ($)" 0.96 --> 1.06
-    line "NAV Oracle" [1.00, 1.005, 1.01, 1.008, 1.015, 1.02, 1.025, 1.03, 1.028]
-    line "ArcX AMM Price" [0.99, 1.00, 1.005, 1.003, 1.01, 1.015, 1.02, 1.025, 1.028]
-```
+The ArcX AMM price typically tracks slightly below NAV (reflecting the ST discount from flash loop selling pressure), then converges toward NAV as maturity approaches via the time-decay curve. For the full price trajectory chart and analysis, see [EPT Pricing: ST Price Through the Epoch](/deep-dives/ept-pricing#st-price-through-the-epoch).
 
 The NAV oracle updates every 5 minutes. As the strategy executes trades on perp DEXes, PnL flows into the NAV:
 

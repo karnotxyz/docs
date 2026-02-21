@@ -33,12 +33,6 @@ Your credits grow continuously while you hold EPT. The rate, `creditRate`, is se
 
 **Fallback:** If the Credits Oracle goes down, credits accrue at the last known rate. If creditRate were constant, it cancels out in the final ratio, as proven in [Credit Mathematics](/deep-dives/credit-mathematics).
 
-<AccordionGroup>
-<Accordion title="What happens to my credits if I transfer EPT?">
-Both sender and receiver are checkpointed at the moment of transfer. The sender keeps all credits accrued up to that point. The receiver starts accruing fresh. No credits are lost. They just stop growing for the sender and start growing for the receiver.
-</Accordion>
-</AccordionGroup>
-
 ---
 
 ## Credit Checkpointing
@@ -100,20 +94,7 @@ For variable creditRate examples, see [Credit Mathematics](/deep-dives/credit-ma
 
 ## The Flash Loop: Leveraged EPT
 
-The flash loop is how you maximize EPT exposure:
-
-```
-$100 deposit → 100 EPT + ST shares
-  Sell ST on ArcX AMM (~$90) → $90 cash
-  $90 deposit → 90 EPT + ST shares
-    Sell ST (~$81) → $81 cash
-    $81 deposit → 81 EPT + ST shares
-      ...
-```
-
-After multiple iterations, you hold ~270 EPT from a \$100 starting deposit. Your net outlay is ~\$27 (\$100 minus the ~\$73 from the final ST sale), so your effective cost per EPT is ~\$0.10 instead of \$1.00 from a single deposit.
-
-**Why this works:** Each deposit creates EPT (which you keep) and ST (which you sell at a discount). The ST discount is the "price" you pay for points. The flash loop amplifies this by recycling the ST sale proceeds. For the full mathematical derivation and convergence formula, see [EPT Pricing & Flash Loop Economics](/deep-dives/ept-pricing).
+The flash loop multiplies your EPT exposure: deposit USDC, sell the resulting ST on the ArcX AMM, re-deposit the proceeds, repeat. After 3 iterations with a 10% ST discount, \$100 produces ~270 EPT at ~\$0.10 each. See [Protocol Overview](/learn/protocol-overview#the-flash-loop-capital-efficient-points) for step-by-step mechanics and [EPT Pricing](/deep-dives/ept-pricing) for the convergence formula.
 
 All EPT from the flash loop accrues credits from the moment of each deposit. Earlier loop iterations earn more credits than later ones (more time remaining). So run the flash loop early.
 
@@ -135,7 +116,7 @@ No expiry. Claim incrementally; the contract tracks what you've already received
 
 ## What Determines Your EPT's Value
 
-Since EPT is deposit-only (no secondary market), its value is determined by the implied cost through the flash loop:
+Since EPT has no secondary market, its value is determined by the implied cost through the flash loop:
 
 | Factor | Effect | Mechanism |
 |---|---|---|

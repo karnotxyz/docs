@@ -40,12 +40,10 @@ On perp DEXes like Pacifica, Hyperliquid, or Extended:
 
 ArcX splits a strategy position into two tokens at the moment of deposit:
 
-$$1 \text{ USDC deposited} = \frac{1}{R} \text{ ST} + 1 \text{ EPT}$$
-
 - **[<Tooltip tip="Strategy Token -- represents your claim on the USDC value of the underlying strategy at maturity.">ST</Tooltip> (Strategy Token)](/learn/strategy-token):** your claim on the USDC value at maturity
 - **[<Tooltip tip="Expected Points Token -- represents your claim on exchange points earned during the epoch.">EPT</Tooltip> (Expected Points Token)](/learn/expected-points-token):** your claim on exchange points earned during the epoch
 
-ST is tradeable on the ArcX AMM. EPT is obtained only via deposit (no secondary market).
+ST is tradeable on the ArcX AMM. You get EPT by depositing USDC.
 
 <FlashLoop />
 
@@ -55,15 +53,7 @@ ST is tradeable on the ArcX AMM. EPT is obtained only via deposit (no secondary 
 
 **TradFi analogies:** ST = **closed-end fund share**. EPT = **pre-market points futures**. <Tooltip tip="A standard ERC-20 token backed 1:1 by actual exchange points, minted when EPT credits are claimed after epoch finalization.">PointsToken</Tooltip> = **gift card** redeemable at TGE.
 
-| | ST | EPT | PointsToken |
-|---|---|---|---|
-| **What** | Claim on USDC at maturity | Claim on exchange points | Tokenized points, 1:1 backed |
-| **Minted** | On deposit | On deposit, alongside ST | At finalization, from EPT credits |
-| **Risk** | Strategy loss (max: full deposit) | Late deposit = fewer credits | No TGE = no redemption |
-| **Tradeable** | Yes, on ArcX AMM (ST/USDC) | Not tradeable (mint via deposit only) | Standard ERC20 |
-| **Scope** | Per epoch | Per epoch, per exchange, per strategy | Per exchange, persists |
-
-**Multi-EPT:** Strategies earning points on multiple exchanges mint a separate EPT for each. A \$100 deposit into Pacifica-Extended Funding Arb gives you ST shares + EPT_Pacifica + EPT_Extended (amounts after deposit fee; see [Token Economics](/learn/token-economics) for exact calculation).
+Strategies earning points on multiple exchanges mint a separate EPT for each. A \$100 deposit into Pacifica-Extended Funding Arb gives you ST shares + EPT_Pacifica + EPT_Extended. For the full comparison table, minting mechanics, and fee structure, see [Token Economics](/learn/token-economics).
 
 <CardGroup cols={3}>
   <Card title="Strategy Token" icon="vault" href="/learn/strategy-token">
