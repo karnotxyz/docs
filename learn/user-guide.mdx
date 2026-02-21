@@ -6,7 +6,7 @@ icon: "user"
 <Info>
 **Course level: Beginner**
 
-**The core idea:** Deposit USDC, receive two tokens, use the flash loop for leveraged points or buy discounted ST for yield. Redeem after finalization. That's the full loop.
+**The core idea:** Deposit USDC, receive two tokens, use the <Tooltip tip="Flash loop — sell your ST for USDC and re-deposit repeatedly, converting capital into leveraged points exposure.">flash loop</Tooltip> for leveraged points or buy discounted <Tooltip tip="Strategy Token — represents your share of the strategy's USDC returns.">ST</Tooltip> for yield. Redeem after finalization. That's the full loop.
 </Info>
 
 **Prerequisites:** [What is ArcX?](/learn/protocol-overview)
@@ -55,8 +55,8 @@ ArcX runs multiple strategies. Each strategy has its own vault, its own risk pro
 | What to check | Why it matters |
 |---|---|
 | **Strategy type** | Funding arb = lower risk, lower return. Market making = higher risk, higher return. |
-| **Which exchanges** | Determines which EPTs you receive (EPT_Pacifica, EPT_Extended, etc.) and which points you earn. |
-| **Current epoch** | Is the deposit window open? How much time remains? Depositing late means fewer credits on your EPT. |
+| **Which exchanges** | Determines which <Tooltip tip="Expected Points Token — earns credits every second, redeemable for PointsTokens after finalization.">EPT</Tooltip>s you receive (EPT_Pacifica, EPT_Extended, etc.) and which points you earn. |
+| **Current <Tooltip tip="Epoch — a fixed time period during which a strategy runs. Each epoch has its own deposit window, maturity date, and separate token contracts.">epoch</Tooltip>** | Is the deposit window open? How much time remains? Depositing late means fewer credits on your EPT. |
 | **Deposit fee** | Varies by strategy. Funding arb: ~0.01--0.1%. Market making: ~0.3--0.5%. |
 | **Historical performance** | Past NAV trajectory gives you a sense of typical returns. Past performance does not guarantee future results. |
 
@@ -196,10 +196,10 @@ Points farmers dump ST on the ArcX AMM at a discount. You buy it.
     Buy ST at \$0.90 (10% discount to NAV).
   </Step>
   <Step title="Hold until maturity">
-    The strategy earns ~1% over the epoch. ST redeems at ~\$1.01.
+    The strategy earns ~1% over the epoch. ST redeems at ~\$1.01. Monitor the strategy's NAV via the ArcX dashboard. No action required — your ST accrues yield automatically.
   </Step>
   <Step title="Redeem after finalization">
-    Burn ST → receive \$1.01 per share. Your return: (\$1.01 - \$0.90) / \$0.90 = **12.2% in one epoch**.
+    After the admin finalizes the epoch, call `redeemST()` to receive your USDC. Your return = (redemption price - purchase price) per ST. Example: (\$1.01 - \$0.90) / \$0.90 = **12.2% in one epoch**.
   </Step>
 </Steps>
 
@@ -223,7 +223,7 @@ You can monitor your position on the ArcX interface:
 
 - **ST share value:** Based on current NAV (updates every 5 minutes)
 - **EPT credit accrual:** Estimated points earned so far
-- **Strategy performance:** NAV chart, current creditRate
+- **Strategy performance:** NAV chart, current <Tooltip tip="creditRate — the per-second rate at which each EPT accrues credits. Set by the admin and can change during an epoch.">creditRate</Tooltip>
 - **Epoch countdown:** Time remaining until maturity
 
 <Accordion title="The strategy is losing money. What do I do?">
@@ -319,8 +319,10 @@ After claiming, you hold PointsTokens (xPC, xHL, etc.) in your wallet. These per
 | Action | Details |
 |---|---|
 | **Hold** | Accumulate PointsTokens across multiple epochs. Wait for the exchange's TGE. |
-| **Trade** | PointsTokens are standard ERC20s, tradeable on any Starknet DEX. |
+| **Trade** | PointsTokens are standard ERC20s, tradeable on Starknet DEXs. |
 | **Speculate** | If you believe the TGE will be generous, hold. If you want USDC now, sell on the market. |
+
+<Note>PointsToken trading is available on Starknet DEXs. Check the ArcX dashboard for current liquidity venues.</Note>
 
 ### After TGE
 
@@ -428,3 +430,16 @@ No penalty. There is no expiry on redemptions. Redeem anytime after finalization
     Decide whether to re-deposit into the next epoch.
   </Step>
 </Steps>
+
+---
+
+## Next Steps
+
+<Columns cols={2}>
+  <Card title="Credit Mathematics" icon="calculator" href="/deep-dives/credit-mathematics">
+    Understand exactly how your points are calculated.
+  </Card>
+  <Card title="EPT Pricing" icon="chart-line" href="/deep-dives/ept-pricing">
+    Learn about flash loop economics and ST pricing dynamics.
+  </Card>
+</Columns>

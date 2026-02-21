@@ -4,6 +4,8 @@ description: "ArcX splits the value of a perp strategy into a USDC outcome token
 icon: "book-open"
 ---
 
+import FlashLoop from "/snippets/flash-loop.mdx";
+
 <Info>
 **Course level: Beginner**
 
@@ -20,7 +22,7 @@ ArcX is like a fund manager who separates your principal receipt from your loyal
 
 ## The Problem: Points Farming is Broken
 
-On platforms like TreadFi, you **burn capital for points**. Deposit $100 into a protocol, watch it earn near-zero yield, and hope the airdrop makes up for it. Your capital is locked, illiquid, and doing nothing productive.
+On platforms like <Tooltip tip="A protocol that requires users to lock capital for extended periods to earn exchange points, with no tradeable token representation.">TreadFi</Tooltip>, you **burn capital for points**. Deposit $100 into a protocol, watch it earn near-zero yield, and hope the airdrop makes up for it. Your capital is locked, illiquid, and doing nothing productive.
 
 On perp DEXes like Pacifica, Hyperliquid, or Extended:
 
@@ -39,22 +41,12 @@ ArcX splits a strategy position into two tokens at the moment of deposit:
 
 $$1 \text{ USDC deposited} = \frac{1}{R} \text{ ST} + 1 \text{ EPT}$$
 
-- **[ST (Strategy Token)](/learn/strategy-token):** your claim on the USDC value at maturity
-- **[EPT (Expected Points Token)](/learn/expected-points-token):** your claim on exchange points earned during the epoch
+- **[<Tooltip tip="Strategy Token -- represents your claim on the USDC value of the underlying strategy at maturity.">ST</Tooltip> (Strategy Token)](/learn/strategy-token):** your claim on the USDC value at maturity
+- **[<Tooltip tip="Expected Points Token -- represents your claim on exchange points earned during the epoch.">EPT</Tooltip> (Expected Points Token)](/learn/expected-points-token):** your claim on exchange points earned during the epoch
 
 ST is tradeable on the ArcX AMM. EPT is obtained only via deposit (no secondary market).
 
-### The Flash Loop: Capital-Efficient Points
-
-The flash loop is ArcX's core innovation for points farmers. It works atomically:
-
-1. Deposit $100 → receive 100 EPT + ST
-2. Sell ST on the ArcX AMM at ~10% discount → receive ~$90
-3. Re-deposit $90 → receive 90 EPT + ST
-4. Sell ST again → receive ~$81
-5. Repeat...
-
-**Result:** ~$270 of EPT exposure from a $100 deposit. Your effective cost per EPT is dramatically lower than depositing and holding.
+<FlashLoop />
 
 | Before ArcX | After ArcX |
 |---|---|
@@ -67,7 +59,7 @@ The flash loop is ArcX's core innovation for points farmers. It works atomically
 
 ## The Three Tokens
 
-**TradFi analogies:** ST = **closed-end fund share**. EPT = **pre-market points futures**. PointsToken = **gift card** redeemable at TGE.
+**TradFi analogies:** ST = **closed-end fund share**. EPT = **pre-market points futures**. <Tooltip tip="A standard ERC-20 token backed 1:1 by actual exchange points, minted when EPT credits are claimed after epoch finalization.">PointsToken</Tooltip> = **gift card** redeemable at TGE.
 
 | | ST | EPT | PointsToken |
 |---|---|---|---|
@@ -160,10 +152,10 @@ flowchart TB
         PC["Points Collector\n(LP claims)"]
         RM["Redemption Module\n(burn → claim)"]
 
-        STV --- AMM
-        STV --- EPT
-        EPT --- PC
-        PT --- RM
+        STV --> AMM
+        STV --> EPT
+        EPT --> PC
+        PT --> RM
     end
 
     subgraph OFFCHAIN["Off-Chain (ArcX)"]
@@ -192,6 +184,6 @@ For the full component spec, see [Developer Integration Guide](/build/developer-
 
 ## Epochs and Trust
 
-**Epochs:** ArcX runs in fixed epoch windows. ACTIVE → MATURITY → FINALIZED. No automatic rollover: redeem from one epoch, deposit into the next. See [How Epochs Work](/learn/epoch-lifecycle).
+**Epochs:** ArcX runs in fixed epoch windows that progress through three stages: ACTIVE (deposits open, credits accruing), MATURITY (strategy unwinds, no new deposits), and FINALIZED (redemption unlocked). Each epoch is independent -- there is no automatic rollover. When one epoch finalizes, you redeem your ST for USDC and claim your EPT for PointsTokens, then decide whether to deposit into the next epoch. Epoch duration is strategy-specific but typically runs 1-3 months. See [How Epochs Work](/learn/epoch-lifecycle) for the full lifecycle, timing, and edge cases.
 
-**Trust model:** ArcX operates all oracles, executes the strategy, and backs PointsTokens. This is a centralized system that trades trustlessness for speed to market. Every trust assumption is documented. See [Trust Model & Security](/deep-dives/trust-model-and-security).
+**Trust model:** ArcX operates all oracles (NAV, credits, final points), executes the underlying strategy off-chain, and is the sole backer of PointsTokens. This is an explicitly centralized system that trades trustlessness for speed to market and operational flexibility. The key trust assumptions are: ArcX reports NAV honestly, distributes points fairly, and does not misappropriate deposited funds. Every assumption, the attack vectors it opens, and the planned decentralization roadmap are documented in detail. See [Trust Model & Security](/deep-dives/trust-model-and-security) for the full analysis.

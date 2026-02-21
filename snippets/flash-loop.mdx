@@ -1,0 +1,37 @@
+### The Flash Loop: Capital-Efficient Points
+
+The flash loop is ArcX's core mechanism for leveraged points exposure. It works atomically: deposit USDC, sell the resulting ST on the ArcX AMM, re-deposit the proceeds, and repeat. Each iteration creates new EPT (which you keep) while recycling ST sale proceeds into more deposits.
+
+<Steps>
+  <Step title="Deposit USDC">
+    Deposit \$100 into a strategy. You receive **100 EPT** + ST shares.
+  </Step>
+  <Step title="Sell ST on the ArcX AMM">
+    Sell your ST at the current market price. With a ~10% discount to NAV, you receive **~\$90** in USDC.
+  </Step>
+  <Step title="Re-deposit the proceeds">
+    Deposit the \$90 back into the same strategy. You receive **90 EPT** + more ST shares.
+  </Step>
+  <Step title="Repeat">
+    Sell ST again (~\$81), re-deposit for **81 EPT**, and continue. Each iteration adds more EPT at the same effective cost per token.
+  </Step>
+</Steps>
+
+**Worked example (3 iterations, 10% ST discount):**
+
+| Iteration | Deposit | EPT Received | ST Sale Proceeds |
+|---|---|---|---|
+| 1 | \$100 | 100 | ~\$90 |
+| 2 | \$90 | 90 | ~\$81 |
+| 3 | \$81 | 81 | ~\$73 |
+| **Total** | | **~271 EPT** | |
+
+Your effective outlay is ~\$27 (the \$100 you started with minus the ~\$73 you still hold from the final ST sale). That gives you **~271 EPT for ~\$27 of net cost**, or roughly **\$0.10 per EPT** instead of \$1.00 per EPT from a single deposit-and-hold.
+
+<Tip>
+**Flash loop early in the epoch.** Earlier deposits accrue credits for longer, maximizing your share of points at finalization. The flash loop is most valuable at the start of the epoch when time-weighted credit accrual is greatest.
+</Tip>
+
+<Info>
+**Why this works:** Each deposit mints EPT (which you keep) and ST (which you sell). The ST discount is the "price" you pay for points. Yield seekers who buy your discounted ST capture that discount as their return. The two-sided market -- points farmers selling ST, yield seekers buying ST -- is the core ArcX flywheel.
+</Info>

@@ -160,6 +160,10 @@ If the ST discount is "too wide" (EPT is too expensive), the correcting trade wo
 
 **What this means:** The ST discount can be wider than "fair" with no mechanical correction. Yield seekers buying cheap ST provide some natural floor, but there's no guaranteed arbitrage.
 
+<Info>
+**Why no early redemption?** ArcX currently does not support redeeming ST or EPT before epoch maturity. This is a deliberate simplification — it eliminates the need for complex reserve management and allows the full deposit to work in the strategy for the entire epoch. See the [decentralization roadmap](/deep-dives/trust-model-and-security) for plans to add this capability.
+</Info>
+
 <AccordionGroup>
 <Accordion title="Why doesn't ArcX support early redemption?">
 Early redemption requires the strategy to unwind positions to return USDC. This is disruptive. Partially closing a funding arb position changes the strategy's risk profile for remaining holders. It also adds significant contract complexity (pro-rata unwinds, margin management, queuing). The current design prioritizes simplicity and speed to market. Early redemption is on the roadmap.
@@ -213,6 +217,8 @@ xychart-beta
     line "Market price" [0.90, 0.90, 0.91, 0.92, 0.93, 0.95, 0.98, 1.00, 1.01]
     line "NAV per share" [1.00, 1.00, 1.00, 1.00, 1.01, 1.01, 1.01, 1.01, 1.01]
 ```
+
+<Note>Chart values are illustrative and do not represent actual ArcX epoch data. Real prices depend on market conditions and AMM liquidity.</Note>
 
 ### Early Epoch
 
@@ -334,6 +340,8 @@ Your effective EPT cost is determined by the ST discount at the time you flash l
 | 5% | \$0.05 | ~271 | 2.71x |
 | 10% | \$0.10 | ~271 | 2.71x |
 | 15% | \$0.15 | ~271 | 2.71x |
+
+<Note>All rows show the same number of iterations (3). The key difference is **cost per EPT**: at a 5% discount, each EPT costs ~$0.05, while at a 15% discount, each costs ~$0.15. Deeper discounts mean you pay more per EPT but get more ST proceeds per loop.</Note>
 
 *Note: 3 iterations give the same ~271 EPT regardless of discount depth. The discount determines the cost per EPT, not the number of EPT per iteration count. Deeper discounts mean each \$1 of unrecovered USDC buys more EPT, but you also recover less USDC per loop.*
 

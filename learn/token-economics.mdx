@@ -1,8 +1,10 @@
 ---
 title: "The Three Tokens"
-description: "How ST, EPT, and PointsToken work: minting, pricing, redeeming."
+description: "How ArcX's three tokens are minted, what they represent, and how they're redeemed."
 icon: "coins"
 ---
+
+import FlashLoop from "/snippets/flash-loop.mdx";
 
 <Info>
 **Course level: Intermediate**
@@ -20,7 +22,7 @@ The organizing equation:
 
 $$1 \text{ USDC deposited} = \frac{1}{R} \text{ ST} + 1 \text{ EPT}$$
 
-Where R = current ST exchange rate (NAV / totalShares). Every deposit produces both tokens in a single transaction:
+Where R = current ST exchange rate (<Tooltip tip="Net Asset Value -- the total USDC value held by the strategy vault, reported by the NAV oracle every ~5 minutes.">NAV</Tooltip> / totalShares). Every deposit produces both tokens in a single transaction:
 
 ```
 deposit(100 USDC)
@@ -44,7 +46,7 @@ Two users depositing \$100 at different NAVs get different ST shares but contrib
 | **TL;DR** | Claim on USDC at maturity | Claim on exchange points | Tokenized points, 1:1 backed |
 | **Analogy** | Closed-end fund share | Pre-TGE points futures | Gift card for airdrop tokens |
 | **Minted when** | You deposit USDC | Alongside ST, automatically | At finalization, when you claim EPT |
-| **Value driver** | Strategy PnL | Credits accrued × points value | TGE timing × airdrop generosity |
+| **Value driver** | Strategy PnL | <Tooltip tip="Credits accrue every second based on the creditRate, which measures the strategy's trading activity on the exchange. More activity = faster credit accrual.">Credits accrued</Tooltip> × points value | TGE timing × airdrop generosity |
 | **Can go to zero?** | Yes (total strategy loss) | Effectively yes (worthless points) | Effectively yes (no TGE) |
 | **Tradeable?** | Yes, on ArcX AMM | Not tradeable (mint via deposit only) | Yes, standard ERC20 |
 | **Expiry** | None | None | None |
@@ -65,6 +67,8 @@ Two users depositing \$100 at different NAVs get different ST shares but contrib
 ---
 
 ## The Complete Token Lifecycle
+
+Every token passes through a single <Tooltip tip="A fixed time window (typically 1-3 months) during which a strategy runs. Progresses through ACTIVE, MATURITY, and FINALIZED stages.">epoch</Tooltip> from minting to redemption:
 
 ```mermaid
 flowchart TB
@@ -90,25 +94,7 @@ flowchart TB
 
 ## The Flash Loop
 
-The flash loop is how points farmers maximize capital efficiency:
-
-```
-$100 deposit → 100 EPT + ST
-  Sell ST on ArcX AMM (~$90) → $90 cash
-  $90 deposit → 90 EPT + ST
-  Sell ST (~$81) → $81 cash
-  $81 deposit → 81 EPT + ST
-  ...
-```
-
-After multiple iterations, you hold ~270 EPT from a \$100 starting deposit. Your effective cost per EPT is ~\$0.037 instead of \$1.00.
-
-**Why this works:** Each deposit creates EPT (which you keep) and ST (which you sell). The ST discount is the "price" you pay for points. The flash loop amplifies this by recycling the ST sale proceeds.
-
-**Economic implications:**
-- Points farmers get leveraged EPT exposure without external borrowing
-- ST gets sold repeatedly, creating supply for yield seekers who buy discounted ST
-- The two-sided market (points farmers selling ST, yield seekers buying ST) is the core flywheel
+<FlashLoop />
 
 ---
 
@@ -127,7 +113,7 @@ After multiple iterations, you hold ~270 EPT from a \$100 starting deposit. Your
 | Fee | When | Amount | Purpose |
 |---|---|---|---|
 | **Deposit fee** | At deposit | Per strategy (0.01%–0.5%) | Operational costs + sandwich defense |
-| **Redemption fee** | EPT → PointsToken claim | Configurable | Protocol revenue |
+| **Redemption fee** | EPT → PointsToken claim | Configurable per strategy; check contract parameters at launch | Protocol revenue |
 | **ST redemption** | None | **No fee** | Deposit fee covers costs |
 | **AMM swap fees** | Any ArcX AMM trade | Standard rates | AMM fee, not ArcX revenue |
 

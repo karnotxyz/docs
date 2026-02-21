@@ -21,7 +21,7 @@ Want to hold a tradeable, liquid representation of exchange points before TGE? P
 | PointsToken | Exchange | Chain | Meaning |
 |---|---|---|---|
 | xPC | Pacifica | Solana | 1 xPC = 1 Pacifica point |
-| xHL | Hyperliquid | Arbitrum | 1 xHL = 1 Hyperliquid point |
+| xHL | Hyperliquid | Hyperliquid L1 | 1 xHL = 1 Hyperliquid point |
 | xET | Extended | StarkNet | 1 xET = 1 Extended point |
 
 Your xPC from Epoch 1 and Epoch 7 are the same token. They stack.
@@ -58,15 +58,29 @@ Every PointsToken should correspond to a real exchange point in ArcX's exchange 
 
 $$\text{PointsToken supply} \leq \text{real points held by ArcX}$$
 
-This invariant is enforced by **trust, not code**. When ArcX reports `totalPoints = 1,000`, users trust those points exist.
+This invariant is enforced by **trust, not code**. When ArcX reports `totalPoints = 1,000`, users trust those points exist. There is no on-chain mechanism that proves the claimed number of airdrop tokens actually corresponds to the correct PointsToken amounts.
 
-**There is no on-chain verification.** No ZK proof, no third-party attestation, no public dashboard. Community members can partially verify by cross-referencing airdrop amounts with PointsToken supply, but real-time verification isn't possible.
+**What exactly are you trusting?** You are trusting ArcX to:
+
+1. **Accurately report `totalPoints`** — The Final Points Oracle is operated by ArcX. When it reports that 12,500 Pacifica points were earned, there is no independent on-chain proof. The number could be inflated (minting excess PointsTokens) or deflated (shortchanging holders).
+2. **Faithfully bridge and distribute airdrop tokens** — After TGE, ArcX receives airdrop tokens from the exchange and must deposit them into the Redemption Module. Users trust that ArcX bridges the full amount rather than withholding a portion.
+3. **Maintain 1:1 backing** — Between finalization and TGE, the PointsToken supply should not exceed the real points held. There is no real-time audit or third-party attestation enforcing this.
+
+**There is no on-chain verification.** No ZK proof, no oracle cross-check, no public dashboard showing real-time point balances. Community members can partially verify by cross-referencing post-TGE airdrop amounts with PointsToken supply, but this is retrospective — it only works after the exchange distributes tokens, not during the holding period.
+
+**What recourse exists?** The Trust Model deep dive documents step-by-step verification procedures that community members can follow to audit ArcX's reporting after each epoch. These checks do not prevent misreporting but can detect it after the fact.
 
 This is the protocol's most significant trust assumption. See [Trust Model](/deep-dives/trust-model-and-security) for the full analysis.
+
+<Tip>Want to verify ArcX's PointsToken backing? See the step-by-step verification guide in [Trust Model & Security](/deep-dives/trust-model-and-security).</Tip>
 
 <AccordionGroup>
 <Accordion title="Are PointsTokens safe if ArcX shuts down?">
 PointsTokens are on-chain ERC20s. They stay in your wallet regardless. However, post-TGE redemption requires ArcX to bridge airdrop tokens into the Redemption Module. If ArcX ceases operations before TGE, that path is broken.
+</Accordion>
+
+<Accordion title="What happens if finalization never occurs?">
+If an epoch is never finalized, EPT credits cannot be claimed and PointsTokens cannot be minted for that epoch. Users retain their ST and can redeem for the strategy's USDC returns once finalization eventually happens, but their points exposure for that epoch is lost. In effect, you keep the USDC side (ST) but lose the points side (EPT cannot convert to PointsTokens without finalization reporting `totalPoints`).
 </Accordion>
 </AccordionGroup>
 
@@ -100,7 +114,7 @@ When an exchange conducts its TGE:
 | TGE timing | Closer TGE → ↑ price | Less time discounting |
 | Expected airdrop generosity | More tokens/point → ↑ price | Exchange announcements |
 | Exchange token price (post-TGE) | Direct link | `xPC ≈ redemptionRate × PDX price` |
-| Supply growth | More epochs → more supply → potential dilution | New supply each epoch |
+| Supply growth | More epochs → more supply → potential dilution | New PointsTokens minted each epoch dilute existing holders' share of the eventual airdrop, since the same airdrop pool is split across a larger PointsToken supply |
 
 PointsTokens are standard ERC20s. Transfer, trade, or hold freely.
 

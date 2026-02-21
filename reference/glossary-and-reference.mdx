@@ -195,7 +195,7 @@ Per-user marker tracking the globalCreditIndex value at the user's last checkpoi
 | Parameter | Expected Range | Set by | Contract | Description |
 |---|---|---|---|---|
 | `depositFeeRate` | 0.01%--0.5% | Admin | ST Vault | Fee on gross USDC deposits. Lower for low-vol strategies (funding arb), higher for volatile (MM). |
-| `redeemFeeRate` | TBD | Admin | EPT | Fee on PointsToken claims |
+| `redeemFeeRate` | Configurable per strategy | Admin | EPT | Fee on PointsToken claims |
 | `depositCutoff` | 0--86,400 seconds | Admin | ST Vault | How long before epochEnd to stop deposits. 0 = accept until maturity. |
 | `epochStart` | Unix timestamp | Deployment | ST Vault | When the epoch begins |
 | `epochEnd` | Unix timestamp | Deployment | ST Vault | When the epoch ends (typically epochStart + 8--12 weeks) |
@@ -235,7 +235,7 @@ Per-user marker tracking the globalCreditIndex value at the user's last checkpoi
 | Exchange | Chain | PointsToken | Description |
 |---|---|---|---|
 | Pacifica | Solana | xPC | Solana-based perp DEX |
-| Hyperliquid | Arbitrum | xHL | High-performance perp DEX |
+| Hyperliquid | Hyperliquid L1 | xHL | High-performance perp DEX |
 | Extended | Starknet | xET | Starknet-native perp DEX |
 
 ---

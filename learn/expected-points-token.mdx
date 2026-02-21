@@ -67,10 +67,14 @@ This is lazy evaluation: gas-efficient and mathematically equivalent to continuo
 | Hold for the full epoch | Maximum credit accrual |
 | Deposit mid-epoch | Credits start from your deposit time |
 | Transfer EPT to another wallet | Credits locked at checkpoint. You keep what you earned. |
+| Claim points after finalization | Credits settled, gross points computed, redemption fee deducted, net PointsTokens minted. `alreadyClaimed` updated to prevent double-claiming. |
+| Hold through multiple epochs | Each epoch has its own EPT contract. Credits do not carry over. You must claim from each epoch separately. |
 
 ---
 
 ## Worked Example: Two Depositors at Different Times
+
+<Note>Time is shown in seconds for mathematical precision. 604,800s = 1 week. 259,200s = 3 days.</Note>
 
 ```mermaid
 gantt
@@ -119,7 +123,7 @@ $100 deposit → 100 EPT + ST shares
 
 After multiple iterations, you hold ~270 EPT from a \$100 starting deposit. Your effective cost per EPT drops from \$1.00 to ~\$0.037.
 
-**Why this works:** Each deposit creates EPT (which you keep) and ST (which you sell at a discount). The ST discount is the "price" you pay for points. The flash loop amplifies this by recycling the ST sale proceeds.
+**Why this works:** Each deposit creates EPT (which you keep) and ST (which you sell at a discount). The ST discount is the "price" you pay for points. The flash loop amplifies this by recycling the ST sale proceeds. For the full mathematical derivation and convergence formula, see [EPT Pricing & Flash Loop Economics](/deep-dives/ept-pricing).
 
 **Key insight:** All EPT from the flash loop accrues credits from the moment of each deposit. Earlier loop iterations earn more credits than later ones (more time remaining). This is why executing the flash loop early in the epoch is optimal.
 

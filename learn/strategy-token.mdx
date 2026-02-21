@@ -105,7 +105,9 @@ Before finalization, the only way to exit is selling ST on the ArcX AMM's ST/USD
 - **ST below fair value:** Arbitrageurs buy (price corrects upward)
 - **ST above fair value:** Arbitrageurs sell (price corrects downward)
 
-The time-decay curve steepens as maturity approaches, naturally pulling ST toward its redemption value. This means ST prices stay close to NAV during the epoch, with tighter spreads as finalization nears.
+The time-decay curve steepens as maturity approaches, naturally pulling ST toward its redemption value. This means ST prices stay close to NAV during the epoch, with tighter spreads as finalization nears. As maturity approaches, the ST discount narrows because less time remains for uncertainty about the strategy's final performance. This benefits early yield seekers who bought ST at deeper discounts earlier in the epoch, since they locked in a wider gap between purchase price and eventual redemption value.
+
+**Yield seeker worked example:** A yield seeker buys ST at $0.90 when the strategy earns 1% over the epoch. At maturity, each ST is worth ~$1.01. That's an 11% return in one epoch --- the 10% discount capture plus the 1% strategy performance.
 
 ---
 
