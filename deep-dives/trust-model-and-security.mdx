@@ -10,10 +10,10 @@ Every interaction with ArcX requires you to trust ArcX with specific things.
 
 | # | What You Trust ArcX With | What Could Go Wrong | How You Can Verify | Decentralization Path |
 |---|---|---|---|---|
-| 1 | **NAV reporting** | ArcX misreports strategy value to favor certain depositors | Compare reported NAV against exchange position dashboards | ZK proofs of exchange balances |
+| 1 | **NAV reporting** | ArcX misreports strategy value to favor certain depositors | Compare reported NAV against exchange position dashboards | Third-party attestation / audits |
 | 2 | **Credit rate accuracy** | ArcX manipulates creditRate to shift points allocation | creditRate derives from observable OI/volume on exchanges | On-chain verifiable activity feeds |
 | 3 | **Points reporting** | ArcX underreports total points at finalization | Points visible on exchange dashboards. Community can cross-reference | On-chain points verification |
-| 4 | **Points backing** | ArcX over-mints PointsTokens beyond real points held | Limited. Exchange points are per-account, not publicly queryable | Exchange APIs or ZK proofs of account state |
+| 4 | **Points backing** | ArcX over-mints PointsTokens beyond real points held | Limited. Exchange points are per-account, not publicly queryable | Exchange APIs or third-party attestation |
 | 5 | **Strategy execution** | Bugs, negligence, or malfeasance causing unexpected losses | Strategy PnL reflected in NAV. Performance is observable over time | Isolated vaults, insurance mechanisms |
 | 6 | **Cross-chain escrow** | Multisig misappropriates locked USDC during bridge transit | On-chain escrow balances are publicly visible | Trustless bridge integration |
 
@@ -87,7 +87,7 @@ NAV is the single most important number in the protocol. If it's wrong, deposits
 
 #### Decentralization Path
 
-ZK proofs of exchange balances. A future system could generate zero-knowledge proofs that ArcX's exchange account holds the reported positions, without revealing the account itself. Not production-ready yet.
+Third-party attestation or audits. A future system could have independent auditors verify ArcX's exchange positions periodically, providing external validation of reported NAV without requiring ArcX to reveal account details publicly.
 
 <AccordionGroup>
 <Accordion title="Why not just use Chainlink or Pyth for the NAV oracle?">
@@ -199,7 +199,7 @@ There is no on-chain verification mechanism for points backing. You cannot indep
 
 #### Decentralization Path
 
-Exchange APIs for points verification (if exchanges build them), or ZK proofs of exchange account state. Direct exchange-to-contract distribution would eliminate the custody step entirely.
+Exchange APIs for points verification (if exchanges build them), or third-party attestation of account state. Direct exchange-to-contract distribution would eliminate the custody step entirely.
 
   </Tab>
 
@@ -564,11 +564,11 @@ ArcX plans to decentralize these components over time. Each trust assumption has
 
 | Trust Assumption | Current | Next Step | End State |
 |---|---|---|---|
-| NAV reporting | ArcX oracle | Community monitoring dashboards | ZK proofs of exchange balances |
+| NAV reporting | ArcX oracle | Community monitoring dashboards | Third-party attestation / audits |
 | Credit rate | ArcX oracle | On-chain staleness checks (`MAX_CREDIT_STALENESS`) | Verifiable activity feeds from exchanges |
 | Points reporting | ArcX oracle | Public attestation of points balances | Exchange-native on-chain points |
 | Points backing | Trust + reputation | Third-party attestation / audits | Direct exchange --- contract distribution |
 | Strategy execution | Trust ArcX | Strategy constraints enforced on-chain | Isolated vaults with insurance |
 | Cross-chain escrow | Multisig + timeout | Reduced signer threshold, monitoring | Trustless bridge integration |
 
-The order reflects feasibility. Community monitoring dashboards and on-chain staleness checks are near-term. ZK proofs and trustless bridges are longer-term research goals.
+The order reflects feasibility. Community monitoring dashboards and on-chain staleness checks are near-term. Trustless bridge integration is a longer-term goal.
