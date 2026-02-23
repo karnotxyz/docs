@@ -30,22 +30,22 @@ stateDiagram-v2
     FINALIZED --> [*]
 
     state ACTIVE {
-        [*] --> Deposits_open
-        Deposits_open --> Credits_accruing
-        Credits_accruing --> ST_trading_on_AMM
-        ST_trading_on_AMM --> Flash_loop_available
+        [*] --> Deposits\ open
+        Deposits\ open --> Credits\ accruing
+        Credits\ accruing --> ST\ trading\ on\ AMM
+        ST\ trading\ on\ AMM --> Flash\ loop\ available
     }
 
     state MATURITY {
-        [*] --> Strategy_unwinding
-        Strategy_unwinding --> Settling_positions
-        Settling_positions --> No_new_deposits
+        [*] --> Strategy\ unwinding
+        Strategy\ unwinding --> Settling\ positions
+        Settling\ positions --> No\ new\ deposits
     }
 
     state FINALIZED {
-        [*] --> ST_redeemable_for_USDC
-        ST_redeemable_for_USDC --> EPT_claimable_for_PointsTokens
-        EPT_claimable_for_PointsTokens --> No_expiry
+        [*] --> ST\ redeemable\ for\ USDC
+        ST\ redeemable\ for\ USDC --> EPT\ claimable\ for\ PointsTokens
+        EPT\ claimable\ for\ PointsTokens --> No\ expiry
     }
 ```
 
