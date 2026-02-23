@@ -429,59 +429,13 @@ LayerZero goes down for an extended period. Your USDC is locked in the escrow.
 
 You are never permanently locked out. The refund timeout is your escape hatch.
 
-<AccordionGroup>
-<Accordion title="What's the worst that can happen to my deposit?">
-Your ST can go to zero if the strategy loses 100% of capital. This is the absolute worst case. Your EPT (points) is unaffected. You still claim PointsTokens regardless of strategy performance. There is no scenario where you owe more than your deposit.
-</Accordion>
-</AccordionGroup>
-
----
-
-## Emergency Procedures
-
-### Deposit Pause
-
-The admin can pause new deposits into the current epoch. This is the primary emergency tool.
-
-| What pause does | What pause does NOT do |
-|---|---|
-| Blocks new deposits | Does not freeze trading on the ArcX AMM |
-| Prevents new capital from entering at potentially bad prices | Does not stop credit accrual |
-| Signals to the community that something needs attention | Does not trigger early maturity |
-| | Does not affect existing positions |
-
-Pause is conservative. It stops new money from entering while existing positions continue unchanged. The admin can unpause if the issue is resolved while the deposit window is still open.
-
-### No Early Termination
-
-There is no mechanism to terminate an epoch early. Once an epoch starts, it runs to its scheduled end. This is a deliberate design choice:
-
-- Avoids the complexity of mid-epoch unwinds
-- Prevents admin abuse (can't terminate to lock in favorable NAV)
-- Ensures all participants experience the same epoch duration
-- Simplifies the contract model
-
-The tradeoff: in a genuine emergency, the only tool is pausing deposits. Existing positions ride out the epoch.
-
-<AccordionGroup>
-<Accordion title="What if ArcX goes offline?">
-If ArcX disappears entirely: deposits in progress can be refunded via escrow timeout. Existing ST and EPT tokens remain on-chain and tradeable on the ArcX AMM. Finalization would be stuck (no oracle to report final NAV/points). In this extreme scenario, the community would need to coordinate recovery. The contracts exist on Starknet regardless of ArcX's operational status.
-</Accordion>
-
-<Accordion title="What happens to the protocol if Starknet goes down?">
-All ArcX contracts live on Starknet. A Starknet outage would pause all on-chain activity (deposits, trading, redemptions). Strategy execution continues off-chain (perp DEX trades don't depend on Starknet). Once Starknet recovers, the protocol resumes. Cross-chain escrow on source chains (Ethereum, Arbitrum, Solana) is unaffected by Starknet outages. Refund timeouts still work.
-</Accordion>
-</AccordionGroup>
+For emergency procedures (deposit pausing, what happens if ArcX or Starknet goes down), see [Epoch Lifecycle: Emergency](/learn/epoch-lifecycle#emergency-pause).
 
 ---
 
 ## How to Verify ArcX's Behavior
 
 If you want to independently audit ArcX's reporting, here's what you can check:
-
-<Tip>
-These verification steps can be performed by anyone with access to a block explorer and basic knowledge of the exchange's points program. No special tools or permissions are required.
-</Tip>
 
 <Steps>
   <Step title="Track NAV Over Time">
@@ -490,9 +444,6 @@ These verification steps can be performed by anyone with access to a block explo
     - Compare the trajectory against expected strategy performance (e.g., if funding rates on Pacifica average 0.01%/8h, a \$500K strategy should return a predictable amount per epoch)
     - Flag any unexplained jumps or discrepancies
 
-    <Tip>
-    Check the on-chain NAV oracle contract directly via a Starknet block explorer to see the full history of NAV updates and their timestamps.
-    </Tip>
   </Step>
 
   <Step title="Cross-Reference Points">
@@ -501,9 +452,6 @@ These verification steps can be performed by anyone with access to a block explo
     - If Pacifica grants X points per \$1 of OI per day, and the strategy maintained \$500K OI for the epoch, expected points are estimable
     - Significant discrepancies warrant investigation
 
-    <Tip>
-    Review the exchange's points documentation to understand the accrual formula, then estimate expected points based on the strategy's known OI and epoch duration.
-    </Tip>
   </Step>
 
   <Step title="Monitor PointsToken Supply">
@@ -511,9 +459,6 @@ These verification steps can be performed by anyone with access to a block explo
     - Sum all `totalPoints` from every finalized epoch for that exchange
     - If totalSupply > sum of reported points, PointsTokens may be over-minted
 
-    <Tip>
-    Query the PointsToken ERC20 contract's `totalSupply()` and compare it against the cumulative `totalPoints` values emitted during each epoch's finalization event.
-    </Tip>
   </Step>
 
   <Step title="Watch Escrow Balances">
@@ -528,9 +473,6 @@ These verification steps can be performed by anyone with access to a block explo
     - Compare against what you actually receive
     - Any shortfall is evidence of a contract bug or misconfigured finalization
 
-    <Tip>
-    Verify the `finalNAV` and `totalShares` values from the finalization transaction, then compute your expected USDC payout before redeeming.
-    </Tip>
   </Step>
 </Steps>
 
