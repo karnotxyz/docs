@@ -1,27 +1,66 @@
 {
   "$schema": "https://mintlify.com/docs.json",
-  "theme": "maple",
+  "theme": "mint",
   "name": "ArcX",
+  "description": "ArcX splits perp DEX trading strategies into separately tradeable tokens: one for USDC returns, one for exchange points.",
   "favicon": "/favicon.png",
+  "logo": {
+    "light": "/logo/arc-logo.png",
+    "dark": "/logo/arc-logo.png",
+    "href": "https://arcx.trade"
+  },
   "colors": {
-    "primary": "#6366f1",
-    "light": "#818cf8",
-    "dark": "#4f46e5"
+    "primary": "#40C873",
+    "light": "#4DD88A",
+    "dark": "#40C873"
+  },
+  "background": {
+    "color": {
+      "light": "#FFFFFF",
+      "dark": "#0A0A0A"
+    }
+  },
+  "appearance": {
+    "default": "dark"
+  },
+  "fonts": {
+    "heading": {
+      "family": "Inter",
+      "weight": 600
+    },
+    "body": {
+      "family": "Inter",
+      "weight": 400
+    }
   },
   "mermaid": {},
   "styling": {
-    "latex": true
+    "eyebrows": "breadcrumbs",
+    "latex": true,
+    "codeblocks": "dark"
   },
-  "topbar": {
+  "navbar": {
     "links": [
       {
         "label": "Twitter",
-        "url": "https://x.com/arcxtrade"
+        "href": "https://x.com/arcxtrade"
       }
+    ],
+    "primary": {
+      "type": "button",
+      "label": "Launch App",
+      "href": "https://app.arcx.trade"
+    }
+  },
+  "contextual": {
+    "options": [
+      "copy",
+      "view",
+      "claude",
+      "chatgpt"
     ]
   },
   "navigation": {
-    "pages": ["index"],
     "tabs": [
       {
         "tab": "Learn",
@@ -29,6 +68,7 @@
           {
             "group": "Getting Started",
             "pages": [
+              "index",
               "learn/protocol-overview",
               "learn/epoch-lifecycle"
             ]
@@ -89,6 +129,8 @@
     ]
   },
   "footer": {
-    "copyright": "Copyright 2025 ArcX."
+    "socials": {
+      "x": "https://x.com/arcxtrade"
+    }
   }
 }
