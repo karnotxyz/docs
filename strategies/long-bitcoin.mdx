@@ -1,0 +1,84 @@
+---
+title: "Long Bitcoin"
+description: "Directional long BTC through perpetual contracts. Points subsidize holding costs, making this the cheapest place to go long."
+icon: "bitcoin-sign"
+---
+
+## What This Strategy Does
+
+Long Bitcoin holds a directional long BTC position through perpetual contracts on supported perp DEXes. The vault deposits USDC as margin and opens a long BTC-PERP position. When BTC goes up, the vault's NAV increases. When BTC goes down, NAV decreases.
+
+This is a straightforward directional strategy. No hedging, no second leg, no delta-neutral structure. The vault is long BTC.
+
+---
+
+## How It Earns Points
+
+The long BTC position carries open interest on the exchange where it is held. That open interest generates exchange points over time. Because this is a single-leg strategy (long only, on one exchange), it earns fewer points per dollar of vault capital compared to a two-leg strategy like funding arb.
+
+The credit rate reflects the strategy's OI on the exchange. Larger vault size means a larger position, more OI, and faster credit accrual.
+
+---
+
+## The Pitch: Cheapest Place to Long BTC
+
+If you are going to hold a long BTC position anyway, doing it through ArcX means you also earn exchange points. Those points have value. The net effect: your cost of holding a long BTC position is subsidized by points earnings.
+
+**Example.** You deposit $100 into the Long Bitcoin vault. The strategy opens a long BTC-PERP position. Over the epoch, BTC rises 5%, so your ST is worth $105 at redemption. You also earned EPT that accrued credits throughout the epoch. If you sold that EPT on the EPT/USDC orderbook at deposit time for $0.03, your effective entry was $97 instead of $100, a 3% subsidy on your long position.
+
+Alternatively, you keep both ST and EPT. You get the BTC upside through ST and the points exposure through EPT. The points are a bonus on top of your directional trade.
+
+---
+
+## What EPT Holders Care About
+
+EPT on the Long Bitcoin strategy earns fewer credits per dollar than funding arb EPT, because there is only one position leg generating OI instead of two.
+
+| Factor | Why It Matters |
+|---|---|
+| **Open interest** | Single-leg OI means lower credit rate than a dual-leg strategy. |
+| **Points value at TGE** | If the exchange's points end up being highly valued, even lower-rate EPT can be worthwhile. |
+| **EPT price on orderbook** | Lower credit rate should mean lower EPT price. If the market prices this correctly, the return per dollar can still be attractive. |
+| **Epoch duration** | Same as any strategy: longer epochs and earlier entry mean more credits. |
+
+EPT holders on this strategy are making a bet that the points from a single exchange's OI are worth more than what they paid for the EPT.
+
+---
+
+## What ST Holders Care About
+
+ST on the Long Bitcoin strategy is a directional bet on BTC. This is fundamentally different from funding arb ST, where NAV moves based on funding income.
+
+| Factor | Why It Matters |
+|---|---|
+| **BTC price** | NAV moves directly with BTC. If BTC rises 10%, NAV rises roughly 10%. If BTC falls 10%, NAV falls roughly 10%. |
+| **Entry price** | Buying ST at a discount on the ST/USDC orderbook provides a buffer. A 5% discount means BTC can drop 5% and you still break even at redemption. |
+| **Epoch duration** | Longer epochs mean more time for BTC to move. This cuts both ways. |
+| **Funding costs** | Holding a long perp position may cost funding if funding rates are positive. This drags on NAV over time. |
+
+**Example.** You buy ST at $0.90 on the orderbook. BTC rises 8% over the epoch. Final NAV is approximately $1.08. You redeem at $1.08. Return: ($1.08 - $0.90) / $0.90 = 20%. The 10% discount amplified your BTC exposure.
+
+If BTC falls 8%, final NAV is approximately $0.92. You redeem at $0.92. Return: ($0.92 - $0.90) / $0.90 = 2.2%. The discount saved you from a loss.
+
+---
+
+## Risk Profile
+
+This is a directional strategy. The risk profile is fundamentally different from delta-neutral strategies.
+
+| Risk | Description |
+|---|---|
+| **BTC price decline** | NAV falls when BTC falls. ST holders have full downside exposure, floored at $0. |
+| **Funding drag** | If funding rates are persistently positive, the strategy pays funding on its long position, reducing NAV over time even if BTC price is flat. |
+| **Exchange risk** | The position is held on a third-party perp DEX. Smart contract risk, downtime, or liquidation engine failures on the exchange affect the strategy. |
+| **Liquidation risk** | In extreme drawdowns, the position could approach liquidation. The strategy manages margin to prevent this, but tail risk exists. |
+
+ST holders should treat this as leveraged BTC exposure with a known cost basis (their ST purchase price) and a fixed time horizon (the epoch duration).
+
+EPT holders are not exposed to BTC price risk. EPT value depends on points accrual, not strategy PnL.
+
+---
+
+## Exchanges
+
+This strategy operates on supported perp DEXes. Specific exchange details will be announced closer to launch.

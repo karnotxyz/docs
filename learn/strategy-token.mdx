@@ -1,112 +1,92 @@
 ---
 title: "Strategy Token (ST)"
-description: "Your claim on the strategy's USDC value at maturity, like a share in a closed-end fund."
+description: "Your claim on the strategy's USDC value. Buy at a discount, redeem at NAV after finalization."
 icon: "vault"
 ---
 
-## What ST Does For You
+## What Is ST
 
-ST is your claim on the strategy's USDC returns at maturity. Deposit USDC, receive ST shares. Hold them, sell them on the AMM, or redeem them when the epoch finalizes.
+Strategy Token represents your share of a strategy's USDC value. Each epoch creates a new ST for each strategy. When the epoch finalizes, you redeem ST for USDC based on the strategy's final NAV.
 
-ST is an ERC4626-like vault share. Each epoch creates a new ST contract instance, e.g., `ST-PacificaFundingArb-E007` for Epoch 7. Think of it as a share in a **closed-end fund**.
-
----
-
-## How Shares Are Calculated
-
-The number of ST shares you receive depends on the current NAV (net asset value) at deposit time:
-
-$$\text{shares} = \frac{\text{netUSDC} \times \text{totalShares}}{\text{currentNAV}}$$
-
-**First depositor:** If you're first in a new epoch, the bootstrap rule applies: `shares = netUSDC` (1:1 ratio).
-
-**Example: Two depositors at different NAVs**
-
-| | Alice (Day 1) | Bob (Week 4) |
-|---|---|---|
-| Deposits | \$100 | \$100 |
-| Deposit fee (0.5%) | \$0.50 | \$0.50 |
-| Net USDC | \$99.50 | \$99.50 |
-| NAV at deposit | \$10,000 | \$10,300 (strategy up 3%) |
-| Total shares before | 10,000 | 10,099.50 |
-| Shares received | `99.50 × 10,000 / 10,000 = 99.50` | `99.50 × 10,099.50 / 10,300 = 97.58` |
-
-Alice gets 99.50 shares. Bob gets 97.58, fewer because the strategy has appreciated. Bob is buying in at a higher price per share. This is exactly how a mutual fund works.
-
-<AccordionGroup>
-<Accordion title="Can I lose more than my deposit?">
-No. ST floors at \$0. The strategy's deposited capital is the margin, and there's no additional leverage. Your maximum loss is the USDC you deposited.
-</Accordion>
-</AccordionGroup>
+ST trades on the **ST/USDC orderbook**. Yield seekers buy ST at a discount to NAV during the epoch, then redeem at full NAV after finalization --- capturing the spread as profit.
 
 ---
 
-## Share Price and NAV
+## Share Calculation
 
-$$\text{sharePrice} = \frac{\text{currentNAV}}{\text{totalShares}}$$
+When you deposit USDC, you receive ST shares based on the current NAV:
 
-The ArcX AMM price typically tracks slightly below NAV (reflecting the ST discount from flash loop selling pressure), then converges toward NAV as maturity approaches via the time-decay curve. For the full price trajectory chart and analysis, see [EPT Pricing: ST Price Through the Epoch](/deep-dives/ept-pricing#st-price-through-the-epoch).
+$$\text{NAV} = \frac{\text{vault\_value}}{\text{total\_shares}}$$
 
-The NAV oracle updates every 5 minutes. As the strategy executes trades on perp DEXes, PnL flows into the NAV:
+$$\text{shares} = \frac{\text{deposit\_amount}}{\text{NAV}}$$
 
-- Strategy earns funding payments → NAV increases → share price rises
-- Strategy takes a loss → NAV decreases → share price falls
-- Strategy is idle → NAV stays flat
+A small fee (varies by strategy) is deducted from your deposit before shares are calculated.
 
-**The floor:** ST share price floors at \$0. If the strategy loses its entire capital, your ST redeems for nothing. But it never goes negative. You cannot owe more than your deposit.
+**Example:** You deposit $100 into a strategy with NAV = $1.00. After a $0.50 fee, your net deposit is $99.50. You receive 99.50 ST shares.
+
+If NAV had already risen to $1.03 (strategy up 3%), that same $99.50 nets you 96.60 shares. You are buying in at a higher price per share, but each share is backed by more USDC.
+
+---
+
+## Yield Seekers: Buy the Discount
+
+ST typically trades below NAV on the orderbook. This discount is the yield seeker's opportunity. The playbook:
+
+1. Buy ST on the ST/USDC orderbook at a discount to NAV
+2. Hold through finalization
+3. Redeem at NAV
+
+The discount exists because points farmers who acquire ST through minting sell it on the orderbook to recoup capital. Yield seekers absorb that supply.
+
+### Worked Example
+
+| | Value |
+|---|---|
+| ST purchase price | $0.90 (10% discount to NAV) |
+| Strategy return over epoch | +1% |
+| NAV at finalization | $1.01 |
+| Redemption value per ST | $1.01 |
+| **Your return** | **$0.11 per ST (12.2%)** |
+
+You paid $0.90, redeemed for $1.01. The return is the discount capture ($0.10) plus the strategy's performance ($0.01).
 
 ---
 
 ## Redemption
 
-Once the epoch ends and the admin calls `finalize()`, you can redeem:
+After the epoch finalizes, you redeem ST for USDC:
 
-$$\text{usdcOut} = \frac{\text{yourShares} \times \text{finalNAV}}{\text{totalShares}}$$
+$$\text{usdcOut} = \text{yourShares} \times \text{NAV}_{\text{final}}$$
 
-- No fee on ST redemption
-- No expiry: redeem days, weeks, or months after finalization
-- Burns your ST shares and transfers USDC to your wallet
-
-**Example:** Alice deposits \$100 (sole depositor). Fee = \$0.50. Net = \$99.50. Shares = 99.50. Strategy earns 3%. Final NAV = \$102.49.
-
-$$\text{usdcOut} = \frac{99.50 \times 102.49}{99.50} = \$102.49$$
-
-Net profit = \$1.99 after the \$0.50 fee.
-
-<AccordionGroup>
-<Accordion title="What if I never redeem my ST?">
-It remains redeemable indefinitely after finalization. No expiry. Your USDC isn't forfeited.
-</Accordion>
-</AccordionGroup>
+Redemption burns your ST and transfers USDC to your wallet. There is no fee on redemption.
 
 ---
 
-## Early Exit: Selling on the ArcX AMM
+## Selling Before Finalization
 
-Before finalization, the only way to exit is selling ST on the ArcX AMM's ST/USDC pool. This is a custom Pendle-style AMM with a time-decay curve that accounts for the time remaining until maturity.
+You do not have to wait for finalization. You can sell ST on the ST/USDC orderbook at any time during the epoch. This is not redemption --- another participant buys your position at the current market price.
 
-- **ST below fair value:** Arbitrageurs buy (price corrects upward)
-- **ST above fair value:** Arbitrageurs sell (price corrects downward)
+The orderbook price reflects the market's view of the strategy's NAV, adjusted for time remaining and demand. As the epoch approaches finalization, the orderbook price tends to converge toward NAV.
 
-The time-decay curve steepens as maturity approaches, naturally pulling ST toward its redemption value. ST prices stay close to NAV during the epoch, with tighter spreads as finalization nears. The discount narrows as maturity approaches. Less time for things to go wrong. Early yield seekers benefit most: they bought at a deeper discount and locked in a wider gap between purchase price and redemption value.
+---
 
-**Yield seeker worked example:** A yield seeker buys ST at $0.90 when the strategy earns 1% over the epoch. At maturity, each ST is worth ~$1.01. That's an 11% return in one epoch --- the 10% discount capture plus the 1% strategy performance.
+## Strategy Losses and the Discount
+
+Negative strategy PnL is not a failure mode — it's the inherent bet ST holders make. The discount you buy at is your buffer.
+
+**Example:** You buy ST on the orderbook at $0.90 (10% discount). The strategy loses 5% over the epoch. Final NAV = $0.95. You redeem at $0.95 — still a $0.05 profit per ST (5.6% return) because your discount absorbed the loss.
+
+You only lose money if the strategy loses *more* than your discount. In this example, the strategy would need to lose more than 10% before you're underwater. That's the trade-off: the deeper the discount you demand, the larger the loss buffer you have.
 
 ---
 
 ## What Drives ST Price
 
-| Factor | Effect | Mechanism |
-|---|---|---|
-| Strategy performance (PnL) | ↑ PnL → ↑ ST price | NAV oracle updates every 5 min |
-| Flash loop selling pressure | ↓ ST price | Points farmers sell ST repeatedly to accumulate EPT |
-| Yield seeker demand | ↑ ST price | Yield seekers buy discounted ST for fixed APR |
-| Time to maturity | Converges to final NAV | ArcX AMM time-decay curve steepens near maturity |
+| Factor | Effect |
+|---|---|
+| Strategy performance | Positive PnL raises NAV; negative PnL lowers it |
+| Points farmer selling | Creates supply on the orderbook, widening the discount |
+| Yield seeker demand | Absorbs supply, narrowing the discount |
+| Time to finalization | As the epoch nears its end, price converges toward NAV |
 
-**The two-sided market:** Points farmers sell ST at a discount (creating supply), yield seekers buy discounted ST (creating demand). The ST discount reflects the "price" of points. Yield seekers capture this discount as their return.
-
-<Warning title="What can go wrong">
-- **Strategy loss:** NAV drops, your ST redeems for less than deposited. Worst case: \$0.
-- **Thin AMM liquidity:** If you exit early and the pool has low liquidity, you may suffer slippage selling below fair value.
-- **NAV staleness:** Deposits use oracle NAV, which can be up to 30 minutes old. The deposit fee covers this gap for typical strategies.
-</Warning>
+The ST discount reflects the cost of points. When points are in high demand, farmers sell ST more aggressively, the discount widens, and yield seekers earn a higher return. The two sides of the market --- points farmers and yield seekers --- set the price.

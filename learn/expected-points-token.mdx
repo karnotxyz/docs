@@ -1,142 +1,112 @@
 ---
 title: "Expected Points Token (EPT)"
-description: "Your claim on exchange points earned during the epoch, obtained via deposit and amplified through the flash loop."
+description: "Your claim on exchange points earned during the epoch. Trade on the EPT/USDC orderbook, accrue credits, claim PointsTokens after finalization."
 icon: "star"
 ---
 
-## What EPT Does For You
+## What Is EPT
 
-EPT is your claim on exchange points earned during the epoch. Deposit USDC, get EPT. Use the flash loop to multiply your exposure: deposit, sell the ST you receive, re-deposit the proceeds, repeat.
+EPT is your claim on exchange points earned by a strategy during the epoch. Each epoch creates a new EPT per exchange per strategy. When you deposit USDC, you receive both ST and EPT. When the epoch finalizes, your EPT entitles you to a share of the total points earned, proportional to the credits you accrued.
 
-EPT is an ERC20 with a built-in credit accrual system. Each epoch creates a new EPT per exchange per strategy, e.g., `EPT-Pacifica-E007` for Pacifica points from Epoch 7. Think of it as a **pre-market futures contract** on exchange loyalty points.
+EPT trades on the **EPT/USDC orderbook**. You can buy more EPT to increase your points exposure, or sell EPT if you only want the USDC yield from ST.
 
-**Multi-EPT:** If a strategy earns points on multiple exchanges, you receive a separate EPT for each. A \$100 deposit into Pacifica-Extended Funding Arb gives you 1 ST + 99.50 EPT_Pacifica + 99.50 EPT_Extended.
-
-**EPT is deposit-only.** No secondary market. You get it by depositing USDC, and the flash loop is how you stack more of it.
+If a strategy earns points on multiple exchanges, you receive a separate EPT for each.
 
 ---
 
 ## The Credit System
 
-The credit formula:
+Credits determine your share of points. The system is tick-based: an off-chain oracle periodically reports the current **credits per EPT**, derived from the strategy's open interest and activity on the exchange.
 
-$$\text{credits} = \text{balance} \times \text{creditRate} \times \Delta t$$
+While you hold EPT, your credits accumulate based on these oracle updates. The key rules:
 
-Your credits grow continuously while you hold EPT. The rate, `creditRate`, is set by ArcX's Credits Oracle and reflects strategy activity:
+- **Credits are personal.** They belong to the holder, not the token.
+- **Fresh start on acquisition.** Whether you mint new EPT or buy it on the orderbook, your credit counter for those tokens starts from zero. The seller's accumulated credits stay with the seller.
+- **No transfer of credits.** When EPT changes hands, the seller keeps all credits earned up to that point. The buyer begins accruing from their moment of acquisition.
 
-| Strategy Type | What creditRate reflects | Why |
-|---|---|---|
-| Funding arb | Current open interest (OI) | More OI = more exchange points |
-| Market making | Trading volume throughput | More volume = more activity points |
-
-**Why variable rate?** If the strategy was idle for 3 weeks then ramped up for 5 weeks, a constant rate would distribute credits equally across the epoch. Variable creditRate concentrates credit accrual during high-activity periods, aligning with when points were actually generated.
-
-**Fallback:** If the Credits Oracle goes down, credits accrue at the last known rate. If creditRate were constant, it cancels out in the final ratio, as proven in [Credit Mathematics](/deep-dives/credit-mathematics).
+This means earlier holders accumulate more credits per EPT than later holders, all else being equal.
 
 ---
 
-## Credit Checkpointing
+## How Credits Determine Your Points
 
-Every time EPT moves (transfer, mint), the contract checkpoints both sender and receiver:
+At finalization, the total points earned by the strategy are reported. Your share is:
 
-1. Compute sender's accrued credits since last checkpoint
-2. Lock those credits to the sender
-3. Do the same for the receiver
-4. Execute the transfer
+$$\text{your\_points} = \frac{\text{your\_credits}}{\text{total\_credits}} \times \text{total\_points}$$
 
-Lazy evaluation. Same result as continuous tracking, fraction of the gas.
-
-| Action | Effect on your credits |
-|---|---|
-| Hold for the full epoch | Maximum credit accrual |
-| Deposit mid-epoch | Credits start from your deposit time |
-| Transfer EPT to another wallet | Credits locked at checkpoint. You keep what you earned. |
-| Claim points after finalization | Credits settled, gross points computed, redemption fee deducted, net PointsTokens minted. `alreadyClaimed` updated to prevent double-claiming. |
-| Hold through multiple epochs | Each epoch has its own EPT contract. Credits do not carry over. You must claim from each epoch separately. |
+Everyone's credits are summed into the denominator. Your fraction of that sum determines your fraction of the points.
 
 ---
 
-## Worked Example: Two Depositors at Different Times
+## Worked Example
 
-<Note>This example uses a simplified 8-week epoch. The math works identically for any epoch length.</Note>
+Alice and Bob each hold 100 EPT in an 8-week epoch. Alice holds from Day 0. Bob buys on the orderbook at Week 3 (his credits start from zero at purchase).
 
-```mermaid
-gantt
-    title Credit Accrual: Alice vs Bob
-    dateFormat YYYY-MM-DD
-    axisFormat %b %d
+Assume the oracle reports a constant credit rate for simplicity.
 
-    section Alice (100 EPT)
-    Full epoch (100 EPT)    :a1, 2025-01-01, 56d
-
-    section Bob (100 EPT)
-    Deposits mid-epoch (100 EPT)    :b1, 2025-01-22, 35d
-```
-
-Alice deposits \$100 on Day 0. Bob deposits \$100 on Day 3 (mid-epoch). CreditRate = 10 (constant for simplicity).
-
-**Day 0 onwards:** Alice holds 100 EPT → accruing credits immediately
-
-**Day 3:** Bob deposits \$100 → receives 100 EPT → starts accruing credits
-
-**Full epoch (604,800 seconds):**
-
-| | Duration (seconds) | Credits | Share | Points (of 1,000) |
+| | Holding period | Credits accrued | Share of total | Points (of 1,000) |
 |---|---|---|---|---|
-| Alice | 604,800 (full epoch) | 604,800,000 | 63.6% | 636 |
-| Bob | 345,600 (Day 3 onward) | 345,600,000 | 36.4% | 364 |
+| Alice | 8 weeks (full epoch) | 604,800 | 63.6% | 636 |
+| Bob | 5 weeks (Week 3 onward) | 345,600 | 36.4% | 364 |
 
-Alice gets more because she deposited earlier and accrued credits for 3 extra days. The credit system correctly weights amount × duration.
-
-For variable creditRate examples, see [Credit Mathematics](/deep-dives/credit-mathematics).
+Alice earns more points because she held longer and accrued credits for 3 additional weeks. The credit system weights **amount held times duration held**. There is no bonus or multiplier for early entry --- accrual is linear.
 
 ---
 
-## The Flash Loop: Leveraged EPT
+## Why Variable Credit Rates
 
-The flash loop multiplies your EPT exposure: deposit USDC, sell the resulting ST on the ArcX AMM, re-deposit the proceeds, repeat. After 3 iterations with a 10% ST discount, \$100 produces ~270 EPT at ~\$0.10 each. See [Protocol Overview](/learn/protocol-overview#the-flash-loop-capital-efficient-points) for step-by-step mechanics and [EPT Pricing](/deep-dives/ept-pricing) for the convergence formula.
+The oracle does not report a fixed rate. It adjusts based on real strategy activity:
 
-All EPT from the flash loop accrues credits from the moment of each deposit. Earlier loop iterations earn more credits than later ones (more time remaining). So run the flash loop early.
+| Strategy type | Credit rate reflects |
+|---|---|
+| Funding arbitrage | Current open interest |
+| Market making | Trading volume throughput |
+
+If a strategy is idle for 3 weeks then active for 5 weeks, the credit rate is low during the idle period and high during the active period. This concentrates credit accrual during the windows when points are actually being generated on the exchange.
+
+For the full mathematical treatment, see [Credit Mathematics](/deep-dives/credit-mathematics).
+
+---
+
+## EPT Pricing
+
+EPT has a fair value determined by the minting relationship between ST and EPT:
+
+$$\text{EPT}_{\text{fair}} = 1 - \frac{X}{R}$$
+
+Where:
+- **X** = ST market price on the ST/USDC orderbook
+- **R** = NAV (net asset value per share)
+
+**Intuition:** A $1 deposit creates both ST and EPT. If ST trades at $0.90 and NAV is $1.00, then the implied EPT cost is $0.10 per token. The deeper the ST discount, the higher the implied EPT cost --- because the points farmer is giving up more USDC value on the ST side.
+
+### The Interest Rate Frame
+
+Rather than asking "is $0.10 too much for an EPT?", think about the **implied return rate**. EPT decays in value over the epoch as time remaining decreases (fewer credits left to earn). The EPT price at any moment reflects the market's view of the remaining points value. Early in the epoch, the same EPT costs more because there are more credits left to accrue.
+
+Full pricing analysis and decay mechanics are covered in [EPT Pricing](/deep-dives/ept-pricing).
+
+---
+
+## Cross-Matching: How Minting Works
+
+The ST/USDC and EPT/USDC orderbooks are separate, but they share a minting mechanism. When a new deposit occurs, it creates both ST and EPT. The protocol's matching engine can cross-match across the two books:
+
+- A buyer on the EPT/USDC book and a buyer on the ST/USDC book can together trigger a mint, each receiving the token they want
+- Secondary trades (EPT seller to EPT buyer, or ST seller to ST buyer) happen within each respective book
+
+This means liquidity on one book affects pricing on the other through the minting parity relationship.
 
 ---
 
 ## Claiming Points
 
-After finalization, the Final Points Oracle reports `totalPoints`. The contract computes:
+After the epoch finalizes, the total points are reported and you can claim your share as [PointsTokens](/learn/points-token).
 
-$$\text{pointsPerCredit} = \frac{\text{totalPoints}}{\text{totalCredits}}$$
+Your claim is based on your credit share:
 
-$$\text{yourPoints} = \text{yourCredits} \times \text{pointsPerCredit} - \text{alreadyClaimed}$$
+$$\text{your\_PointsTokens} = \frac{\text{your\_credits}}{\text{total\_credits}} \times \text{total\_points}$$
 
-When you call `claimPoints()`: credits settled → gross PointsTokens computed → redemption fee deducted → net PointsTokens minted to your wallet.
+A small fee (varies by strategy) is deducted, and the net PointsTokens are minted to your wallet.
 
-No expiry. Claim incrementally; the contract tracks what you've already received.
-
----
-
-## What Determines Your EPT's Value
-
-Since EPT has no secondary market, its value is determined by the implied cost through the flash loop:
-
-| Factor | Effect | Mechanism |
-|---|---|---|
-| ST discount on ArcX AMM | ↑ discount → ↓ EPT cost | Deeper ST discounts mean cheaper EPT via the flash loop |
-| Expected creditRate | ↑ activity → ↑ EPT value | More active strategy = more credits per EPT |
-| Time remaining | ↓ time left → ↓ EPT value | Less credits to earn for new deposits |
-| Expected points value | ↑ TGE expectations → ↑ EPT demand | More deposits → more flash loops → more ST selling |
-| Minting parity | Caps combined ST+EPT at \$1 | `EPT_implied_cost = 1 - X/R` |
-
-**The minting parity equation:**
-
-$$\text{EPT}_\text{fair} = 1 - \frac{X}{R}$$
-
-Where X = ST market price and R = exchange rate. Full derivation in [EPT Pricing](/deep-dives/ept-pricing).
-
-**The one-way arb:** If the combined value of ST + EPT from a \$1 deposit exceeds \$1, anyone can deposit and sell both at a profit. This caps the upside. But there is no early redemption to correct underpricing. See [EPT Pricing](/deep-dives/ept-pricing) for the full analysis.
-
-<Warning title="What can go wrong">
-- **Depositing late:** You accrue fewer credits than early depositors. Same capital, fewer points per dollar.
-- **creditRate drops:** Strategy goes idle → credits accrue slower.
-- **Points are worthless:** No TGE or negligible airdrop → EPT value approaches zero.
-- **Flash loop at bad timing:** If ST discount widens after your loop, later depositors get EPT cheaper.
-</Warning>
+Each epoch's EPT is a separate contract. You claim from each epoch independently. Credits do not carry over between epochs.

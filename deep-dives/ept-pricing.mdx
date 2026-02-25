@@ -1,359 +1,190 @@
 ---
-title: "EPT Pricing & Flash Loop Economics"
-description: "How EPT gets its value, how the flash loop determines its cost, and what drives the ST discount."
+title: "EPT Pricing"
+description: "How EPT gets its value from minting parity, why the interest rate frame matters, and what drives prices on the EPT/USDC orderbook."
 icon: "chart-line"
 ---
+
 ## The Minting Parity Equation
 
-Every EPT pricing analysis starts from the same equation:
+Every EPT pricing analysis starts from the deposit contract:
 
 $$1 \text{ USDC deposited} = \frac{1}{R} \text{ ST} + 1 \text{ EPT}$$
 
-Where R = ST exchange rate = NAV / totalShares.
+where $R$ = NAV per share. Depositing 1 USDC always mints exactly $1/R$ ST shares and exactly 1 EPT. No exceptions.
 
-This always holds. No exceptions. It's enforced by the deposit contract. When you deposit 1 USDC (ignoring fees for clarity), you receive exactly `1/R` ST shares and exactly 1 EPT.
+Since the two tokens are co-minted, their prices are linked. If ST trades at price $X$ on the ST/USDC orderbook, the fair value of EPT is:
 
-### Deriving EPT Implied Cost
+$$\text{EPT}_{\text{fair}} = 1 - \frac{X}{R}$$
 
-Since there's no EPT secondary market, its "price" is the implied cost of acquiring it through the flash loop:
+**Intuition:** a \$1 deposit creates ST worth $X/R$ and 1 EPT. The EPT accounts for whatever value the ST does not. If ST trades at \$0.92 with NAV at \$1.00, then EPT fair value is \$0.08.
 
-$$\text{EPT}\_\text{cost} = 1 - \frac{X}{R}$$
-
-Where X = ST market price on the ArcX AMM and R = ST exchange rate.
-
-You deposit \$1, receive ST + EPT, then sell the ST on the ArcX AMM. The EPT's cost is whatever USDC you don't recover from selling the ST. If your ST sale returns \$0.92, the EPT cost you \$0.08.
-
-### Worked Example
-
-Epoch 7. NAV = \$100,000. Total shares = 100,000. Exchange rate R = 1.0.
-
-- You deposit \$1 --- receive 1 ST share + 1 EPT
-- ST is trading at \$0.90 on the ArcX AMM (10% discount to NAV)
-- `EPT_cost = 1 - 0.90/1.0 = $0.10`
-
-If ST trades at NAV (X = R):
-- `EPT_cost = 1 - 1.0/1.0 = $0.00`
-
-EPT costs zero only if ST trades at exactly its exchange rate, meaning the market values ST at full NAV with zero discount. In practice, ST trades at a discount (from flash loop selling pressure), so EPT has a positive cost.
-
-**Later in the epoch**, the strategy has grown. NAV = \$103,000. Total shares still 100,000. R = 1.03.
-
-- ST trades at \$0.95 on the ArcX AMM
-- `EPT_cost = 1 - 0.95/1.03 = 1 - 0.9223 = $0.0777`
-
-The EPT implied cost tracks the spread between ST market price and its exchange rate.
-
-<AccordionGroup>
-<Accordion title="How does the deposit fee affect the minting parity equation?">
-The equation `1 USDC = (1/R) ST + 1 EPT` ignores fees. With a deposit fee `f`, you deposit 1 USDC gross but receive tokens on the net amount: `1 USDC deposited = ((1-f)/R) ST + (1-f) EPT`. The implied cost becomes `EPT_cost = (1-f)(1 - X/R)`. The fee widens the no-arb band slightly. The flash loop only nets positive EPT if the EPT value exceeds the deposit fee.
-</Accordion>
-</AccordionGroup>
+This is not a theoretical relationship. Cross-matching enforces it mechanically. If the combined buy-side prices on both orderbooks exceed the minting cost, the matching engine triggers a mint and self-corrects the spread.
 
 ---
 
-## Flash Loop Economics
+## Interest Rate Framing
 
-The flash loop is the primary mechanism for acquiring EPT. Here's how it works.
+The natural question when looking at EPT prices is "is \$0.08 too expensive?" The better question is: **what is the implied return rate?**
 
-### The Basic Loop
+EPT is a claim on future points. Its value depends on how many points you earn and what those points are worth at TGE. Instead of evaluating the absolute price, trace the full return.
 
+### Worked Example
+
+You buy 100 EPT at \$0.05 each (\$5 total) during an 8-week epoch. Here's how the return plays out:
+
+| Step | What happens |
+|---|---|
+| **Buy** | 100 EPT × \$0.05 = \$5 spent |
+| **Hold** | You accrue credits over the epoch. Your credit share works out to 50 points. |
+| **Claim** | Epoch finalizes. You claim 50 PointsTokens. |
+| **TGE** | Each point is worth \$0.20 at TGE. You burn 50 PointsTokens for \$10. |
+| **Return** | \$10 out on \$5 in = **100% return over 8 weeks** |
+
+That's the implied interest rate. It eliminates time decay as a concept and replaces it with one question: **what return am I getting on my EPT investment?**
+
+Now compare the same \$0.05 price at different points in the epoch:
+
+$$\text{Annualized (8 weeks left)} \approx \frac{100\%}{8} \times 52 = 650\%$$
+
+$$\text{Annualized (2 weeks left)} \approx \frac{100\%}{2} \times 52 = 2{,}600\%$$
+
+Same price, same expected payout, vastly different annualized rates. The interest rate frame makes this obvious — \$0.05 with 2 weeks left is a much better deal than \$0.05 with 8 weeks left.
+
+### Why EPT Price Falls Over the Epoch
+
+EPT accrues credits while you hold it. As the epoch progresses, fewer credits remain to be earned. An EPT purchased at Week 1 accrues credits for 7 more weeks. An EPT purchased at Week 6 accrues credits for 2 weeks. The market prices this in: EPT gets cheaper as the epoch advances, because each token has less earning potential left.
+
+This is not mechanical decay imposed by a curve. It is the market correctly pricing a shrinking stream of future credits.
+
+---
+
+## Orderbook Price Dynamics
+
+EPT trades on the **EPT/USDC orderbook**. Price discovery happens through standard limit orders — buyers and sellers post bids and asks, and the matching engine executes trades.
+
+### Secondary Trading
+
+When an EPT holder sells to an EPT buyer, USDC changes hands. No minting or burning occurs. The seller keeps all credits earned up to the moment of sale. The buyer begins accruing from zero.
+
+### Cross-Matching
+
+The EPT/USDC and ST/USDC orderbooks are connected through the minting parity. When a buy order on the EPT book and a buy order on the ST book have prices that satisfy:
+
+$$P_{\text{EPT}} + \frac{P_{\text{ST}}}{R} \geq 1$$
+
+the matching engine can cross-match them. The protocol takes the combined USDC, deposits it into the vault, and delivers EPT to one buyer and ST to the other. This creates a price ceiling: the sum of buy-side prices across both books cannot persistently exceed the minting cost, because cross-matching mints new supply until the gap closes.
+
+```mermaid
+flowchart LR
+    A["EPT Buy Order\n$0.08"] --> C["Matching Engine"]
+    B["ST Buy Order\n$0.93"] --> C
+    C -->|"sum ≥ $1.00"| D["Mint via Vault"]
+    D --> E["EPT → Buyer A"]
+    D --> F["ST → Buyer B"]
 ```
-$100 deposit → receive (100/R) ST + 100 EPT
-  Sell ST on ArcX AMM at price X → receive (100 × X/R) USDC
-  Re-deposit that USDC → receive more ST + more EPT
-  Sell ST again → receive USDC
-  ... repeat
-```
-
-### The Math: Convergent Geometric Series
-
-Each iteration recovers a fraction `X/R` of the previous deposit. With a 10% ST discount (X/R = 0.9):
-
-| Iteration | Deposit | EPT Received | ST Sale Proceeds |
-|---|---|---|---|
-| 1 | \$100.00 | 100.00 | \$90.00 |
-| 2 | \$90.00 | 90.00 | \$81.00 |
-| 3 | \$81.00 | 81.00 | \$72.90 |
-| 4 | \$72.90 | 72.90 | \$65.61 |
-| ... | ... | ... | ... |
-| Total (infinite) | \$1,000 | **1,000** | \$900 |
-
-The total EPT from infinite iterations converges to:
-
-$$\text{Total EPT} = \frac{\text{initial deposit}}{1 - X/R} = \frac{100}{1 - 0.9} = 1{,}000 \text{ EPT}$$
-
-In practice, 5--7 iterations capture 90%+ of the theoretical maximum:
-
-$$\text{EPT after n iterations} = \text{deposit} \times \frac{1 - (X/R)^n}{1 - X/R}$$
-
-After 3 iterations: ~271 EPT from \$100. After 5: ~410 EPT. After 7: ~522 EPT.
-
-### Effective Cost Per EPT
-
-The effective cost per EPT through the flash loop is:
-
-$$\text{cost per EPT} = \frac{\text{USDC spent (net)}}{\text{total EPT received}} = 1 - \frac{X}{R}$$
-
-With X/R = 0.9 (10% discount): **\$0.10 per EPT**, regardless of how many iterations you run. The number of iterations determines *how many* EPT you get, not the cost per unit.
-
-The flash loop is a capital multiplier, not a cost reducer. Each \$1 of capital buys EPT at the same effective cost. More iterations just let you deploy more of your initial capital into EPT.
-
-### What Determines Leverage
-
-| ST Discount (1 - X/R) | EPT Cost | Max EPT per \$100 | Effective Leverage |
-|---|---|---|---|
-| 5% | \$0.05 | 2,000 | 20x |
-| 10% | \$0.10 | 1,000 | 10x |
-| 15% | \$0.15 | 667 | 6.7x |
-| 20% | \$0.20 | 500 | 5x |
-
-Deeper ST discounts mean cheaper EPT but lower leverage (each iteration recovers less USDC). Narrower discounts mean more expensive EPT but higher leverage.
 
 ---
 
 ## One-Way Arbitrage
 
-### Upward Arb: Works (via Flash Loop Pressure)
+### Upward Arb Works
 
-If the ST discount is "too narrow" relative to EPT demand, the flash loop creates self-correcting pressure:
+If EPT + ST buy prices exceed the minting cost, cross-matching creates new tokens and pushes prices back in line. This is a hard ceiling enforced by the protocol.
 
-1. Points farmers deposit and flash loop aggressively
-2. Each loop iteration sells ST on the ArcX AMM
-3. Selling pressure widens the ST discount
-4. EPT becomes more expensive (cost per EPT rises)
-5. Equilibrium: ST discount stabilizes where marginal points farmer stops looping
+**Example:** EPT bids at \$0.12, ST bids at \$0.94 (sum = \$1.06 with R = 1.0). The engine mints, delivers tokens, and new supply pushes prices down to parity.
 
-This is the **supply side** of the EPT market. More deposits + flash loops = more ST selling = wider discount = more expensive EPT.
+### Downward Arb Is Broken
 
-**Worked example:**
+If the combined prices fall below minting cost — meaning EPT and ST are both "cheap" — the correcting trade would require buying both tokens and burning them for USDC. **This is not possible.** There is no early redemption mechanism. You cannot burn ST + EPT before finalization.
 
-- R = 1.0, ST trades at \$0.98 (2% discount)
-- EPT_cost = \$0.02 per EPT (very cheap!)
-- Points farmers aggressively flash loop, dumping ST
-- ST price drops to \$0.90 (10% discount)
-- EPT_cost rises to \$0.10 per EPT
-- Flash loop activity slows (EPT is now 5x more expensive)
-- Equilibrium reached
-
-### Downward Arb: Broken
-
-If the ST discount is "too wide" (EPT is too expensive), the correcting trade would be:
-
-```
-1. Buy cheap ST on the ArcX AMM
-2. Combine with EPT
-3. Burn ST + EPT → receive 1 USDC from vault
-4. If cost < 1 USDC, profit.
-```
-
-**Step 3 is impossible.** There is no early redemption mechanism. You cannot burn ST + EPT for USDC before finalization.
-
-**What this means:** The ST discount can be wider than "fair" with no mechanical correction. Yield seekers buying cheap ST provide some natural floor, but there's no guaranteed arbitrage.
+The ST discount can therefore persist wider than fair value with no mechanical correction. Yield seekers buying cheap ST provide a natural floor, but there is no guaranteed arbitrage on the downside.
 
 <Info>
-**Why no early redemption?** ArcX currently does not support redeeming ST or EPT before epoch maturity. This is a deliberate simplification. It eliminates the need for complex reserve management and allows the full deposit to work in the strategy for the entire epoch. See the [decentralization roadmap](/deep-dives/trust-model-and-security) for plans to add this capability.
+No early redemption is a deliberate design choice. It eliminates complex reserve management and lets the full deposit work in the strategy for the entire epoch. Early redemption is on the roadmap for a future version.
 </Info>
 
-<AccordionGroup>
-<Accordion title="Why doesn't ArcX support early redemption?">
-Early redemption requires the strategy to unwind positions to return USDC. This is disruptive. Partially closing a funding arb position changes the strategy's risk profile for remaining holders. It also adds significant contract complexity (pro-rata unwinds, margin management, queuing). The current design prioritizes simplicity and speed to market. Early redemption is on the roadmap.
-</Accordion>
-</AccordionGroup>
+---
+
+## What Drives EPT Price
+
+| Factor | Effect on EPT Price |
+|---|---|
+| **Time remaining** | More time = more credits to earn = higher EPT price |
+| **Expected points value** | Higher expected TGE value = higher EPT price |
+| **Strategy OI** | More open interest = more credits per tick = higher EPT price |
+| **ST discount** | Higher ST discount = higher implied EPT cost (via minting parity) |
+| **Points demand** | More buyers on EPT orderbook = higher price |
+
+The relationship between ST discount and EPT cost deserves emphasis. From minting parity:
+
+$$\text{EPT}_{\text{fair}} = 1 - \frac{X}{R}$$
+
+A deeper ST discount (lower $X$) means a **higher** EPT fair value. Points farmers pay more for EPT when ST is cheap, because less of the \$1 minting cost is recovered from the ST side.
 
 ---
 
 ## What Drives the ST Discount
 
-The ST discount is the central pricing variable in the ArcX system. It determines EPT cost, flash loop leverage, and yield seeker returns.
+The ST discount is the other side of EPT pricing. The two are mechanically linked.
 
 ### Factors That Widen the Discount
 
 | Factor | Mechanism |
 |---|---|
-| **Strong points demand** | More flash loops = more ST selling pressure |
-| **Low AMM liquidity** | Same selling volume moves price more |
-| **High uncertainty** | Market demands larger discount for ST risk (strategy PnL unknown) |
-| **Early in epoch** | Maximum time risk for yield seekers |
-| **Low creditRate** | Less points activity = less flash loop demand, but also less reason to buy ST |
+| **Strong EPT demand** | More EPT buying triggers more cross-match mints, increasing ST supply |
+| **Early in epoch** | Maximum time risk for ST holders before finalization |
+| **High uncertainty** | Market demands larger compensation for unknown strategy PnL |
 
 ### Factors That Narrow the Discount
 
 | Factor | Mechanism |
 |---|---|
-| **Yield seeker demand** | Buyers who want cheap ST for fixed APR |
-| **Approaching maturity** | ArcX AMM time-decay curve pushes ST toward NAV |
-| **Strong strategy performance** | Higher expected finalNAV makes ST more attractive |
-| **AMM liquidity growth** | Deeper pools absorb selling pressure with less slippage |
+| **Yield seeker demand** | Buyers seeking fixed returns absorb ST supply |
+| **Approaching maturity** | Less time risk remaining |
+| **Strong strategy performance** | Higher expected NAV at finalization makes ST more attractive |
 
 ### Equilibrium
 
 The discount settles where two forces balance:
 
-$$\text{Points farmer selling pressure} = \text{Yield seeker buying pressure}$$
+$$\text{EPT buying pressure (drives mints, creates ST supply)} = \text{Yield seeker buying pressure (absorbs ST supply)}$$
 
-Points farmers want cheap EPT (wide discount). Yield seekers want cheap ST (wide discount attracts them). The market-clearing ST price is where the last marginal points farmer's willingness to pay for EPT meets the last marginal yield seeker's willingness to accept ST risk.
-
----
-
-## ST Price Through the Epoch
-
-The ArcX AMM uses a Pendle-style time-decay curve for the ST/USDC pool. This creates a predictable price trajectory:
-
-```mermaid
-xychart-beta
-    title "ST Price Through Epoch (Illustrative)"
-    x-axis "Time (weeks)" [0, 1, 2, 3, 4, 5, 6, 7, 8]
-    y-axis "ST Price ($)" 0.85 --> 1.05
-    line "Market price" [0.90, 0.90, 0.91, 0.92, 0.93, 0.95, 0.98, 1.00, 1.01]
-    line "NAV per share" [1.00, 1.00, 1.00, 1.00, 1.01, 1.01, 1.01, 1.01, 1.01]
-```
-
-<Note>Chart values are illustrative and do not represent actual ArcX epoch data. Real prices depend on market conditions and AMM liquidity.</Note>
-
-### Early Epoch
-
-- Flash loop activity is heaviest (maximum time value for EPT)
-- ST discount is widest (most selling pressure)
-- Yield seekers get the best entry prices
-- Time-decay curve provides a loose anchor
-
-### Mid-Epoch
-
-- Flash loop activity moderates
-- ST discount narrows as the curve steepens
-- Strategy performance data informs ST price (high NAV growth = narrower discount)
-- EPT cost rises as discount narrows
-
-### Late Epoch / Approaching Maturity
-
-- Time-decay curve strongly pulls ST toward NAV
-- Discount narrows significantly
-- Flash loops become uneconomical (EPT is expensive, little time to accrue credits)
-- ST converges toward finalNAV at finalization
-
-### At Finalization
-
-ST becomes directly redeemable for USDC at `finalNAV / totalShares`. No need to trade on the AMM. The discount collapses to zero.
+Points farmers want cheap EPT, which requires a wide ST discount. Yield seekers want cheap ST, which the wide discount provides. The market-clearing price is where the marginal points farmer's willingness to pay for EPT meets the marginal yield seeker's willingness to hold ST risk.
 
 ---
 
-## The Closed-End Fund Analogy
+## Worked Example (\$100)
 
-The ST discount has a well-studied TradFi parallel.
+**Setup:** NAV = \$1.00, ST trading at \$0.92 (8% discount to NAV).
 
-**Closed-end funds** (CEFs) in traditional finance routinely trade at discounts to their NAV. Unlike open-end mutual funds (where you can redeem shares at NAV), CEF shares trade on exchanges and cannot be redeemed on demand.
+### Fair EPT Price
 
-| | Open-End Fund | Closed-End Fund | ArcX ST |
+$$\text{EPT}_{\text{fair}} = 1 - \frac{0.92}{1.00} = \$0.08$$
+
+### Points Farmer: Buying EPT on the Orderbook
+
+A points farmer places a buy order at \$0.08 per EPT.
+
+$$\frac{\$100}{\$0.08} = 1{,}250\text{ EPT}$$
+
+Compare this to a direct deposit: \$100 into the vault mints 100 ST and 100 EPT. Buying on the orderbook yields **12.5x more EPT** for the same capital. The leverage comes entirely from the price — no looping, no compounding, just buying EPT at its market price.
+
+### Yield Seeker: Buying ST on the Orderbook
+
+A yield seeker buys ST at \$0.92. If the strategy earns 1% over the epoch (final NAV = \$1.01):
+
+$$\text{Return} = \frac{1.01 - 0.92}{0.92} \approx 9.8\%\text{ per epoch}$$
+
+The 8% discount provides a buffer against strategy losses. The strategy can lose up to 8% of NAV before the ST buyer goes underwater.
+
+### Where the Value Goes
+
+| Participant | Pays | Receives | Exposure |
 |---|---|---|---|
-| **Redemption** | On demand at NAV | Not available until termination | Not available before finalization |
-| **Discount to NAV** | None (redeemable) | Common (5--20%) | Expected (varies with flash loop demand) |
-| **Correction mechanism** | Redemption arbitrage | Activist investors, fund termination | Time-decay curve + yield seeker demand |
-| **Why discount persists** | It doesn't | Illiquidity, sentiment, fees | No early redemption, flash loop selling pressure |
+| Points farmer | \$100 USDC | 1,250 EPT | 12.5x leveraged points |
+| Yield seeker | \$92 per ST | 1 ST (redeemable at final NAV) | Discounted USDC yield |
+| Direct depositor | \$100 USDC | 100 ST + 100 EPT | Both exposures at par |
 
-ST's discount is the same thing as closed-end funds trading at NAV discounts. The difference: ArcX's AMM pushes ST price toward NAV as maturity approaches. CEFs don't have that. ST *will* converge to NAV at maturity, making the discount a known, bounded opportunity for yield seekers.
+The same \$100 buys radically different exposure depending on which token you choose. ArcX does not create value — it separates it. The points farmer concentrates into points. The yield seeker concentrates into USDC returns. The direct depositor gets the unseparated bundle.
 
----
-
-## EPT vs Pendle YT: Why the Pricing Dynamics Differ
-
-| | Pendle YT | ArcX EPT |
-|---|---|---|
-| **Tradeable?** | Yes (Pendle AMM) | No (deposit-only via flash loop) |
-| **Terminal value** | \$0 (all yield streamed) | Positive (redeemable for PointsTokens) |
-| **Time decay** | Monotonic --- \$0 | Not applicable (EPT doesn't trade) |
-| **Price discovery** | AMM with custom logit curve | Implied cost via flash loop (1 - X/R) |
-| **Two-way arb** | Yes (mint/redeem) | Only upward (flash loop selling pressure) |
-| **AMM curve** | Custom logit with time-decay for YT | Pendle-style time-decay for ST (not EPT) |
-| **Yield/points during epoch** | Continuous SY streaming to YT holders | Abstract credit accrual (settled at finalization) |
-
-Pendle YT decays to \$0 because all yield has been streamed by maturity. ArcX EPT doesn't trade at all --- its cost is determined indirectly through the ST discount on the ArcX AMM. Simpler (no EPT AMM needed), but it means EPT cost depends entirely on ST market dynamics.
-
----
-
-## Solutions to the Discount Problem
-
-### Current Mitigations
-
-ArcX accepts the one-way arb limitation and mitigates excessive ST discounts through:
-
-1. **Pendle-style time-decay AMM**
-   - The curve steepens as maturity approaches, pulling ST toward NAV
-   - Provides a mathematical convergence mechanism
-   - Yield seekers can model expected returns with confidence
-
-2. **Two-sided market design**
-   - Points farmers naturally sell ST (they want EPT)
-   - Yield seekers naturally buy ST (they want fixed APR)
-   - The two personas create organic liquidity
-
-3. **Self-correcting economics**: the wider the discount, the more attractive ST is to yield seekers, which creates buying pressure that narrows the discount
-
-### On the Roadmap: Delayed Redemption Intent
-
-A planned mechanism:
-
-```
-1. User submits on-chain intent: "I will redeem ST + EPT at maturity"
-2. This intent is visible to market-makers
-3. Market-makers know there's guaranteed buying pressure at maturity
-4. They front-run by buying ST now (creating buying pressure today)
-5. Discount tightens
-```
-
-This creates synthetic downward arb pressure without requiring actual early redemption. The strategy's positions stay intact, but the market knows redemption will happen at maturity, reducing uncertainty discount.
-
-### Future: Full Early Redemption
-
-Eventually, the protocol could support early redemption (burn ST + EPT --- USDC). This requires:
-- Strategy position unwinding (partial or queued)
-- NAV impact management for remaining holders
-- Contract complexity for pro-rata unwinds
-
-This would close the arb loop entirely, creating Pendle-style two-way pricing.
-
-<AccordionGroup>
-<Accordion title="Is the ST discount a problem for ArcX's growth?">
-The discount is what makes the two-sided market work. Points farmers need someone to buy their ST. Yield seekers need a discount to earn returns. The discount is the price that clears the market between these two groups. A "correct" discount is one where both sides are satisfied.
-</Accordion>
-</AccordionGroup>
-
----
-
-## Implications for Each User Persona
-
-### Points Farmers (Flash Loop)
-
-Your effective EPT cost is determined by the ST discount at the time you flash loop:
-
-| ST Discount | EPT Cost | EPT from \$100 (3 iterations) | Effective Multiplier |
-|---|---|---|---|
-| 5% | \$0.05 | ~271 | 2.71x |
-| 10% | \$0.10 | ~271 | 2.71x |
-| 15% | \$0.15 | ~271 | 2.71x |
-
-<Note>All rows show the same number of iterations (3). What changes is **cost per EPT**: at a 5% discount, each EPT costs ~$0.05, while at a 15% discount, each costs ~$0.15. Deeper discounts mean you pay more per EPT but get more ST proceeds per loop.</Note>
-
-*Note: 3 iterations give the same ~271 EPT regardless of discount depth. The discount determines the cost per EPT, not the number of EPT per iteration count. Deeper discounts mean each \$1 of unrecovered USDC buys more EPT, but you also recover less USDC per loop.*
-
-**Optimal timing:** Flash loop early in the epoch for maximum credit accrual. The ST discount may be widest early (more selling pressure, less yield seeker demand) or mid-epoch (peak activity). Monitor ArcX AMM prices.
-
-### Yield Seekers (Buy Discounted ST)
-
-Your return is the spread between ST purchase price and finalNAV:
-
-| Purchase Price | Strategy Return | Final Share Value | Your Return |
-|---|---|---|---|
-| \$0.90 | +1% | \$1.01 | **12.2%** in one epoch |
-| \$0.92 | +1% | \$1.01 | **9.8%** in one epoch |
-| \$0.95 | +1% | \$1.01 | **6.3%** in one epoch |
-| \$0.90 | -2% | \$0.98 | **8.9%** in one epoch |
-| \$0.90 | -5% | \$0.95 | **5.6%** in one epoch |
-
-The discount provides a buffer against strategy losses. At a 10% discount, the strategy can lose up to 10% of NAV before your ST investment goes underwater. This is why yield seekers tolerate the strategy risk: the discount compensates them.
-
-**Annualized returns:** If epochs run ~3 months, a 10% per-epoch return annualizes to ~46%. Even a conservative 5% per-epoch return annualizes to ~22%.
-
-**Risks:**
-- Strategy PnL could exceed the discount (ST redeems below purchase price)
-- AMM liquidity risk if you need to sell ST before finalization
-- Time-decay curve means early purchases are cheapest but carry the most time risk
+For the full treatment of credit mathematics and how credits translate to points at finalization, see [Credit Mathematics](/deep-dives/credit-mathematics).

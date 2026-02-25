@@ -4,137 +4,147 @@ description: "Frontend patterns, indexer setup, AMM integration, common pitfalls
 icon: "plug"
 ---
 
+<Warning>
+This page is outdated and does not reflect the current protocol design. It will be updated in a future release. For the current architecture, see [How ArcX Works](/learn/protocol-overview).
+</Warning>
+
+<Info>
+**Course level: Advanced**
+
+Practical patterns for building on ArcX: frontend flows, subgraph indexing, ArcX AMM pool setup, and the gotchas that will save you debugging time.
+</Info>
+
+---
+
 ## Sequence Diagrams
 
 These diagrams show the message flow for every core operation. For contract-level details, see [Contract Reference](/build/contract-reference).
 
-<Tabs>
-  <Tab title="Direct Starknet Deposit">
-    ```mermaid
-    sequenceDiagram
-        participant U as User
-        participant ST as ST (Epoch Vault)
-        participant NAVO as NAV Oracle
-        participant EPT as EPT
+### Direct Starknet Deposit
 
-        Note over NAVO,ST: NAV updated every 5 min
-        NAVO-->>ST: updateNAV(nav, navTimestamp)
+```mermaid
+sequenceDiagram
+    participant U as User
+    participant ST as ST (Epoch Vault)
+    participant NAVO as NAV Oracle
+    participant EPT as EPT
 
-        U->>ST: deposit(usdcIn, receiver)
-        ST->>ST: require epoch_start <= now < epoch_end - CUTOFF
-        ST->>ST: require now - navTimestamp <= 30min
-        ST->>ST: require !paused
-        ST->>ST: net = usdcIn - depositFee(usdcIn)
-        ST->>ST: shares = net × totalShares / currentNAV
-        ST->>ST: mint ST shares to receiver
-        ST->>EPT: mint(receiver, net)
-        Note over EPT: EPT amount = net USDC (not shares)
-        EPT->>EPT: userCheckpoint(receiver)
-        EPT->>EPT: balance[receiver] += net
-    ```
-  </Tab>
+    Note over NAVO,ST: NAV updated every 5 min
+    NAVO-->>ST: updateNAV(nav, navTimestamp)
 
-  <Tab title="Cross-Chain Deposit">
-    ```mermaid
-    sequenceDiagram
-        participant U as User
-        participant Src as SourceChainEscrow
-        participant LZ as LayerZero
-        participant ST as ST (Starknet)
-        participant EPT as EPT (Starknet)
+    U->>ST: deposit(usdcIn, receiver)
+    ST->>ST: require epoch_start <= now < epoch_end - CUTOFF
+    ST->>ST: require now - navTimestamp <= 30min
+    ST->>ST: require !paused
+    ST->>ST: net = usdcIn - depositFee(usdcIn)
+    ST->>ST: shares = net × totalShares / currentNAV
+    ST->>ST: mint ST shares to receiver
+    ST->>EPT: mint(receiver, net)
+    Note over EPT: EPT amount = net USDC (not shares)
+    EPT->>EPT: userCheckpoint(receiver)
+    EPT->>EPT: balance[receiver] += net
+```
 
-        U->>Src: depositUSDC(amount, starknetReceiver)
-        Src->>Src: lock USDC, create depositId
+### Cross-Chain Deposit
 
-        Src->>LZ: send depositMsg(depositId, amount, receiver, epochId)
-        LZ->>ST: deliver depositMsg(...)
+```mermaid
+sequenceDiagram
+    participant U as User
+    participant Src as SourceChainEscrow
+    participant LZ as LayerZero
+    participant ST as ST (Starknet)
+    participant EPT as EPT (Starknet)
 
-        ST->>ST: idempotency check (depositId)
-        ST->>ST: validate deposit window + NAV freshness
-        ST->>ST: net = amount - depositFee
-        ST->>ST: mint ST shares at arrival-time NAV
-        ST->>EPT: mint(receiver, net)
+    U->>Src: depositUSDC(amount, starknetReceiver)
+    Src->>Src: lock USDC, create depositId
 
-        ST->>LZ: send ack(depositId, shares, eptAmount)
-        LZ->>Src: deliver ack(depositId, ...)
+    Src->>LZ: send depositMsg(depositId, amount, receiver, epochId)
+    LZ->>ST: deliver depositMsg(...)
 
-        Src->>Src: mark depositId complete
-        Note over U,Src: User accepts NAV slippage (arrival-time NAV may differ)
-    ```
-  </Tab>
+    ST->>ST: idempotency check (depositId)
+    ST->>ST: validate deposit window + NAV freshness
+    ST->>ST: net = amount - depositFee
+    ST->>ST: mint ST shares at arrival-time NAV
+    ST->>EPT: mint(receiver, net)
 
-  <Tab title="Cross-Chain Refund">
-    ```mermaid
-    sequenceDiagram
-        participant U as User
-        participant Src as SourceChainEscrow
+    ST->>LZ: send ack(depositId, shares, eptAmount)
+    LZ->>Src: deliver ack(depositId, ...)
 
-        Note over U,Src: No ack received within REFUND_TIMEOUT
+    Src->>Src: mark depositId complete
+    Note over U,Src: User accepts NAV slippage (arrival-time NAV may differ)
+```
 
-        U->>Src: cancel(depositId)
-        Src->>Src: require now > depositTimestamp + REFUND_TIMEOUT
-        Src->>Src: require status == PENDING
-        Src->>U: refund locked USDC
+### Cross-Chain Refund
 
-        Note over U,Src: Late-arriving depositMsg on Starknet is rejected (depositId cancelled)
-    ```
-  </Tab>
+```mermaid
+sequenceDiagram
+    participant U as User
+    participant Src as SourceChainEscrow
 
-  <Tab title="Epoch Finalization">
-    ```mermaid
-    sequenceDiagram
-        participant Ops as Strategy Runner
-        participant Perp as Perp DEXes
-        participant ST as ST
-        participant EPT as EPT
-        participant NAVO as NAV Oracle
-        participant FPO as Final Points Oracle
+    Note over U,Src: No ack received within REFUND_TIMEOUT
 
-        Note over ST,EPT: epoch_end reached, deposits revert
+    U->>Src: cancel(depositId)
+    Src->>Src: require now > depositTimestamp + REFUND_TIMEOUT
+    Src->>Src: require status == PENDING
+    Src->>U: refund locked USDC
 
-        Ops->>Perp: close positions, realize PnL
-        Ops->>ST: return/bridge USDC to Starknet
+    Note over U,Src: Late-arriving depositMsg on Starknet is rejected (depositId cancelled)
+```
 
-        NAVO-->>ST: finalizeNAV(finalNav)
-        FPO-->>EPT: finalizePoints(totalPoints)
-        EPT->>EPT: compute pointsPerCredit = totalPoints / totalCredits
-    ```
-  </Tab>
+### Epoch Finalization
 
-  <Tab title="Redeem ST">
-    ```mermaid
-    sequenceDiagram
-        participant U as User
-        participant ST as ST Vault
+```mermaid
+sequenceDiagram
+    participant Ops as Strategy Runner
+    participant Perp as Perp DEXes
+    participant ST as ST
+    participant EPT as EPT
+    participant NAVO as NAV Oracle
+    participant FPO as Final Points Oracle
 
-        U->>ST: redeem(shares, receiver)
-        ST->>ST: require finalized == true
-        ST->>ST: usdcOut = shares × finalNAV / totalShares
-        ST->>ST: burn shares
-        ST->>U: transfer usdcOut USDC
+    Note over ST,EPT: epoch_end reached, deposits revert
 
-        Note over U,ST: No expiry. Redeem anytime post-finalization.
-    ```
-  </Tab>
+    Ops->>Perp: close positions, realize PnL
+    Ops->>ST: return/bridge USDC to Starknet
 
-  <Tab title="Claim Points">
-    ```mermaid
-    sequenceDiagram
-        participant U as User
-        participant EPT as EPT
-        participant PTok as PointsToken (xPC/xHL)
+    NAVO-->>ST: finalizeNAV(finalNav)
+    FPO-->>EPT: finalizePoints(totalPoints)
+    EPT->>EPT: compute pointsPerCredit = totalPoints / totalCredits
+```
 
-        U->>EPT: claimPoints(receiver)
-        EPT->>EPT: require finalized == true
-        EPT->>EPT: userCheckpoint(U)
-        EPT->>EPT: pointsPerCredit = totalPoints / totalCredits
-        EPT->>EPT: gross = userCredits[U] × pointsPerCredit - alreadyClaimed[U]
-        EPT->>EPT: net = gross - redeemFee(gross)
-        EPT->>EPT: alreadyClaimed[U] += gross
-        EPT->>PTok: mint(receiver, net)
-    ```
-  </Tab>
-</Tabs>
+### Redeem ST After Finalization
+
+```mermaid
+sequenceDiagram
+    participant U as User
+    participant ST as ST Vault
+
+    U->>ST: redeem(shares, receiver)
+    ST->>ST: require finalized == true
+    ST->>ST: usdcOut = shares × finalNAV / totalShares
+    ST->>ST: burn shares
+    ST->>U: transfer usdcOut USDC
+
+    Note over U,ST: No expiry. Redeem anytime post-finalization.
+```
+
+### Claim Points After Finalization
+
+```mermaid
+sequenceDiagram
+    participant U as User
+    participant EPT as EPT
+    participant PTok as PointsToken (xPC/xHL)
+
+    U->>EPT: claimPoints(receiver)
+    EPT->>EPT: require finalized == true
+    EPT->>EPT: userCheckpoint(U)
+    EPT->>EPT: pointsPerCredit = totalPoints / totalCredits
+    EPT->>EPT: gross = userCredits[U] × pointsPerCredit - alreadyClaimed[U]
+    EPT->>EPT: net = gross - redeemFee(gross)
+    EPT->>EPT: alreadyClaimed[U] += gross
+    EPT->>PTok: mint(receiver, net)
+```
 
 ---
 
@@ -248,39 +258,37 @@ When EPT sits in a smart contract that holds it on behalf of users (e.g., an agg
 
 ## Common Pitfalls
 
-<AccordionGroup>
-  <Accordion title="1. Stale NAV Deposits">
-    Deposits revert if the NAV oracle hasn't updated in 30 minutes. If your integration experiences frequent reversions, check that deposits are timed after NAV updates (every 5 minutes).
-  </Accordion>
+### 1. Stale NAV Deposits
 
-  <Accordion title="2. Forgetting Credit Checkpoints">
-    Every EPT transfer triggers a credit checkpoint. If you're building a custom contract that holds EPT, be aware that credits accrue to your contract address. You'll need a claim mechanism to distribute those credits to your users.
-  </Accordion>
+Deposits revert if the NAV oracle hasn't updated in 30 minutes. If your integration experiences frequent reversions, check that deposits are timed after NAV updates (every 5 minutes).
 
-  <Accordion title="3. Epoch-Specific Tokens">
-    ST and EPT are per-epoch. `ST-E007` and `ST-E008` are different contracts with different balances. Your frontend must track which epoch each token belongs to and display them separately. Use `getEpochInfo()` to identify tokens.
-  </Accordion>
+### 2. Forgetting Credit Checkpoints
 
-  <Accordion title="4. Cross-Chain Timing">
-    Cross-chain deposits use arrival-time NAV, not deposit-time NAV. If NAV moves significantly during LayerZero transit (1--5 minutes typical, up to 30 minutes worst case), the user receives shares at a different price than expected. There is no slippage protection parameter currently.
-  </Accordion>
+Every EPT transfer triggers a credit checkpoint. If you're building a custom contract that holds EPT, be aware that credits accrue to your contract address. You'll need a claim mechanism to distribute those credits to your users.
 
-  <Accordion title="5. Post-Finalization Only">
-    `redeem()` on ST and `claimPoints()` on EPT both require `finalized == true`. These will revert during ACTIVE and MATURITY states. Check `isFinalized()` before calling.
-  </Accordion>
+### 3. Epoch-Specific Tokens
 
-  <Accordion title="6. Incremental Claims">
-    `claimPoints()` can be called multiple times. The contract tracks `alreadyClaimed[addr]` and only mints the difference. This is safe for repeated calls but means you should not assume a single call captures all points. If global credit accounting updates between calls, additional points may become claimable.
-  </Accordion>
+ST and EPT are per-epoch. `ST-E007` and `ST-E008` are different contracts with different balances. Your frontend must track which epoch each token belongs to and display them separately. Use `getEpochInfo()` to identify tokens.
 
-  <Accordion title="7. PointsToken Minter Authorization">
-    Each new EPT contract (each epoch) must be added as an authorized minter on the PointsToken contract. If `addMinter()` is not called for a new epoch's EPT, `claimPoints()` will revert when it tries to mint PointsTokens.
-  </Accordion>
+### 4. Cross-Chain Timing
 
-  <Accordion title="8. EPT Is Not Tradeable">
-    EPT does not have an AMM pool and cannot be traded on any DEX. It is acquired only through deposits (and the flash loop). Do not attempt to create EPT liquidity pools.
-  </Accordion>
-</AccordionGroup>
+Cross-chain deposits use arrival-time NAV, not deposit-time NAV. If NAV moves significantly during LayerZero transit (1--5 minutes typical, up to 30 minutes worst case), the user receives shares at a different price than expected. There is no slippage protection parameter currently.
+
+### 5. Post-Finalization Only
+
+`redeem()` on ST and `claimPoints()` on EPT both require `finalized == true`. These will revert during ACTIVE and MATURITY states. Check `isFinalized()` before calling.
+
+### 6. Incremental Claims
+
+`claimPoints()` can be called multiple times. The contract tracks `alreadyClaimed[addr]` and only mints the difference. This is safe for repeated calls but means you should not assume a single call captures all points. If global credit accounting updates between calls, additional points may become claimable.
+
+### 7. PointsToken Minter Authorization
+
+Each new EPT contract (each epoch) must be added as an authorized minter on the PointsToken contract. If `addMinter()` is not called for a new epoch's EPT, `claimPoints()` will revert when it tries to mint PointsTokens.
+
+### 8. EPT Is Not Tradeable
+
+EPT does not have an AMM pool and cannot be traded on any DEX. It is acquired only through deposits (and the flash loop). Do not attempt to create EPT liquidity pools.
 
 ---
 

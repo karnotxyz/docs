@@ -1,104 +1,74 @@
 ---
 title: "PointsToken"
-description: "Tokenized exchange points, 1:1 backed, like a gift card that becomes redeemable when the exchange launches its token (TGE)."
+description: "1:1 representation of exchange points. Persists across epochs. Burn for airdrop tokens after TGE."
 icon: "gift"
 ---
 
-## What PointsToken Does For You
+## What Is a PointsToken
 
-PointsToken is a standard ERC20 that represents actual exchange points, 1:1. Unlike ST and EPT which reset each epoch, there's **one PointsToken per exchange** that stacks across all epochs.
+A PointsToken is a 1:1 on-chain representation of an exchange's loyalty points. Each supported perp DEX has its own PointsToken:
 
-| PointsToken | Exchange | Chain | Meaning |
-|---|---|---|---|
-| xPC | Pacifica | Solana | 1 xPC = 1 Pacifica point |
-| xHL | Hyperliquid | Hyperliquid L1 | 1 xHL = 1 Hyperliquid point |
-| xET | Extended | StarkNet | 1 xET = 1 Extended point |
-
-Your xPC from Epoch 1 and Epoch 7 are the same token. They stack.
-
----
-
-## How PointsTokens Are Minted
-
-```mermaid
-flowchart LR
-    A["Hold EPT<br/>(credits accrue)"] --> B["Epoch finalizes<br/>(totalPoints reported)"]
-    B --> C["Call claimPoints()<br/>(credits → PointsTokens)"]
-    C --> D["PointsToken in wallet<br/>(standard ERC20)"]
-    D --> E["Post-TGE:<br/>Burn → Airdrop tokens"]
-```
-
-PointsTokens are only minted post-finalization. The path:
-
-1. Epoch ends → strategy unwinds
-2. Final Points Oracle reports `totalPoints`
-3. Admin calls `finalize()`
-4. You call `claimPoints()` on your EPT
-5. Credits settled → gross points computed → redemption fee deducted → PointsTokens minted to your wallet
-
-**There is no other way to create PointsTokens.** They aren't minted on deposit, bought from ArcX, or distributed via airdrop. The only path: hold EPT → accrue credits → claim after finalization.
-
-(Exception: admin can mint for LPs via PointsCollector for pool credit distribution.)
-
----
-
-## The Backing: Trust, Not Proof
-
-Every PointsToken should correspond to a real exchange point in ArcX's exchange account:
-
-$$\text{PointsToken supply} \leq \text{real points held by ArcX}$$
-
-This invariant is enforced by **trust, not code**. ArcX reports `totalPoints` via its own oracle. There is no on-chain proof that the number is accurate. You are trusting ArcX to report points honestly, bridge airdrop tokens faithfully after TGE, and maintain 1:1 backing between PointsToken supply and real points held.
-
-The biggest trust assumption in the protocol. Community members can retrospectively verify by cross-referencing post-TGE airdrop amounts with PointsToken supply. For the complete analysis (what exactly you're trusting, what could go wrong, and how to verify), see [Trust Model & Security](/deep-dives/trust-model-and-security).
-
-<AccordionGroup>
-<Accordion title="Are PointsTokens safe if ArcX shuts down?">
-PointsTokens are on-chain ERC20s. They stay in your wallet regardless. However, post-TGE redemption requires ArcX to bridge airdrop tokens into the Redemption Module. If ArcX ceases operations before TGE, that path is broken.
-</Accordion>
-
-<Accordion title="What happens if finalization never occurs?">
-If an epoch is never finalized, EPT credits cannot be claimed and PointsTokens cannot be minted for that epoch. Users retain their ST and can redeem for the strategy's USDC returns once finalization eventually happens, but their points exposure for that epoch is lost. You keep the USDC side (ST) but lose the points side (EPT cannot convert to PointsTokens without finalization reporting `totalPoints`).
-</Accordion>
-</AccordionGroup>
-
----
-
-## Post-TGE Redemption
-
-When an exchange conducts its TGE:
-
-1. Exchange sends airdrop tokens to ArcX
-2. ArcX bridges them to Starknet
-3. Tokens deposited into the Redemption Module
-4. Conversion rate set: `redemptionRate = totalAirdropTokens / totalPointsTokenSupply`
-5. You burn PointsTokens → receive airdrop tokens
-
-**Multi-tranche support:** Airdrops arrive in batches. You don't have to redeem all at once. Burn a portion now, save the rest for later batches when the rate may be higher.
-
-**Example:** You hold 1,000 xPC.
-
-| Event | Action | Result |
+| PointsToken | Exchange | Meaning |
 |---|---|---|
-| Batch 1: 50,000 PDX for 100,000 xPC supply | Burn 500 xPC | 250 PDX |
-| Batch 2 (3 months later): rate rises to 0.8 | Burn remaining 500 xPC | 400 PDX |
+| xPC | Pacifica | 1 xPC = 1 Pacifica point |
+| xHL | Hyperliquid | 1 xHL = 1 Hyperliquid point |
+
+Additional PointsTokens are created as new exchanges are integrated. One PointsToken per exchange, shared across all strategies and all epochs on that exchange.
 
 ---
 
-## What Drives PointsToken Price
+## How Claiming Works
 
-| Factor | Effect | Mechanism |
-|---|---|---|
-| TGE timing | Closer TGE → ↑ price | Less time discounting |
-| Expected airdrop generosity | More tokens/point → ↑ price | Exchange announcements |
-| Exchange token price (post-TGE) | Direct link | `xPC ≈ redemptionRate × PDX price` |
-| Supply growth | More epochs → more supply → potential dilution | New PointsTokens minted each epoch dilute existing holders' share of the eventual airdrop, since the same airdrop pool is split across a larger PointsToken supply |
+After an epoch finalizes, EPT holders claim their share of the epoch's points as PointsTokens. The number you receive is determined by your [credit share](/learn/expected-points-token):
 
-PointsTokens are standard ERC20s. Transfer, trade, or hold freely.
+$$\text{your\_PointsTokens} = \frac{\text{your\_credits}}{\text{total\_credits}} \times \text{total\_points}$$
 
-<Warning title="What can go wrong">
-- **No TGE:** If the exchange never launches a token, PointsTokens have no redemption path.
-- **Over-minting:** ArcX could mint more PointsTokens than real points held. No on-chain enforcement.
-- **Low airdrop:** Exchange distributes fewer tokens per point than expected.
-- **Vesting:** Airdrop tokens may come with lockups on the exchange's timeline.
-</Warning>
+A small fee (varies by strategy) is deducted before minting.
+
+The path is straightforward:
+
+1. Epoch finalizes, total points for the strategy are reported
+2. You claim on your EPT position
+3. Your credit share is calculated, fee deducted, PointsTokens minted to your wallet
+
+---
+
+## PointsTokens Persist Across Epochs
+
+Unlike ST and EPT, which are created fresh each epoch, PointsTokens accumulate. Your xPC from Epoch 5 and your xPC from Epoch 8 are the **same token**. They stack in your wallet.
+
+This means your total PointsToken balance reflects your cumulative points exposure across every epoch you have participated in.
+
+PointsTokens are standard ERC-20 tokens. You can hold, transfer, or trade them freely.
+
+---
+
+## Post-TGE: Burn for Airdrop Tokens
+
+When an exchange conducts its token generation event (TGE):
+
+1. The exchange distributes airdrop tokens
+2. Airdrop tokens are deposited into the Redemption Module
+3. A conversion rate is set based on total airdrop tokens and total PointsToken supply
+4. You burn your PointsTokens to receive airdrop tokens at the conversion rate
+
+**Example:** You hold 1,000 xPC. The exchange airdrops 50,000 PDX tokens against a total xPC supply of 100,000.
+
+$$\text{conversion rate} = \frac{50{,}000 \text{ PDX}}{100{,}000 \text{ xPC}} = 0.5$$
+
+You burn 1,000 xPC and receive 500 PDX.
+
+Airdrops may arrive in multiple batches. You do not have to redeem all at once --- burn a portion now, hold the rest for future batches when the conversion rate may be updated.
+
+---
+
+## What Drives PointsToken Value
+
+| Factor | Effect |
+|---|---|
+| TGE timing | Closer TGE reduces time discounting, increasing value |
+| Expected airdrop size | More tokens per point increases value |
+| Exchange token price (post-TGE) | Direct link via conversion rate |
+| Supply growth | New epochs add supply, which can dilute per-token value |
+
+Before TGE, PointsToken value is speculative --- it reflects the market's expectation of future airdrop generosity and the exchange token's eventual price. After TGE, value is directly tied to the conversion rate and the exchange token's market price.

@@ -1,93 +1,67 @@
 ---
-title: "Introduction"
-description: "ArcX splits perp DEX trading strategies into separately tradeable tokens: one for USDC returns, one for exchange points."
-sidebarTitle: "Introduction"
-icon: "house"
+title: "ArcX Documentation"
+description: "ArcX splits perp DEX trading strategies into two separately tradeable tokens — one for USDC yield, one for exchange points — each with its own orderbook."
+icon: "book-open"
 ---
 
-ArcX tokenizes perp DEX trading strategies. Deposit USDC, receive two tokens: a **Strategy Token** (ST) for USDC returns and an **Expected Points Token** (EPT) for exchange points. Trade them separately or use the **flash loop** to maximize capital efficiency.
+ArcX tokenizes perp DEX strategies into two outcomes. Deposit USDC into a strategy vault, receive a **Strategy Token (ST)** — your claim on USDC returns — and an **Expected Points Token (EPT)** — your claim on exchange points. Each token trades on its own orderbook: **EPT/USDC** and **ST/USDC**. Points farmers buy EPT. Yield seekers buy discounted ST. Each user gets exactly the exposure they want, at a price set by the market.
 
-$$
-1 \text{ USDC deposited} = \frac{1}{R} \text{ ST} + 1 \text{ EPT}
-$$
+---
 
-## Choose your path
+## Learn
 
-<Tabs>
-  <Tab title="Points Farmer">
-    Maximize your exchange points exposure with leveraged EPT.
+<CardGroup cols={2}>
 
-    1. Deposit \$100 USDC into a strategy
-    2. Receive 100 EPT + ST tokens
-    3. Sell ST on the ArcX AMM at a ~10% discount (\$90)
-    4. Flash loop: re-deposit the \$90 for more EPT
-    5. Result: ~270 EPT for ~\$27 effective cost
-
-    On perp trading terminals, you trade to earn points but your capital takes trading losses along the way. ArcX separates the points from the PnL risk.
-
-    [Get started](/learn/user-guide) | [How flash loops work](/learn/protocol-overview)
-  </Tab>
-  <Tab title="Yield Seeker">
-    Earn fixed APR by buying discounted Strategy Tokens from points farmers.
-
-    1. Buy ST at \$0.90 on the ArcX AMM (points farmers dump ST)
-    2. Strategy earns ~1% over the epoch
-    3. Redeem at ~\$1.01 at maturity
-    4. **11% return per epoch = ~44% annualized APR**
-
-    No points exposure, no directional risk on exchange tokens.
-
-    [Get started](/learn/user-guide) | [ST pricing mechanics](/deep-dives/ept-pricing)
-  </Tab>
-</Tabs>
-
-## What ArcX does
-
-<AccordionGroup>
-  <Accordion title="Splits strategies into two tradeable tokens" icon="scissors">
-    Every USDC deposit mints a Strategy Token (tracks USDC returns) and an Expected Points Token (tracks exchange points). Each can be held, sold, or redeemed independently.
-  </Accordion>
-  <Accordion title="Flash loop for leveraged points exposure" icon="bolt">
-    Atomically deposit, sell ST, and re-deposit in a single transaction. Get 3-10x more EPT exposure than a simple deposit, without borrowing or liquidation risk.
-  </Accordion>
-  <Accordion title="Custom AMM with time-decay pricing" icon="chart-line">
-    ST trades on a Pendle-style AMM where the discount narrows as maturity approaches. Points farmers sell ST at a discount; yield seekers buy the discount.
-  </Accordion>
-  <Accordion title="Cross-chain from any major L1/L2" icon="bridge">
-    Deposit from Ethereum, Arbitrum, Solana, and more via LayerZero. Strategies trade across Pacifica, Hyperliquid, Extended, and other perp DEXs.
-  </Accordion>
-</AccordionGroup>
-
-## Learn the protocol
-
-<Columns cols={2}>
-  <Card title="Protocol Overview" icon="book" href="/learn/protocol-overview">
-    How token splitting works, the flash loop, and the two-sided market.
+  <Card title="How ArcX Works" icon="book-open" href="/learn/protocol-overview">
+    The two-orderbook architecture, minting equation, credit system, and how ST and EPT are priced.
   </Card>
-  <Card title="The Three Tokens" icon="coins" href="/learn/token-economics">
-    ST, EPT, and PointsToken: minting, pricing, and redemption.
-  </Card>
-  <Card title="How Epochs Work" icon="clock" href="/learn/epoch-lifecycle">
-    The epoch cycle: deposits, maturity, finalization, redemption.
-  </Card>
-  <Card title="ArcX vs Pendle" icon="scale-balanced" href="/learn/pendle-comparison">
-    Coming from Pendle? Side-by-side concept mapping.
-  </Card>
-</Columns>
 
-## Go deeper
+  <Card title="Strategy Token (ST)" icon="vault" href="/learn/strategy-token">
+    Your claim on the strategy's USDC value. NAV tracking, share pricing, redemption at maturity.
+  </Card>
 
-<Columns cols={2}>
+  <Card title="Expected Points Token (EPT)" icon="star" href="/learn/expected-points-token">
+    Your claim on exchange points. Credit accrual, checkpointing, and how points are distributed at finalization.
+  </Card>
+
+  <Card title="User Guide" icon="user" href="/learn/user-guide">
+    Step-by-step: deposit, trade on the orderbooks, redeem. Start here if you want to use the product.
+  </Card>
+
+</CardGroup>
+
+---
+
+## Strategies
+
+<CardGroup cols={2}>
+
+  <Card title="Bluechip Funding Arb" icon="scale-balanced" href="/strategies/bluechip-funding-arb">
+    Delta-neutral funding rate arbitrage across major perp DEXes. Dual-leg OI earns points on every exchange.
+  </Card>
+
+  <Card title="Long Bitcoin" icon="bitcoin-sign" href="/strategies/long-bitcoin">
+    Directional long BTC. Points subsidize holding costs — the cheapest place to go long.
+  </Card>
+
+</CardGroup>
+
+---
+
+## Go Deeper
+
+<CardGroup cols={3}>
+
   <Card title="Credit Mathematics" icon="calculator" href="/deep-dives/credit-mathematics">
-    How the credit system distributes points across time and activity.
+    How the credit system distributes points fairly across time and activity.
   </Card>
+
   <Card title="EPT Pricing" icon="chart-line" href="/deep-dives/ept-pricing">
-    The pricing equation, flash loop economics, and market dynamics.
+    The pricing equation, orderbook dynamics, and market mechanics.
   </Card>
-  <Card title="Trust Model & Security" icon="shield" href="/deep-dives/trust-model-and-security">
-    What you're trusting ArcX with, attack vectors, and the decentralization roadmap.
+
+  <Card title="Trust Model" icon="shield" href="/deep-dives/trust-model-and-security">
+    What you trust ArcX with, attack vectors, and the decentralization roadmap.
   </Card>
-  <Card title="Glossary & Reference" icon="book-open" href="/reference/glossary-and-reference">
-    Key equations, parameters, and term definitions in one place.
-  </Card>
-</Columns>
+
+</CardGroup>

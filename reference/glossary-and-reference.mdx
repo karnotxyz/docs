@@ -1,10 +1,10 @@
 ---
 title: "Glossary & Parameters"
-description: "Terms, parameters, and equations in one place."
+description: "Every term defined, every parameter listed, every equation referenced."
 icon: "book"
 ---
 <Info>
-Reference for all ArcX terms, parameters, and concepts.
+A complete reference for every term, parameter, and concept in the ArcX protocol. Every entry includes a one-sentence definition and a concrete example.
 </Info>
 
 ---
@@ -14,203 +14,164 @@ Reference for all ArcX terms, parameters, and concepts.
 ### A
 
 **Admin**
-The ArcX-operated address with privileged access to protocol functions (pause, finalize, configure fees). *Example: Admin calls `finalize()` after the strategy unwind is complete, enabling ST and EPT redemptions.*
-
-**alreadyClaimed**
-Per-user counter tracking how many PointsTokens have been claimed from a given EPT contract. Prevents double-claiming across multiple `claimPoints()` calls. *Example: Alice claims 300 PointsTokens. Her `alreadyClaimed` is set to 300. If she calls `claimPoints()` again, the contract computes `gross - 300` to avoid minting duplicates.*
-
-**ArcX AMM**
-The custom Pendle-style AMM used for trading ST/USDC. Features a time-decay curve that converges ST price toward NAV as the epoch approaches maturity. Only ST trades on the AMM; EPT is deposit-only. *Example: Points farmers sell ST on the ArcX AMM after flash looping. Yield seekers buy discounted ST on the same pool.*
-
-**Arbitrage (Upward)**
-The self-correcting mechanism that caps the combined value of ST + EPT at \$1. If the implied EPT cost plus ST price exceeds the deposit cost, points farmers flash loop more aggressively, selling ST and widening the discount until equilibrium. *Example: ST trades at \$0.98 (EPT cost = \$0.02). Points farmers flash loop heavily, ST drops to \$0.90 (EPT cost = \$0.10).*
-
-**Arbitrage (Downward, broken)**
-The mechanism that would correct a too-wide ST discount by buying cheap ST + EPT and redeeming for \$1. This doesn't work because there is no early redemption. You can't burn ST + EPT for USDC before finalization. *Example: ST trades at \$0.80 (20% discount), but no one can profitably correct this because redemption is locked.*
+The ArcX-operated address with privileged access to protocol functions (pause, finalize, configure fees). *Example: Admin finalizes an epoch after the strategy unwind is complete, enabling ST and EPT redemptions.*
 
 ### C
 
-**Checkpoint**
-The lazy evaluation operation that settles a user's accrued credits at the moment of any EPT transfer, mint, or claim. Both sender and receiver are checkpointed. *Example: When Alice transfers 50 EPT to Bob, Alice's credits from the holding period are locked, and Bob's credit counter starts fresh from the transfer timestamp.*
-
-**claimPoints()**
-EPT function called after finalization. Settles the caller's credits, computes their share of totalPoints, deducts the redemption fee, and mints net PointsTokens. *Example: Alice has 4,320,000,000 credits out of 6,048,000,000 total. totalPoints = 1,000. She receives `(4,320M / 6,048M) x 1,000 = 714` gross points, minus fee.*
-
 **Credit**
-The activity-weighted holding measure that determines a user's share of points. `credits = integral(balance x creditRate) dt`. More EPT held, for longer, during higher-activity periods = more credits. *Example: Holding 100 EPT for 259,200 seconds at creditRate = 10 produces 259,200,000 credits.*
-
-**creditRate**
-The rate at which credits accrue per EPT per second. Set by the Credits Oracle. Reflects strategy activity: higher open interest or volume means a higher creditRate. *Example: For a funding arb strategy with \$500K OI, creditRate might be 500. If OI doubles to \$1M, creditRate updates to 1,000.*
+The holding measure that determines a user's share of points, accumulated per-EPT from periodic oracle ticks. More EPT held, for longer, during higher-activity ticks = more credits. *Example: Holding 100 EPT across 50 oracle ticks, each reporting 20 credits/EPT, produces 100,000 credits.*
 
 **Credits Oracle**
-ArcX-operated off-chain service that pushes creditRate updates to EPT contracts during the epoch. Update frequency is approximately every 5--15 minutes. *Example: The Credits Oracle observes the strategy's OI increased from \$200K to \$400K, and pushes `updateCreditRate(400)` to the EPT contract.*
+ArcX-operated off-chain service that periodically pushes credit ticks to EPT contracts during the epoch. Each tick reports the credits-per-EPT accrued since the previous tick. *Example: The Credits Oracle observes that strategy activity increased and pushes a higher credits-per-EPT value in the next tick.*
 
 **Cross-chain deposit**
-A deposit originating from a non-Starknet chain (Ethereum, Arbitrum, Solana). USDC is locked in a SourceChainDepositEscrow, a LayerZero message delivers the deposit instruction to Starknet, and tokens are minted at arrival-time NAV. *Example: Alice deposits from Ethereum. Her USDC is locked for ~3 minutes while LayerZero delivers the message. ST + EPT are minted on Starknet when the message arrives.*
+A deposit originating from a non-Starknet chain (Ethereum, Arbitrum, Solana). USDC is locked in a SourceChainDepositEscrow, a LayerZero message delivers the deposit instruction to Starknet, and tokens are minted at arrival-time NAV. *Example: Alice deposits from Ethereum. Her USDC is locked for a few minutes while LayerZero delivers the message. ST + EPT are minted on Starknet when the message arrives.*
+
+**Cross-match**
+The process where a buy-EPT order and a buy-ST order at compatible prices are matched by the engine, which mints new ST + EPT tokens from deposited USDC to fill both sides. This is how new tokens enter circulation via the orderbooks. *Example: Alice places a buy-EPT order at \$0.10 and Bob places a buy-ST order at \$0.90. The engine deposits \$1, mints 1 ST + 1 EPT, and fills both orders.*
 
 ### D
 
 **Deposit cutoff**
-Configurable parameter (`depositCutoff`) specifying how many seconds before `epochEnd` deposits stop being accepted. Default is 0 (deposits accepted until maturity). *Example: With `depositCutoff = 3600`, deposits stop 1 hour before the epoch ends.*
+Configurable parameter (`depositCutoff`) specifying how many seconds before `epochEnd` deposits stop being accepted. *Example: With `depositCutoff = 3600`, deposits stop 1 hour before the epoch ends.*
 
 **Deposit fee**
-A fee charged on gross USDC at deposit time. Covers operational costs and serves as sandwich attack defense. Configurable per strategy. *Example: With a 0.5% deposit fee, a \$100 deposit yields \$99.50 net USDC, which is used to mint ST shares and EPT.*
+A fee charged on gross USDC at deposit time. Covers operational costs. Configurable per strategy. *Example: A deposit fee is applied to a \$100 deposit, and the net USDC is used to mint ST shares and EPT.*
 
 ### E
 
 **Epoch**
-A fixed-duration window (typically 8--12 weeks) during which a strategy runs. Each epoch creates new ST and EPT contract instances. Epochs progress through three states: ACTIVE --- MATURITY --- FINALIZED. *Example: Epoch 7 runs for ~3 months. Epoch 8 starts after Epoch 7 finalizes.*
+A fixed-duration window during which a strategy runs. Each epoch creates new ST and EPT contract instances. Epochs progress through three states: ACTIVE, MATURITY, FINALIZED. *Example: Epoch 7 runs for several weeks. Epoch 8 starts after Epoch 7 finalizes.*
 
 **epochId**
-Unique identifier for an epoch. Encoded in contract deployments and token names. *Example: `ST-PacificaFundingArb-E007` is the ST token for Epoch 7 of the Pacifica Funding Arb strategy.*
+Unique identifier for an epoch. Encoded in contract deployments and token names. *Example: `ST-FundingArb-E007` is the ST token for Epoch 7 of the Funding Arb strategy.*
 
 **EPT (Expected Points Token)**
-ERC20 with built-in credit accrual. Represents a claim on exchange points earned during the epoch, weighted by holding duration and strategy activity. One EPT contract per epoch per exchange per strategy. EPT is deposit-only and does not trade on any AMM. *Example: Alice deposits \$100 into Pacifica-Extended Funding Arb and receives 99.50 EPT_Pacifica + 99.50 EPT_Extended.*
+ERC20 with built-in credit accrual. Represents a claim on exchange points earned during the epoch, weighted by holding duration and strategy activity. One EPT contract per epoch per exchange per strategy. Tradeable on the EPT/USDC orderbook. *Example: Alice buys 100 EPT on the EPT/USDC orderbook. She holds them through the epoch, accruing credits that convert to points at finalization.*
 
 **EPT implied cost**
-The theoretical cost of EPT derived from the minting parity equation: `EPT_cost = 1 - X/R`, where X = ST market price on the ArcX AMM and R = ST exchange rate. *Example: ST trades at \$0.90, exchange rate R = 1.0. EPT_cost = 1 - 0.90/1.0 = \$0.10.*
+The theoretical cost of EPT derived from the minting parity equation: `EPT_cost = 1 - X/R`, where X = ST market price on the orderbook and R = ST exchange rate. *Example: ST trades at \$0.90, exchange rate R = 1.0. EPT_cost = 1 - 0.90/1.0 = \$0.10.*
 
 ### F
 
 **Finalization**
-The event where the admin calls `finalize()` after the NAV Oracle reports finalNAV and the Final Points Oracle reports totalPoints. Enables ST --- USDC redemption and EPT --- PointsToken claiming. *Example: Epoch 7 ends. Within 1--2 days, positions are unwound and USDC is returned. Admin finalizes. Users can now redeem.*
+The event where the admin finalizes the epoch after the NAV Oracle reports finalNAV and the Final Points Oracle reports totalPoints. Enables ST to USDC redemption and EPT to PointsToken claiming. *Example: Epoch 7 ends. Within a few days, positions are unwound and USDC is returned. Admin finalizes. Users can now redeem.*
 
 **Final Points Oracle**
-ArcX-operated off-chain service that reports the total number of exchange points earned during the epoch. Called once per epoch, after maturity. *Example: The strategy earned 12,500 Pacifica points during Epoch 7. The Final Points Oracle pushes `finalizePoints(12500)` to the EPT_Pacifica contract.*
-
-**Flash loop**
-The iterative mechanism for acquiring leveraged EPT exposure. Deposit USDC --- receive ST + EPT --- sell ST on ArcX AMM --- re-deposit proceeds --- repeat. Each iteration accumulates more EPT while recycling capital through ST sales. *Example: \$100 deposit --- sell ST for \$90 --- re-deposit \$90 --- sell ST for \$81 --- re-deposit --- after 3 loops, hold ~271 EPT.*
-
-### G
-
-**globalCreditIndex**
-A cumulative counter tracking total credit-seconds per EPT unit since the epoch started. Updated on every global checkpoint. Used to compute per-user credits via the delta: `userCredits += balance x (globalCreditIndex - userCreditIndex)`. *Example: After 259,200 seconds at creditRate 10, globalCreditIndex = 2,592,000.*
+ArcX-operated off-chain service that reports the total number of exchange points earned during the epoch. Called once per epoch, after maturity. *Example: The strategy earned 12,500 points during Epoch 7. The Final Points Oracle reports totalPoints to the EPT contract.*
 
 ### L
 
 **LayerZero (LZ)**
-The cross-chain messaging protocol used to deliver deposit instructions from source chains to Starknet. Typical latency: 1--5 minutes. Worst case: ~30 minutes. *Example: Alice's deposit message travels from Ethereum to Starknet via LayerZero in ~3 minutes.*
+The cross-chain messaging protocol used to deliver deposit instructions from source chains to Starknet. *Example: Alice's deposit message travels from Ethereum to Starknet via LayerZero.*
 
 ### M
 
 **MATURITY**
-The second epoch state. Entered when the epoch end time is reached. Strategy positions are unwound, no new deposits accepted, and settlement begins. *Example: Epoch 7 enters MATURITY when the epoch end timestamp is reached. The strategy runner closes positions on Pacifica and Extended.*
-
-**MAX_NAV_STALENESS**
-Hardcoded parameter (30 minutes). If the NAV oracle hasn't updated within this window, deposits automatically revert. Prevents depositing against stale pricing. *Example: NAV was last updated 35 minutes ago. Alice's deposit transaction reverts with a staleness error.*
+The second epoch state. Entered when the epoch end time is reached. Strategy positions are unwound, no new deposits accepted, and settlement begins. *Example: Epoch 7 enters MATURITY when the epoch end timestamp is reached. The strategy runner closes positions on supported perp DEXes.*
 
 **Minting parity**
-The protocol-enforced relationship: `1 USDC deposited = (1/R) ST + 1 EPT`. This equation defines the conservation law for token creation and is the basis for the flash loop cost calculation. *Example: If R = 1.0, depositing \$1 gives you 1 ST share + 1 EPT. The flash loop exploits this by selling ST and re-depositing.*
+The protocol-enforced relationship: `1 USDC deposited = (1/R) ST + 1 EPT`. This equation defines the conservation law for token creation and is the basis for cross-matching on the orderbooks. *Example: If R = 1.0, depositing \$1 produces 1 ST share + 1 EPT. The cross-matching engine uses this ratio when filling compatible buy-EPT and buy-ST orders.*
 
 **Multi-EPT**
-The pattern where a single deposit into a cross-exchange strategy produces separate EPT tokens for each exchange. *Example: Depositing into the Pacifica-Extended Funding Arb produces 1 ST + EPT_Pacifica + EPT_Extended. Three tokens from one deposit.*
+The pattern where a single deposit into a cross-exchange strategy produces separate EPT tokens for each exchange. *Example: Depositing into a cross-exchange strategy produces 1 ST + EPT for exchange A + EPT for exchange B. Three tokens from one deposit.*
 
 ### N
 
 **NAV (Net Asset Value)**
-The total USDC value of all strategy positions for an epoch, reported by the NAV Oracle. Determines ST share price (`sharePrice = NAV / totalShares`). *Example: The strategy holds \$50K long on Pacifica and \$50K short on Extended. NAV = \$100K + accumulated PnL = \$101,500.*
+The per-share USDC value of the strategy vault, computed as `vault_value / total_shares`. Determines ST share price. *Example: The vault holds \$101,500 in total value and has 100,000 shares outstanding. NAV = \$1.015 per share.*
 
 **NAV Oracle**
-ArcX-operated off-chain service that reports strategy NAV to the ST Vault every 5 minutes. Computes NAV from exchange position data (principal + unrealized PnL + fees). *Example: The NAV Oracle reads position values from Pacifica and Extended APIs, sums them, and pushes the total to the ST Vault contract.*
+ArcX-operated off-chain service that periodically reports strategy NAV to the ST Vault. Computes NAV from exchange position data (principal + unrealized PnL + fees). *Example: The NAV Oracle reads position values from supported perp DEXes, computes the per-share value, and pushes it to the ST Vault contract.*
+
+### O
+
+**Orderbook**
+A limit order book where users place buy and sell orders for EPT/USDC or ST/USDC. Orders are matched off-chain and settled on-chain on Starknet. Each token pair has its own orderbook. *Example: Alice places a limit buy order for 100 EPT at \$0.08 on the EPT/USDC orderbook. When a matching sell order appears, the trade executes.*
 
 ### P
 
-**Pacifica**
-A Solana-based perp DEX integrated with ArcX. One of the launch exchanges for the Pacifica-Extended Funding Arb strategy. PointsToken: xPC. *Example: ArcX opens long positions on Pacifica as part of the cross-exchange funding arb.*
-
 **Pause**
-Admin action that stops new deposits into an epoch. Does not affect the epoch lifecycle, trading on the ArcX AMM, credit accrual, or redemptions. *Example: A suspected oracle issue triggers a pause. Existing positions are unaffected, but no new deposits are accepted until the admin calls unpause().*
+Admin action that stops new deposits into an epoch. Does not affect the epoch lifecycle, orderbook trading, credit accrual, or redemptions. *Example: A suspected oracle issue triggers a pause. Existing positions are unaffected, but no new deposits are accepted until the admin unpauses.*
 
 **pointsPerCredit**
 The conversion ratio computed at finalization: `totalPoints / totalCredits`. Determines how many points each credit is worth. *Example: totalPoints = 1,000, totalCredits = 864,000,000. pointsPerCredit = 0.000001157. A user with 561,600,000 credits receives 650 points.*
 
-**PointsCollector**
-Admin-callable contract that claims PointsTokens on behalf of whitelisted contract addresses. Used to distribute pool credits to participants via merkle tree. *Example: After Epoch 7 finalizes, admin calls PointsCollector to claim a contract's accrued credits, then creates a merkle distribution.*
-
 **PointsToken**
-ERC20 representing tokenized exchange points, 1:1 backed by real points in ArcX's exchange account. One contract per exchange (xPC for Pacifica, xHL for Hyperliquid, xET for Extended). Persists across epochs. *Example: Alice claims 450 PointsTokens (xPC) from Epoch 7. She already had 320 xPC from previous epochs. Her total: 770 xPC.*
+ERC20 representing tokenized exchange points, 1:1 backed by real points in ArcX's exchange account. One contract per exchange. Persists across epochs. *Example: Alice claims 450 PointsTokens from Epoch 7. She already had 320 from previous epochs. Her total: 770.*
 
 ### R
 
 **Redemption fee**
-Fee charged when converting EPT credits to PointsTokens. Deducted from gross PointsTokens before minting. Configurable per EPT contract. *Example: Alice's gross claim is 714 PointsTokens. With a 2% redemption fee, she receives 699 net PointsTokens.*
-
-**Redemption Module**
-Shared Cairo trait used by both EPT (credits --- PointsToken) and PointsToken (PointsToken --- airdrop tokens). Implements the burn-to-claim pattern with incremental claiming via `alreadyClaimed` tracking. *Example: The same code path handles Alice claiming PointsTokens from EPT and later burning those PointsTokens for airdrop tokens post-TGE.*
+Fee charged when converting EPT credits to PointsTokens. Deducted from gross PointsTokens before minting. Configurable per EPT contract. *Example: Alice's gross claim is 714 PointsTokens. The redemption fee is deducted, and she receives the net amount.*
 
 **Refund timeout**
-Configurable parameter on SourceChainDepositEscrow. If a cross-chain deposit isn't acknowledged within this window, the user can call `cancel()` to recover locked USDC. *Example: Alice's cross-chain deposit hasn't been acknowledged after 30 minutes. She calls `cancel(depositId)` and gets her USDC back.*
+Configurable parameter on SourceChainDepositEscrow. If a cross-chain deposit is not acknowledged within this window, the user can cancel to recover locked USDC. *Example: Alice's cross-chain deposit has not been acknowledged within the timeout window. She cancels and gets her USDC back.*
 
 ### S
 
+**Secondary trade**
+A trade between existing token holders on the EPT/USDC or ST/USDC orderbook. No new tokens are minted or burned; ownership simply transfers between buyer and seller. *Example: Alice sells 50 EPT to Bob on the EPT/USDC orderbook. No minting occurs. Alice's balance decreases, Bob's increases.*
+
 **sharePrice**
-The current USDC value of one ST share: `currentNAV / totalShares`. Updated every time the NAV Oracle pushes a new value. *Example: NAV = \$103,000, totalShares = 100,000. sharePrice = \$1.03.*
+The current USDC value of one ST share: `vault_value / totalShares`. Updated every time the NAV Oracle pushes a new value. *Example: Vault value = \$103,000, totalShares = 100,000. sharePrice = \$1.03.*
+
+**shares**
+The number of ST tokens a depositor receives, computed as `deposit_amount / NAV`. *Example: Alice deposits \$100 when NAV = \$1.02. She receives 100 / 1.02 = ~98.04 ST shares.*
 
 **SourceChainDepositEscrow**
-Contract deployed on each supported source chain. Locks user USDC, sends a deposit message via LayerZero to Starknet, and either releases USDC to the ArcX multisig (on acknowledgment) or refunds to the user (on timeout). *Example: On Ethereum, Alice approves USDC on the escrow contract and calls `depositUSDC()`. Her USDC is locked until Starknet acknowledges the deposit.*
+Contract deployed on each supported source chain. Locks user USDC, sends a deposit message via LayerZero to Starknet, and either releases USDC to the ArcX multisig (on acknowledgment) or refunds to the user (on timeout). *Example: On Ethereum, Alice locks USDC in the escrow contract. Her USDC is held until Starknet acknowledges the deposit.*
 
 **ST (Strategy Token)**
-ERC4626-like vault share representing a claim on the epoch's USDC NAV at finalization. One ST contract per epoch per strategy. Tradeable on the ArcX AMM during the epoch, redeemable for USDC after finalization. *Example: Alice deposits \$100, receives ~99.50 ST shares. The strategy makes 2%. She redeems for ~\$101.50.*
+ERC4626-like vault share representing a claim on the epoch's USDC NAV at finalization. One ST contract per epoch per strategy. Tradeable on the ST/USDC orderbook during the epoch, redeemable for USDC after finalization. *Example: Alice deposits \$100 and receives ST shares. The strategy makes 2%. She redeems for approximately \$102.*
 
 **Strategy**
-An actively managed trading approach executed by ArcX on perp DEXes. Each strategy has its own vault, producing unique ST and EPT tokens each epoch. *Example: "Pacifica-Extended Funding Arb" is a strategy that goes long on one exchange and short on another to capture funding rate differentials.*
+An actively managed trading approach executed by ArcX on supported perp DEXes. Each strategy has its own vault, producing unique ST and EPT tokens each epoch. *Example: A funding arb strategy goes long on one exchange and short on another to capture funding rate differentials.*
 
 **Strategy Runner**
-ArcX's off-chain service that executes perp DEX trades using deposited USDC as margin. Operates on exchange accounts controlled by ArcX. *Example: The Strategy Runner opens a \$50K long position on Pacifica and a \$50K short position on Extended to execute the funding arb strategy.*
+ArcX's off-chain service that executes perp DEX trades using deposited USDC as margin. Operates on exchange accounts controlled by ArcX. *Example: The Strategy Runner opens matching long and short positions across supported perp DEXes to execute the funding arb strategy.*
 
 ### T
 
 **TGE (Token Generation Event)**
-The moment when a perp DEX launches its token and distributes airdrops. After TGE, PointsTokens become redeemable for airdrop tokens via the Redemption Module. *Example: Pacifica conducts TGE and distributes PCA tokens. ArcX deposits PCA into the Redemption Module. xPC holders can now burn xPC to receive PCA.*
+The moment when a perp DEX launches its token and distributes airdrops. After TGE, PointsTokens become redeemable for airdrop tokens via the Redemption Module. *Example: A perp DEX conducts TGE and distributes tokens. ArcX deposits them into the Redemption Module. PointsToken holders can now burn PointsTokens to receive airdrop tokens.*
 
-**Time-decay curve**
-The AMM pricing function used by the ArcX AMM for ST/USDC pools. Concentrates liquidity around expected ST price ranges and steepens as maturity approaches, pulling ST price toward NAV. Inspired by Pendle's logit-based curve. *Example: At epoch start, the curve allows a wide trading range. Near maturity, the curve forces ST price close to NAV.*
+**Tick**
+A single oracle credit update, periodically reporting the credits-per-EPT accrued since the last update. Each tick reflects the strategy's activity level during that interval. *Example: The Credits Oracle pushes a tick reporting 25 credits/EPT. All EPT holders accrue 25 credits per EPT they hold.*
 
 **totalCredits**
 Running sum of all users' settled credits across the epoch. Used as the denominator in points distribution: `yourShare = yourCredits / totalCredits`. *Example: At finalization, totalCredits = 864,000,000. Alice has 561,600,000 credits, giving her a 65% share.*
 
 **totalPoints**
-The actual number of exchange points earned during the epoch, reported by the Final Points Oracle at finalization. Used as the numerator in points distribution. *Example: The Pacifica-Extended Funding Arb strategy earned 1,000 Pacifica points during Epoch 7. totalPoints = 1,000.*
+The actual number of exchange points earned during the epoch, reported by the Final Points Oracle at finalization. Used as the numerator in points distribution. *Example: The strategy earned 1,000 points during Epoch 7. totalPoints = 1,000.*
 
-### U
+### V
 
-**userCheckpoint**
-The per-user credit settlement operation. Computes `newCredits = balance x (globalCreditIndex - userCreditIndex)`, adds to the user's credit total, and updates their index to the current global value. Triggered on every transfer, mint, and claim. *Example: Alice's last checkpoint was at globalCreditIndex = 1,000,000. The index is now 2,592,000. Her 100 EPT earns `100 x (2,592,000 - 1,000,000) = 159,200,000` new credits.*
-
-**userCreditIndex**
-Per-user marker tracking the globalCreditIndex value at the user's last checkpoint. The delta between the current global index and the user's index, multiplied by their balance, gives unsettled credits. *Example: Alice's userCreditIndex = 2,592,000. Global is now 5,184,000. Delta = 2,592,000. With 50 EPT balance, she has 129,600,000 unsettled credits.*
+**Vault value**
+The total USDC held in the strategy vault, including principal, unrealized PnL, and accrued fees across all positions. Distinct from NAV, which is the per-share value (vault_value / total_shares). *Example: The vault holds \$500,000 across positions on multiple exchanges. With 490,000 shares outstanding, NAV = \$500,000 / 490,000 = \$1.0204 per share.*
 
 ---
 
 ## Protocol Parameters
 
-### Hardcoded
-
-| Parameter | Value | Contract | Description |
-|---|---|---|---|
-| `MAX_NAV_STALENESS` | 30 minutes | ST Vault | Maximum age of NAV data for accepting deposits |
-
 ### Configurable (Per Strategy / Per Epoch)
 
-| Parameter | Expected Range | Set by | Contract | Description |
-|---|---|---|---|---|
-| `depositFeeRate` | 0.01%--0.5% | Admin | ST Vault | Fee on gross USDC deposits. Lower for low-vol strategies (funding arb), higher for volatile (MM). |
-| `redeemFeeRate` | Configurable per strategy | Admin | EPT | Fee on PointsToken claims |
-| `depositCutoff` | 0--86,400 seconds | Admin | ST Vault | How long before epochEnd to stop deposits. 0 = accept until maturity. |
-| `epochStart` | Unix timestamp | Deployment | ST Vault | When the epoch begins |
-| `epochEnd` | Unix timestamp | Deployment | ST Vault | When the epoch ends (typically epochStart + 8--12 weeks) |
-| `refundTimeout` | ~30 minutes | Admin | SourceChainDepositEscrow | Time before unacknowledged cross-chain deposits can be refunded |
-| `maturityTime` | Unix timestamp | Deployment | ArcX AMM | Epoch end time for time-decay curve convergence |
-| `scalarRoot` | Strategy-dependent | Admin | ArcX AMM | Controls time-decay curve steepness |
+| Parameter | Set by | Contract | Description |
+|---|---|---|---|
+| `depositFeeRate` | Admin | ST Vault | Fee on gross USDC deposits. Varies by strategy. |
+| `redeemFeeRate` | Admin | EPT | Fee on PointsToken claims. Varies by strategy. |
+| `depositCutoff` | Admin | ST Vault | How long before epochEnd to stop deposits. 0 = accept until maturity. |
+| `epochStart` | Deployment | ST Vault | When the epoch begins |
+| `epochEnd` | Deployment | ST Vault | When the epoch ends |
+| `refundTimeout` | Admin | SourceChainDepositEscrow | Time before unacknowledged cross-chain deposits can be refunded |
 
 ### Operational (Off-Chain)
 
-| Parameter | Expected Value | Service | Description |
-|---|---|---|---|
-| NAV update frequency | Every 5 minutes | NAV Oracle | How often NAV is pushed on-chain |
-| creditRate update frequency | Every 5--15 minutes | Credits Oracle | How often creditRate is adjusted |
-| Strategy unwind time | 1--48 hours | Strategy Runner | Time to close positions after epoch end |
-| LP snapshot frequency | Multiple per epoch | PointsCollector | How often LP positions are snapshot for merkle distribution |
+| Parameter | Service | Description |
+|---|---|---|
+| NAV update frequency | NAV Oracle | How often NAV is pushed on-chain (periodically) |
+| Credit tick frequency | Credits Oracle | How often credit ticks are pushed (periodically) |
+| Strategy unwind time | Strategy Runner | Time to close positions after epoch end |
 
 ---
 
@@ -218,25 +179,17 @@ Per-user marker tracking the globalCreditIndex value at the user's last checkpoi
 
 | Token | Type | Scope | Tradeable | Redeemable for | Expiry |
 |---|---|---|---|---|---|
-| **ST** | ERC4626-like shares | Per epoch, per strategy | Yes (ArcX AMM ST/USDC) | USDC (after finalization) | None |
-| **EPT** | ERC20 + credits | Per epoch, per exchange, per strategy | No (deposit-only, via flash loop) | PointsTokens (after finalization) | None |
+| **ST** | ERC4626-like shares | Per epoch, per strategy | Yes (ST/USDC orderbook) | USDC (after finalization) | End of epoch |
+| **EPT** | ERC20 + credits | Per epoch, per exchange, per strategy | Yes (EPT/USDC orderbook) | PointsTokens (after finalization) | End of epoch |
 | **PointsToken** | ERC20 | Per exchange (persists across epochs) | Yes (standard ERC20) | Airdrop tokens (after TGE) | None |
 
 ### Naming Convention
 
 | Token | Pattern | Example |
 |---|---|---|
-| ST | `ST-{Strategy}-E{epochId}` | `ST-PacificaFundingArb-E007` |
-| EPT | `EPT-{Exchange}-E{epochId}` | `EPT-Pacifica-E007` |
-| PointsToken | `x{Exchange}` | `xPC`, `xHL`, `xET` |
-
-### Exchange Reference
-
-| Exchange | Chain | PointsToken | Description |
-|---|---|---|---|
-| Pacifica | Solana | xPC | Solana-based perp DEX |
-| Hyperliquid | Hyperliquid L1 | xHL | High-performance perp DEX |
-| Extended | Starknet | xET | Starknet-native perp DEX |
+| ST | `ST-{Strategy}-E{epochId}` | `ST-FundingArb-E007` |
+| EPT | `EPT-{Exchange}-E{epochId}` | `EPT-Exchange-E007` |
+| PointsToken | `x{Exchange}` | `xPC`, `xHL` |
 
 ---
 
@@ -244,26 +197,25 @@ Per-user marker tracking the globalCreditIndex value at the user's last checkpoi
 
 | Equation | Plain English | Used in |
 |---|---|---|
-| `1 USDC = (1/R) ST + 1 EPT` | One dollar deposited produces this fixed combination of tokens | Protocol overview, deposit flow |
-| `sharePrice = NAV / totalShares` | Each ST share is worth the NAV divided by total shares | ST pricing, redemption |
-| `shares = netUSDC x totalShares / NAV` | Shares minted depend on current NAV (like a mutual fund) | Deposit calculation |
-| `usdcOut = shares x finalNAV / totalShares` | Redemption gives you your proportional slice of final NAV | ST redemption |
-| `credits = integral(balance x creditRate) dt` | Credits are the time-weighted, activity-weighted holding measure | Credit accrual |
+| `1 USDC = (1/R) ST + 1 EPT` | One dollar deposited produces this fixed combination of tokens | Protocol overview, deposit flow, cross-matching |
+| `sharePrice = vault_value / totalShares` | Each ST share is worth the vault value divided by total shares | ST pricing, redemption |
+| `shares = deposit_amount / NAV` | Shares minted depend on current per-share NAV | Deposit calculation |
+| `usdcOut = shares x finalNAV / totalShares` | Redemption gives you your proportional slice of final vault value | ST redemption |
+| `credits = sum of (tick_value x balance) across all ticks` | Credits accumulate from periodic oracle ticks, weighted by EPT balance | Credit accrual |
 | `pointsPerCredit = totalPoints / totalCredits` | Your share of points equals your share of total credits | Points distribution |
-| `EPT_cost = 1 - X/R` | EPT implied cost is the gap between \$1 and the market value of ST from a \$1 deposit | EPT pricing, flash loop |
-| `Total EPT = deposit / (1 - X/R)` | Flash loop converges to this maximum EPT from a given deposit | Flash loop economics |
+| `EPT_cost = 1 - X/R` | EPT implied cost is the gap between \$1 and the market value of ST from a \$1 deposit | EPT pricing |
 
 ---
 
 ## Epoch State Machine Quick Reference
 
-| State | Deposits | NAV Updates | Credit Accrual | ST Trading (ArcX AMM) | Flash Loop | Redemption |
-|---|---|---|---|---|---|---|
-| **ACTIVE** | Yes | Every 5 min | Yes (creditRate updates) | Yes | Yes | No |
-| **MATURITY** | No | Stopped | Stopped | Yes | No | No |
-| **FINALIZED** | No | Final NAV set | Final credits settled | Yes* | No | Yes |
+| State | Deposits | NAV Updates | Credit Accrual | Orderbook Trading | Redemption |
+|---|---|---|---|---|---|
+| **ACTIVE** | Yes | Periodic | Yes (oracle ticks) | Yes | No |
+| **MATURITY** | No | Stopped | Stopped | Yes | No |
+| **FINALIZED** | No | Final NAV set | Final credits settled | Yes* | Yes |
 
-*Trading can continue on the ArcX AMM even after finalization, but there's no economic reason to. You can redeem directly.
+*Trading can continue on the orderbooks after finalization, but there is no economic reason to. You can redeem directly.
 
 ---
 
@@ -272,10 +224,11 @@ Per-user marker tracking the globalCreditIndex value at the user's last checkpoi
 | Component | Trust Model | What's Trusted | Verifiable? |
 |---|---|---|---|
 | NAV Oracle | Centralized (ArcX) | Accurate NAV reporting | Partially (exchange dashboards) |
-| Credits Oracle | Centralized (ArcX) | Fair creditRate reporting | Partially (observable OI/volume) |
+| Credits Oracle | Centralized (ArcX) | Fair credit tick reporting | Partially (observable activity) |
 | Final Points Oracle | Centralized (ArcX) | Accurate totalPoints | Partially (exchange dashboards) |
 | PointsToken backing | Trust-based | 1:1 backing with real points | Not currently |
 | Strategy execution | Centralized (ArcX) | Competent, non-malicious trading | Not on-chain |
+| Orderbook matching | Centralized (ArcX) | Fair order matching, on-chain settlement | Settlement is on-chain |
 | Cross-chain escrow | Multisig + timeout | Multisig honesty | Refund timeout as safety valve |
 | Smart contracts | On-chain (audited) | Correct logic | Fully (code is on-chain) |
 
@@ -288,17 +241,16 @@ Full analysis: [Trust Model & Security](/deep-dives/trust-model-and-security)
 | # | Document | Category | Level | What it teaches |
 |---|---|---|---|---|
 | 1 | [What is ArcX?](/learn/protocol-overview) | Learn | Beginner | The protocol in one page: splitting, three tokens, two primary user paths |
-| 2 | [The Three Tokens](/learn/token-economics) | Learn | Intermediate | How ST, EPT, and PointsToken work mechanically |
-| 3 | [Strategy Token](/learn/strategy-token) | Learn | Intermediate | ST deep dive: share pricing, AMM trading, yield seeker returns |
-| 4 | [Expected Points Token](/learn/expected-points-token) | Learn | Intermediate | EPT deep dive: credit accrual, flash loop, deposit-only model |
-| 5 | [PointsToken](/learn/points-token) | Learn | Intermediate | Tokenized exchange points, TGE redemption, cross-epoch persistence |
-| 6 | [How Epochs Work](/learn/epoch-lifecycle) | Learn | Intermediate | Epoch states, deposits, cross-chain, finalization, redemption |
-| 7 | [Using ArcX](/learn/user-guide) | Learn | Beginner | Step-by-step: deposit, flash loop, buy discounted ST, redeem |
-| 8 | [ArcX vs Pendle](/learn/pendle-comparison) | Learn | Intermediate | Side-by-side concept mapping for Pendle users |
-| 9 | [Credit Mathematics](/deep-dives/credit-mathematics) | Deep Dives | Advanced | Credit accrual formulas, 6 worked examples, security properties |
-| 10 | [EPT Pricing & Flash Loop Economics](/deep-dives/ept-pricing) | Deep Dives | Advanced | Flash loop math, one-way arb, ST discount dynamics |
-| 11 | [Trust Model & Security](/deep-dives/trust-model-and-security) | Deep Dives | Intermediate | Trust assumptions, attack vectors, decentralization roadmap |
-| 12 | Developer Integration Guide | Build (coming soon) | Advanced | Architecture overview + contract and integration docs |
-| 13 | Contract Reference | Build (coming soon) | Advanced | Every state variable, function, and event |
-| 14 | Integration & Deployment | Build (coming soon) | Advanced | Frontend patterns, indexer setup, deployment checklist |
-| 15 | **You are here**, Glossary & Parameters | Reference | All | Every term and parameter defined |
+| 2 | [Strategy Token](/learn/strategy-token) | Learn | Intermediate | ST deep dive: share pricing, orderbook trading, yield seeker returns |
+| 3 | [Expected Points Token](/learn/expected-points-token) | Learn | Intermediate | EPT deep dive: credit accrual, orderbook trading |
+| 4 | [PointsToken](/learn/points-token) | Learn | Intermediate | Tokenized exchange points, TGE redemption, cross-epoch persistence |
+| 5 | [How Epochs Work](/learn/epoch-lifecycle) | Learn | Intermediate | Epoch states, deposits, cross-chain, finalization, redemption |
+| 6 | [Using ArcX](/learn/user-guide) | Learn | Beginner | Step-by-step: deposit, buy EPT, buy discounted ST, redeem |
+| 7 | [ArcX vs Pendle](/learn/pendle-comparison) | Learn | Intermediate | Side-by-side concept mapping for Pendle users |
+| 8 | [Credit Mathematics](/deep-dives/credit-mathematics) | Deep Dives | Advanced | Credit accrual formulas, worked examples, security properties |
+| 9 | [EPT Pricing](/deep-dives/ept-pricing) | Deep Dives | Advanced | EPT cost derivation, ST discount dynamics |
+| 10 | [Trust Model & Security](/deep-dives/trust-model-and-security) | Deep Dives | Intermediate | Trust assumptions, attack vectors, decentralization roadmap |
+| 11 | [Developer Integration Guide](/build/developer-integration-guide) | Build | Advanced | Architecture overview + links to contract and integration docs |
+| 12 | [Contract Reference](/build/contract-reference) | Build | Advanced | Contract interfaces and events |
+| 13 | [Integration & Deployment](/build/integration-and-deployment) | Build | Advanced | Frontend patterns, indexer setup, deployment checklist |
+| 14 | **You are here**, Glossary & Parameters | Reference | All | Every term and parameter defined |
