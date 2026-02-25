@@ -78,11 +78,11 @@ Where:
 - **X** = ST market price on the ST/USDC orderbook
 - **R** = NAV (net asset value per share)
 
-**Intuition:** A $1 deposit creates both ST and EPT. If ST trades at $0.90 and NAV is $1.00, then the implied EPT cost is $0.10 per token. The deeper the ST discount, the higher the implied EPT cost, because the points farmer is giving up more USDC value on the ST side.
+**Intuition:** A \$1 deposit creates both ST and EPT. If ST trades at \$0.90 and NAV is \$1.00, then the implied EPT cost is \$0.10 per token. The deeper the ST discount, the higher the implied EPT cost, because the points farmer is giving up more USDC value on the ST side.
 
 ### The Interest Rate Frame
 
-Rather than asking "is $0.10 too much for an EPT?", think about the **implied return rate**. EPT decays in value over the epoch as time remaining decreases (fewer credits left to earn). The EPT price at any moment reflects the market's view of the remaining points value. Early in the epoch, the same EPT costs more because there are more credits left to accrue.
+Rather than asking "is \$0.10 too much for an EPT?", think about the **implied return rate**. EPT decays in value over the epoch as time remaining decreases (fewer credits left to earn). The EPT price at any moment reflects the market's view of the remaining points value. Early in the epoch, the same EPT costs more because there are more credits left to accrue.
 
 Full pricing analysis and decay mechanics are covered in [EPT Pricing](/deep-dives/ept-pricing).
 

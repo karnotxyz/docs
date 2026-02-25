@@ -24,7 +24,7 @@ The credit rate reflects the strategy's OI on the exchange. Larger vault size me
 
 If you are going to hold a long BTC position anyway, doing it through ArcX means you also earn exchange points. Those points have value. The net effect: your cost of holding a long BTC position is subsidized by points earnings.
 
-**Example.** You deposit $100 into the Long Bitcoin vault. The strategy opens a long BTC-PERP position. Over the epoch, BTC rises 5%, so your ST is worth $105 at redemption. You also earned EPT that accrued credits throughout the epoch. If you sold that EPT on the EPT/USDC orderbook at deposit time for $0.03, your effective entry was $97 instead of $100, a 3% subsidy on your long position.
+**Example.** You deposit \$100 into the Long Bitcoin vault. The strategy opens a long BTC-PERP position. Over the epoch, BTC rises 5%, so your ST is worth \$105 at redemption. You also earned EPT that accrued credits throughout the epoch. If you sold that EPT on the EPT/USDC orderbook at deposit time for \$0.03, your effective entry was \$97 instead of \$100, a 3% subsidy on your long position.
 
 Alternatively, you keep both ST and EPT. You get the BTC upside through ST and the points exposure through EPT. The points are a bonus on top of your directional trade.
 
@@ -56,9 +56,9 @@ ST on the Long Bitcoin strategy is a directional bet on BTC. This is different f
 | **Epoch duration** | Longer epochs mean more time for BTC to move. This cuts both ways. |
 | **Funding costs** | Holding a long perp position may cost funding if funding rates are positive. This drags on NAV over time. |
 
-**Example.** You buy ST at $0.90 on the orderbook. BTC rises 8% over the epoch. Final NAV is approximately $1.08. You redeem at $1.08. Return: ($1.08 - $0.90) / $0.90 = 20%. The 10% discount amplified your BTC exposure.
+**Example.** You buy ST at \$0.90 on the orderbook. BTC rises 8% over the epoch. Final NAV is approximately \$1.08. You redeem at \$1.08. Return: (\$1.08 - \$0.90) / \$0.90 = 20%. The 10% discount amplified your BTC exposure.
 
-If BTC falls 8%, final NAV is approximately $0.92. You redeem at $0.92. Return: ($0.92 - $0.90) / $0.90 = 2.2%. The discount saved you from a loss.
+If BTC falls 8%, final NAV is approximately \$0.92. You redeem at \$0.92. Return: (\$0.92 - \$0.90) / \$0.90 = 2.2%. The discount saved you from a loss.
 
 ---
 
@@ -68,7 +68,7 @@ This is a directional strategy. The risk profile is different from delta-neutral
 
 | Risk | Description |
 |---|---|
-| **BTC price decline** | NAV falls when BTC falls. ST holders have full downside exposure, floored at $0. |
+| **BTC price decline** | NAV falls when BTC falls. ST holders have full downside exposure, floored at \$0. |
 | **Funding drag** | If funding rates are persistently positive, the strategy pays funding on its long position, reducing NAV over time even if BTC price is flat. |
 | **Exchange risk** | The position is held on a third-party perp DEX. Smart contract risk, downtime, or liquidation engine failures on the exchange affect the strategy. |
 | **Liquidation risk** | In extreme drawdowns, the position could approach liquidation. The strategy manages margin to prevent this, but tail risk exists. |
