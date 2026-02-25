@@ -76,6 +76,10 @@ This is a secondary trade, not a redemption. Redemption (ST for USDC at NAV, EPT
 
 ---
 
+<Info>
+Most users buy the specific token they want on the orderbook. Direct minting is for users who want both ST and EPT simultaneously.
+</Info>
+
 ## Direct Minting
 
 Instead of buying on the orderbook, you can deposit USDC directly into a strategy. You receive both tokens:
@@ -122,7 +126,9 @@ You can deposit USDC from Ethereum, Arbitrum, Solana, and other supported chains
   </Step>
 </Steps>
 
-**If the message never arrives:** After a timeout period, you can cancel the deposit on the source chain and get your USDC refunded. You are never permanently locked out.
+<Tip>
+Cross-chain deposits typically complete in 1-5 minutes. If the message never arrives, you can cancel after the timeout period and get your USDC refunded on the source chain.
+</Tip>
 
 ---
 
@@ -163,7 +169,7 @@ PointsTokens represent actual exchange points. Hold them until the exchange cond
 
 ## Quick Reference
 
-| Action | ACTIVE epoch | MATURITY | FINALIZED |
+| Action | <Badge color="green">ACTIVE</Badge> | <Badge color="orange">MATURITY</Badge> | <Badge color="red">FINALIZED</Badge> |
 |---|---|---|---|
 | Buy/sell EPT on orderbook | Yes | No | No |
 | Buy/sell ST on orderbook | Yes | No | No |

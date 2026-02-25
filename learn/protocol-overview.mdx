@@ -16,25 +16,26 @@ ArcX splits the output of a perp trading strategy into two tokens, **ST** (claim
 
 ## Who is ArcX For?
 
-### Points Farmer
+<Columns cols={2}>
+  <Card title="Points Farmer" icon="chart-line">
+    You want points exposure without running a strategy yourself.
 
-You want points exposure without running a strategy yourself.
+    You place a buy order for EPT on the EPT/USDC orderbook at \$0.05. Your \$100 buys **2,000 EPT**. A direct deposit into the strategy would cost \$1 per EPT, so you've effectively gotten **20x leverage** on points exposure. You never touch ST. You never run a strategy. You just hold EPT, accrue credits, and claim PointsTokens after the epoch finalizes.
 
-You place a buy order for EPT on the EPT/USDC orderbook at \$0.05. Your \$100 buys **2,000 EPT**. A direct deposit into the strategy would cost \$1 per EPT, so you've effectively gotten **20x leverage** on points exposure. You never touch ST. You never run a strategy. You just hold EPT, accrue credits, and claim PointsTokens after the epoch finalizes.
+    **Exit:** Sell your EPT on the orderbook at any time.
+  </Card>
+  <Card title="Yield Seeker" icon="vault">
+    You want predictable USDC returns with no points risk.
 
-**Exit:** Sell your EPT on the orderbook at any time.
+    Points farmers are buying EPT, which pushes ST prices down. You buy ST on the ST/USDC orderbook at \$0.90, a 10% discount to NAV. The strategy earns 1% over the epoch, so NAV rises to \$1.01. You redeem at \$1.01.
 
-### Yield Seeker
+    $$\text{Return} = \frac{1.01 - 0.90}{0.90} \approx 12.2\%\text{ per epoch}$$
 
-You want predictable USDC returns with no points risk.
+    You never hold EPT. You have zero points exposure.
 
-Points farmers are buying EPT, which pushes ST prices down. You buy ST on the ST/USDC orderbook at \$0.90, a 10% discount to NAV. The strategy earns 1% over the epoch, so NAV rises to \$1.01. You redeem at \$1.01.
-
-$$\text{Return} = \frac{1.01 - 0.90}{0.90} \approx 12.2\%\text{ per epoch}$$
-
-You never hold EPT. You have zero points exposure.
-
-**Exit:** Sell your ST on the orderbook at any time.
+    **Exit:** Sell your ST on the orderbook at any time.
+  </Card>
+</Columns>
 
 ---
 
@@ -74,7 +75,7 @@ You never hold EPT. You have zero points exposure.
 
 $$1 \text{ USDC} = \frac{1}{R} \text{ ST} + 1 \text{ EPT}$$
 
-where $R$ is the current NAV per share. Depositing 1 USDC into a strategy mints both tokens together.
+where $R$ is the current <Tooltip tip="Net Asset Value. The per-share USDC value of the strategy vault.">NAV</Tooltip> per share. Depositing 1 USDC into a strategy mints both tokens together.
 
 ### Two Orderbooks, One Matching Engine
 
@@ -114,13 +115,19 @@ Each strategy runs in fixed epochs (typically 8-12 weeks) that progress through 
 
 <Steps>
   <Step title="Active">
+    <Badge color="green">ACTIVE</Badge>
+
     Orderbooks are open. Credits accrue. The strategy is running.
   </Step>
   <Step title="Maturity">
+    <Badge color="orange">MATURITY</Badge>
+
     Strategy unwinds. No new deposits. Orderbooks close.
   </Step>
   <Step title="Finalized">
-    Final NAV and points are published. ST redeems for USDC. EPT claims PointsTokens.
+    <Badge color="red">FINALIZED</Badge>
+
+    Final NAV and points are published. ST redeems for USDC. EPT claims <Tooltip tip="1:1 on-chain representation of exchange points. Persists across epochs. Burn for airdrop tokens after TGE.">PointsTokens</Tooltip>.
   </Step>
 </Steps>
 
