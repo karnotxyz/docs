@@ -49,7 +49,7 @@ Assume the oracle reports a constant credit rate for simplicity.
 | Alice | 8 weeks (full epoch) | 604,800 | 63.6% | 636 |
 | Bob | 5 weeks (Week 3 onward) | 345,600 | 36.4% | 364 |
 
-Alice earns more points because she held longer and accrued credits for 3 additional weeks. The credit system weights **amount held times duration held**. There is no bonus or multiplier for early entry --- accrual is linear.
+Alice earns more points because she held longer and accrued credits for 3 additional weeks. The credit system weights **amount held times duration held**. There is no bonus or multiplier for early entry. Accrual is linear.
 
 ---
 
@@ -78,7 +78,7 @@ Where:
 - **X** = ST market price on the ST/USDC orderbook
 - **R** = NAV (net asset value per share)
 
-**Intuition:** A $1 deposit creates both ST and EPT. If ST trades at $0.90 and NAV is $1.00, then the implied EPT cost is $0.10 per token. The deeper the ST discount, the higher the implied EPT cost --- because the points farmer is giving up more USDC value on the ST side.
+**Intuition:** A $1 deposit creates both ST and EPT. If ST trades at $0.90 and NAV is $1.00, then the implied EPT cost is $0.10 per token. The deeper the ST discount, the higher the implied EPT cost, because the points farmer is giving up more USDC value on the ST side.
 
 ### The Interest Rate Frame
 

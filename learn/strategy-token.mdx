@@ -8,7 +8,7 @@ icon: "vault"
 
 Strategy Token represents your share of a strategy's USDC value. Each epoch creates a new ST for each strategy. When the epoch finalizes, you redeem ST for USDC based on the strategy's final NAV.
 
-ST trades on the **ST/USDC orderbook**. Yield seekers buy ST at a discount to NAV during the epoch, then redeem at full NAV after finalization --- capturing the spread as profit.
+ST trades on the **ST/USDC orderbook**. Yield seekers buy ST at a discount to NAV during the epoch, then redeem at full NAV after finalization, capturing the spread as profit.
 
 ---
 
@@ -64,7 +64,7 @@ Redemption burns your ST and transfers USDC to your wallet. There is no fee on r
 
 ## Selling Before Finalization
 
-You do not have to wait for finalization. You can sell ST on the ST/USDC orderbook at any time during the epoch. This is not redemption --- another participant buys your position at the current market price.
+You do not have to wait for finalization. You can sell ST on the ST/USDC orderbook at any time during the epoch. This is not redemption. Another participant buys your position at the current market price.
 
 The orderbook price reflects the market's view of the strategy's NAV, adjusted for time remaining and demand. As the epoch approaches finalization, the orderbook price tends to converge toward NAV.
 
@@ -72,9 +72,9 @@ The orderbook price reflects the market's view of the strategy's NAV, adjusted f
 
 ## Strategy Losses and the Discount
 
-Negative strategy PnL is not a failure mode — it's the inherent bet ST holders make. The discount you buy at is your buffer.
+Negative strategy PnL is not a failure mode. It's the inherent bet ST holders make. The discount you buy at is your buffer.
 
-**Example:** You buy ST on the orderbook at $0.90 (10% discount). The strategy loses 5% over the epoch. Final NAV = $0.95. You redeem at $0.95 — still a $0.05 profit per ST (5.6% return) because your discount absorbed the loss.
+**Example:** You buy ST on the orderbook at $0.90 (10% discount). The strategy loses 5% over the epoch. Final NAV = $0.95. You redeem at $0.95, still a $0.05 profit per ST (5.6% return) because your discount absorbed the loss.
 
 You only lose money if the strategy loses *more* than your discount. In this example, the strategy would need to lose more than 10% before you're underwater. That's the trade-off: the deeper the discount you demand, the larger the loss buffer you have.
 
@@ -89,4 +89,4 @@ You only lose money if the strategy loses *more* than your discount. In this exa
 | Yield seeker demand | Absorbs supply, narrowing the discount |
 | Time to finalization | As the epoch nears its end, price converges toward NAV |
 
-The ST discount reflects the cost of points. When points are in high demand, farmers sell ST more aggressively, the discount widens, and yield seekers earn a higher return. The two sides of the market --- points farmers and yield seekers --- set the price.
+The ST discount reflects the cost of points. When points are in high demand, farmers sell ST more aggressively, the discount widens, and yield seekers earn a higher return. The two sides of the market, points farmers and yield seekers, set the price.

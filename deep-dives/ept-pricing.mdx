@@ -48,7 +48,7 @@ $$\text{Annualized (8 weeks left)} \approx \frac{100\%}{8} \times 52 = 650\%$$
 
 $$\text{Annualized (2 weeks left)} \approx \frac{100\%}{2} \times 52 = 2{,}600\%$$
 
-Same price, same expected payout, vastly different annualized rates. The interest rate frame makes this obvious — \$0.05 with 2 weeks left is a much better deal than \$0.05 with 8 weeks left.
+Same price, same expected payout, vastly different annualized rates. The interest rate frame makes this obvious. \$0.05 with 2 weeks left is a much better deal than \$0.05 with 8 weeks left.
 
 ### Why EPT Price Falls Over the Epoch
 
@@ -60,7 +60,7 @@ This is not mechanical decay imposed by a curve. It is the market correctly pric
 
 ## Orderbook Price Dynamics
 
-EPT trades on the **EPT/USDC orderbook**. Price discovery happens through standard limit orders — buyers and sellers post bids and asks, and the matching engine executes trades.
+EPT trades on the **EPT/USDC orderbook**. Price discovery happens through standard limit orders. Buyers and sellers post bids and asks, and the matching engine executes trades.
 
 ### Secondary Trading
 
@@ -95,7 +95,7 @@ If EPT + ST buy prices exceed the minting cost, cross-matching creates new token
 
 ### Downward Arb Is Broken
 
-If the combined prices fall below minting cost — meaning EPT and ST are both "cheap" — the correcting trade would require buying both tokens and burning them for USDC. **This is not possible.** There is no early redemption mechanism. You cannot burn ST + EPT before finalization.
+If the combined prices fall below minting cost (meaning EPT and ST are both "cheap"), the correcting trade would require buying both tokens and burning them for USDC. **This is not possible.** There is no early redemption mechanism. You cannot burn ST + EPT before finalization.
 
 The ST discount can therefore persist wider than fair value with no mechanical correction. Yield seekers buying cheap ST provide a natural floor, but there is no guaranteed arbitrage on the downside.
 
@@ -115,7 +115,7 @@ No early redemption is a deliberate design choice. It eliminates complex reserve
 | **ST discount** | Higher ST discount = higher implied EPT cost (via minting parity) |
 | **Points demand** | More buyers on EPT orderbook = higher price |
 
-The relationship between ST discount and EPT cost deserves emphasis. From minting parity:
+The relationship between ST discount and EPT cost is direct. From minting parity:
 
 $$\text{EPT}_{\text{fair}} = 1 - \frac{X}{R}$$
 
@@ -167,7 +167,7 @@ A points farmer places a buy order at \$0.08 per EPT.
 
 $$\frac{\$100}{\$0.08} = 1{,}250\text{ EPT}$$
 
-Compare this to a direct deposit: \$100 into the vault mints 100 ST and 100 EPT. Buying on the orderbook yields **12.5x more EPT** for the same capital. The leverage comes entirely from the price — no looping, no compounding, just buying EPT at its market price.
+Compare this to a direct deposit: \$100 into the vault mints 100 ST and 100 EPT. Buying on the orderbook yields **12.5x more EPT** for the same capital. The leverage comes entirely from the price. No looping, no compounding, just buying EPT at its market price.
 
 ### Yield Seeker: Buying ST on the Orderbook
 
@@ -185,6 +185,6 @@ The 8% discount provides a buffer against strategy losses. The strategy can lose
 | Yield seeker | \$92 per ST | 1 ST (redeemable at final NAV) | Discounted USDC yield |
 | Direct depositor | \$100 USDC | 100 ST + 100 EPT | Both exposures at par |
 
-The same \$100 buys radically different exposure depending on which token you choose. ArcX does not create value — it separates it. The points farmer concentrates into points. The yield seeker concentrates into USDC returns. The direct depositor gets the unseparated bundle.
+The same \$100 buys radically different exposure depending on which token you choose. ArcX does not create value. It separates it. The points farmer concentrates into points. The yield seeker concentrates into USDC returns. The direct depositor gets the unseparated bundle.
 
 For the full treatment of credit mathematics and how credits translate to points at finalization, see [Credit Mathematics](/deep-dives/credit-mathematics).

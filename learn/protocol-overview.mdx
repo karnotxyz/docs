@@ -1,6 +1,6 @@
 ---
 title: "What is ArcX?"
-description: "ArcX splits perp DEX strategies into two tradeable tokens — one for USDC yield, one for exchange points — and lets you buy exactly the exposure you want."
+description: "ArcX splits perp DEX strategies into two tradeable tokens: one for USDC yield, one for exchange points. Buy exactly the exposure you want."
 icon: "book-open"
 ---
 
@@ -10,7 +10,7 @@ Points farming on perp DEXes is capital-inefficient. You deposit capital, lock i
 
 ## The Solution
 
-ArcX splits the output of a perp trading strategy into two tokens — **ST** (claim on USDC returns) and **EPT** (claim on exchange points) — and runs a separate orderbook for each. Points farmers buy EPT. Yield seekers buy discounted ST. Each user gets exactly the exposure they want, at a price set by the market.
+ArcX splits the output of a perp trading strategy into two tokens, **ST** (claim on USDC returns) and **EPT** (claim on exchange points), and runs a separate orderbook for each. Points farmers buy EPT. Yield seekers buy discounted ST. Each user gets exactly the exposure they want, at a price set by the market.
 
 ---
 
@@ -20,7 +20,7 @@ ArcX splits the output of a perp trading strategy into two tokens — **ST** (cl
 
 You want points exposure without running a strategy yourself.
 
-You place a buy order for EPT on the EPT/USDC orderbook at \$0.05. Your \$100 buys **2,000 EPT**. A direct deposit into the strategy would cost \$1 per EPT — so you've effectively gotten **20x leverage** on points exposure. You never touch ST. You never run a strategy. You just hold EPT, accrue credits, and claim PointsTokens after the epoch finalizes.
+You place a buy order for EPT on the EPT/USDC orderbook at \$0.05. Your \$100 buys **2,000 EPT**. A direct deposit into the strategy would cost \$1 per EPT, so you've effectively gotten **20x leverage** on points exposure. You never touch ST. You never run a strategy. You just hold EPT, accrue credits, and claim PointsTokens after the epoch finalizes.
 
 **Exit:** Sell your EPT on the orderbook at any time.
 
@@ -28,7 +28,7 @@ You place a buy order for EPT on the EPT/USDC orderbook at \$0.05. Your \$100 bu
 
 You want predictable USDC returns with no points risk.
 
-Points farmers are buying EPT, which pushes ST prices down. You buy ST on the ST/USDC orderbook at \$0.90 — a 10% discount to NAV. The strategy earns 1% over the epoch, so NAV rises to \$1.01. You redeem at \$1.01.
+Points farmers are buying EPT, which pushes ST prices down. You buy ST on the ST/USDC orderbook at \$0.90, a 10% discount to NAV. The strategy earns 1% over the epoch, so NAV rises to \$1.01. You redeem at \$1.01.
 
 $$\text{Return} = \frac{1.01 - 0.90}{0.90} \approx 12.2\%\text{ per epoch}$$
 
@@ -44,7 +44,7 @@ You never hold EPT. You have zero points exposure.
 |---|---|
 | Deposit capital, earn points, hope for airdrop. Capital locked. | Buy EPT directly. Capital stays liquid on the orderbook. |
 | Can't sell points pre-TGE. Stuck until airdrop. | Sell EPT on the orderbook anytime. |
-| Want yield from perp strategies? Must also hold points risk. | Buy ST only — pure yield, no points risk. |
+| Want yield from perp strategies? Must also hold points risk. | Buy ST only. Pure yield, no points risk. |
 | One-size-fits-all: everyone gets the same bundle. | Two orderbooks: points people and yield people each get what they want. |
 | Capital efficiency: 1x. Deposit and wait. | EPT at \$0.05 = 20x leverage on points exposure. |
 
@@ -64,7 +64,7 @@ You never hold EPT. You have zero points exposure.
   </Card>
 </CardGroup>
 
-**ST** tracks the per-share USDC value of the underlying strategy. **EPT** accrues credits while you hold it — your share of points at finalization equals your credits divided by total credits. **PointsToken** is the final output: one token per point, redeemable at TGE.
+**ST** tracks the per-share USDC value of the underlying strategy. **EPT** accrues credits while you hold it. Your share of points at finalization equals your credits divided by total credits. **PointsToken** is the final output: one token per point, redeemable at TGE.
 
 ---
 
@@ -90,11 +90,11 @@ The fair value of EPT is derived from the ST price:
 
 $$\text{EPT}_{\text{fair}} = 1 - \frac{X}{R}$$
 
-where $X$ is the ST market price and $R$ is the current NAV. As the epoch progresses, EPT price tends to decay — EPT is an expiring claim on remaining points, and the market prices it accordingly.
+where $X$ is the ST market price and $R$ is the current NAV. As the epoch progresses, EPT price tends to decay. EPT is an expiring claim on remaining points, and the market prices it accordingly.
 
 ### Credits and Points
 
-EPT accrues **credits** over time. An oracle periodically reports accumulated credits per EPT, derived from the strategy's open interest on the exchange. Credits start fresh on acquisition — a buyer starts from zero regardless of the token's history.
+EPT accrues **credits** over time. An oracle periodically reports accumulated credits per EPT, derived from the strategy's open interest on the exchange. Credits start fresh on acquisition. A buyer starts from zero regardless of the token's history.
 
 At finalization:
 
@@ -124,7 +124,7 @@ Each strategy runs in fixed epochs (typically 8-12 weeks) that progress through 
   </Step>
 </Steps>
 
-Epochs are independent — there is no automatic rollover. See [Epoch Lifecycle](/learn/epoch-lifecycle) for details.
+Epochs are independent. There is no automatic rollover. See [Epoch Lifecycle](/learn/epoch-lifecycle) for details.
 
 ---
 
@@ -132,8 +132,8 @@ Epochs are independent — there is no automatic rollover. See [Epoch Lifecycle]
 
 ArcX launches with strategies on supported perp DEXes (Paradex and others TBD):
 
-- **Bluechip Funding Arbitrage** — captures funding rate spreads across major pairs
-- **Long Bitcoin** — directional BTC exposure through perpetual contracts
+- **Bluechip Funding Arbitrage**: captures funding rate spreads across major pairs
+- **Long Bitcoin**: directional BTC exposure through perpetual contracts
 
 Each strategy has its own vault, its own ST, and mints EPT for each exchange where it earns points.
 

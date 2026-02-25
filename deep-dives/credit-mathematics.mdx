@@ -1,6 +1,6 @@
 ---
 title: "Credit Mathematics"
-description: "How the tick-based credit system ensures fair, time-and-activity-weighted points distribution across EPT holders."
+description: "How the tick-based credit system distributes points fairly across EPT holders, weighted by time and activity."
 icon: "calculator"
 ---
 
@@ -36,7 +36,7 @@ where $c_k$ is the credits-per-EPT published at tick $k$, and $\text{balance}_i(
 
 The credits per tick reflect the strategy's actual activity on the underlying perp DEX during that interval. More open interest means the strategy is generating more exchange points, so the oracle publishes a higher credit amount. When activity drops, credit amounts per tick decrease accordingly.
 
-This means credits are not just time-weighted --- they are **time-and-activity-weighted**. Holding EPT during a period of high strategy activity earns more credits per tick than holding during a quiet period.
+This means credits are not just time-weighted. They are **time-and-activity-weighted**. Holding EPT during a period of high strategy activity earns more credits per tick than holding during a quiet period.
 
 ### The constant-tick cancellation property
 
@@ -52,7 +52,7 @@ The constant $c$ cancels. With constant tick amounts, credits reduce to a pure t
 
 ## Fresh Credits on Transfer
 
-When EPT changes hands --- whether through a secondary trade on the EPT/USDC orderbook or through minting via deposit --- the new holder's credit counter starts from zero at the moment of acquisition.
+When EPT changes hands, whether through a secondary trade on the EPT/USDC orderbook or through minting via deposit, the new holder's credit counter starts from zero at the moment of acquisition.
 
 - **Secondary purchase:** You buy 50 EPT on the orderbook. You start with zero credits. The seller retains all credits they accrued up to the moment of the sale.
 - **Minting:** You deposit USDC and receive freshly minted EPT. The new EPT starts at zero credits.
@@ -70,7 +70,7 @@ $$
 \text{yourPoints} = \frac{\text{yourCredits}}{\text{totalCredits}} \times \text{totalPoints}
 $$
 
-Your credit fraction of the total equals your point fraction of the total. Nothing more.
+Your credit fraction of the total equals your point fraction of the total.
 
 ---
 
@@ -191,9 +191,9 @@ Your credit fraction of the total equals your point fraction of the total. Nothi
 
 ## Fairness Properties
 
-Three properties make the credit system robust:
+Three properties make the credit system work:
 
-**1. Constant-tick invariance.** When tick amounts are constant, the exact value per tick is irrelevant --- it cancels in the ratio. Only relative holding duration matters.
+**1. Constant-tick invariance.** When tick amounts are constant, the exact value per tick is irrelevant. It cancels in the ratio. Only relative holding duration matters.
 
 **2. Activity-weighted distribution.** When tick amounts vary, holders who were present during high-activity periods receive proportionally more credits. This correctly reflects that most of the epoch's points were generated during those periods.
 
@@ -203,7 +203,7 @@ Three properties make the credit system robust:
 
 ## Edge Cases
 
-**Oracle downtime.** If the oracle stops publishing ticks, no credits accrue during the gap. When the oracle resumes, ticks resume normally. Holders are not penalized or rewarded for the downtime period --- it simply does not count.
+**Oracle downtime.** If the oracle stops publishing ticks, no credits accrue during the gap. When the oracle resumes, ticks resume normally. Holders are not penalized or rewarded for the downtime period. It simply does not count.
 
 **Zero-balance holder.** A user with zero EPT earns zero credits per tick ($0 \times c_k = 0$). If they later acquire EPT, credits begin accruing from that point.
 
@@ -215,4 +215,4 @@ Three properties make the credit system robust:
 
 ## Comparison to Pendle
 
-Pendle's YT (Yield Token) and ArcX's EPT solve the same problem --- time-weighted exposure to a future reward --- but with different mechanics. Pendle YT streams real yield tokens (SY) continuously to holders; tokens drip as they are generated. ArcX EPT accumulates abstract credits that are converted to points only at finalization. No tokens move during the epoch. The conceptual model is similar (hold longer, earn more), but ArcX's tick-based credits replace Pendle's continuous SY streaming with a discrete, oracle-driven accounting system.
+Pendle's YT (Yield Token) and ArcX's EPT solve the same problem, time-weighted exposure to a future reward, but with different mechanics. Pendle YT streams real yield tokens (SY) continuously to holders; tokens drip as they are generated. ArcX EPT accumulates abstract credits that are converted to points only at finalization. No tokens move during the epoch. The conceptual model is similar (hold longer, earn more), but ArcX's tick-based credits replace Pendle's continuous SY streaming with a discrete, oracle-driven accounting system.

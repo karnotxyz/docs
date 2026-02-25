@@ -41,7 +41,7 @@ Despite different mechanisms, the structural concepts map closely:
 
 Pendle uses a custom AMM with a logit-based time-decay curve. Liquidity is pooled, and the curve concentrates it around expected yield ranges. Flash swaps route YT trades atomically through the PT/SY pool.
 
-ArcX uses two separate orderbooks: EPT/USDC and ST/USDC. Price discovery happens through limit orders placed by participants. When an EPT buy and an ST buy can be matched against a single mint, the system cross-matches them --- a depositor doesn't need to be on the other side.
+ArcX uses two separate orderbooks: EPT/USDC and ST/USDC. Price discovery happens through limit orders placed by participants. When an EPT buy and an ST buy can be matched against a single mint, the system cross-matches them. No depositor needs to be on the other side.
 
 Why orderbooks: perp DEX points are episodic (epoch-based with discrete finalization), not continuous yield streams. An orderbook where participants set their own prices fits this structure better than a curve optimized for continuous time-decay.
 
@@ -57,7 +57,7 @@ This means ArcX carries trust assumptions that Pendle does not: trust in the str
 
 Pendle YT streams yield in real-time. Holders receive SY tokens continuously as the underlying asset generates yield. You can claim at any time during the period.
 
-ArcX EPT accumulates credits via periodic oracle ticks. Credits are an abstract accounting unit --- no tokens move until the epoch finalizes. At finalization, your share of total credits determines your share of total points earned. Credits are personal to the holder: when EPT changes hands, the seller keeps their accumulated credits and the buyer starts fresh.
+ArcX EPT accumulates credits via periodic oracle ticks. Credits are an abstract accounting unit. No tokens move until the epoch finalizes. At finalization, your share of total credits determines your share of total points earned. Credits are personal to the holder: when EPT changes hands, the seller keeps their accumulated credits and the buyer starts fresh.
 
 No tokens move until finalization. No partial claiming. No streaming.
 
@@ -67,7 +67,7 @@ This is the most important structural difference.
 
 Pendle YT goes to $0 at maturity. By then, all yield has been streamed to holders. The token has served its purpose and is worthless.
 
-ArcX EPT converts to PointsTokens at epoch finalization. PointsTokens represent a claim on actual exchange points, whose value depends on the eventual TGE. EPT retains positive terminal value --- it does not decay to zero.
+ArcX EPT converts to PointsTokens at epoch finalization. PointsTokens represent a claim on actual exchange points, whose value depends on the eventual TGE. EPT retains positive terminal value. It does not decay to zero.
 
 | | Pendle YT | ArcX EPT |
 |---|---|---|
@@ -77,15 +77,15 @@ ArcX EPT converts to PointsTokens at epoch finalization. PointsTokens represent 
 
 ### 5. No Flash Swap Equivalent
 
-Pendle's flash swap is an atomic operation: deposit underlying, mint PT + YT, sell PT into the AMM pool, keep YT --- all in one transaction. This gives leveraged YT exposure efficiently.
+Pendle's flash swap is an atomic operation: deposit underlying, mint PT + YT, sell PT into the AMM pool, keep YT, all in one transaction. This gives leveraged YT exposure efficiently.
 
-ArcX has no equivalent mechanism. If you want EPT exposure, you buy it on the EPT/USDC orderbook at whatever price the market offers. There is no looping, no atomic leverage, and no AMM to route through. The simplicity is a tradeoff: less capital efficiency for leveraged positions, but a more straightforward user experience.
+ArcX has no equivalent mechanism. If you want EPT exposure, you buy it on the EPT/USDC orderbook at whatever price the market offers. There is no looping, no atomic leverage, and no AMM to route through. The simplicity is a tradeoff: less capital efficiency for leveraged positions, but a simpler user experience.
 
 ---
 
 ## Why the Differences Matter
 
-**Price discovery.** ArcX's orderbook model means prices are set by individual limit orders, not by curve parameters. There is no implied APY metric --- EPT price reflects the market's view on points value directly.
+**Price discovery.** ArcX's orderbook model means prices are set by individual limit orders, not by curve parameters. There is no implied APY metric. EPT price reflects the market's view on points value directly.
 
 **Trust assumptions.** ArcX's off-chain yield source adds trust dependencies that Pendle does not have. You are trusting strategy execution and oracle reporting, not just smart contract logic.
 
@@ -106,4 +106,4 @@ ArcX has no equivalent mechanism. If you want EPT exposure, you buy it on the EP
 | Buy discounted strategy exposure | Buy PT for fixed yield | Buy ST below NAV, redeem at finalization |
 | Use a fully trustless, on-chain system | Pendle (everything on-chain) | ArcX has off-chain components |
 
-They serve different purposes. Pendle is built for on-chain yield optimization. ArcX is built for perp DEX strategy outcomes --- PnL and pre-TGE points. A user could reasonably use both.
+They serve different purposes. Pendle is built for on-chain yield optimization. ArcX is built for perp DEX strategy outcomes: PnL and pre-TGE points. A user could reasonably use both.
