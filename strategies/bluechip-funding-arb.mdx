@@ -16,7 +16,7 @@ When funding rates diverge across exchanges, one side pays and the other receive
 
 ## How It Earns Points
 
-Each supported perp DEX awards points based on open interest. Because this strategy holds positions on multiple exchanges simultaneously, it generates points on every exchange where it has OI.
+Each supported perp DEX awards points based on <Tooltip tip="The total notional value of outstanding perpetual contract positions. More OI means more exchange points earned.">open interest</Tooltip>. Because this strategy holds positions on multiple exchanges simultaneously, it generates points on every exchange where it has OI.
 
 A funding arb position requires two legs, long and short, on two different exchanges. Both legs carry open interest. Both legs earn points. This means funding arb earns roughly twice the points per dollar of vault capital compared to a single-leg directional strategy.
 

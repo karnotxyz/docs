@@ -6,7 +6,7 @@ icon: "star"
 
 ## What Is EPT
 
-EPT is your claim on exchange points earned by a strategy during the epoch. Each epoch creates a new EPT per exchange per strategy. When you deposit USDC, you receive both ST and EPT. When the epoch finalizes, your EPT entitles you to a share of the total points earned, proportional to the credits you accrued.
+EPT is your claim on exchange points earned by a strategy during the epoch. Each epoch creates a new EPT per exchange per strategy. When you deposit USDC, you receive both ST and EPT. When the epoch finalizes, your EPT entitles you to a share of the total points earned, proportional to the credits you accrued. You then claim your points as <Tooltip tip="1:1 on-chain representation of exchange points. Persists across epochs. Burn for airdrop tokens after TGE." href="/learn/points-token">PointsTokens</Tooltip>.
 
 EPT trades on the **EPT/USDC orderbook**. You can buy more EPT to increase your points exposure, or sell EPT if you only want the USDC yield from ST.
 
@@ -74,7 +74,7 @@ $$\text{EPT}_{\text{fair}} = 1 - \frac{X}{R}$$
 
 Where:
 - **X** = ST market price on the ST/USDC orderbook
-- **R** = NAV (net asset value per share)
+- **R** = <Tooltip tip="Net Asset Value. The per-share USDC value of the strategy vault.">NAV</Tooltip> (net asset value per share)
 
 **Intuition:** A \$1 deposit creates both ST and EPT. If ST trades at \$0.92 and NAV is \$1.00, the implied EPT value from minting parity is \$0.08. On the orderbook, actual EPT prices are set by supply and demand between points farmers and sellers.
 

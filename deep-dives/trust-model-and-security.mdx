@@ -42,31 +42,31 @@ This means the on-chain layer provides a strong floor of verifiability. Even in 
 ArcX runs five components off-chain. Each one is off-chain for a specific practical reason, not because of a preference for centralization. Click through each tab below to understand what the component does and why it cannot currently run on-chain.
 
 <Tabs>
-  <Tab title="Matching Engine">
+  <Tab title="Matching Engine" icon="gears">
     **What it does:** Matches buy and sell orders on the EPT/USDC and ST/USDC orderbooks. Handles cross-matching when a direct deposit triggers mints of both ST and EPT.
 
     **Why it's off-chain:** Orderbook matching requires sub-second latency and efficient price-time priority. On-chain orderbooks on Starknet would be too slow and too expensive for active trading. Settlement of matched orders happens on-chain. The matching itself is the off-chain step.
 
     **The pattern:** Off-chain matching, on-chain settlement. This is the same architecture used by dYdX, Paradex, and other performant DEXes.
   </Tab>
-  <Tab title="Strategy Execution">
+  <Tab title="Strategy Execution" icon="chart-mixed">
     **What it does:** Trades on perp DEXes (Hyperliquid, Paradex, etc.) using deposited capital. Generates PnL and earns exchange points.
 
     **Why it's off-chain:** The exchanges themselves are off-chain. You cannot execute trades on Hyperliquid from a Starknet smart contract. Strategy execution necessarily happens where the exchanges operate.
 
     **The pattern:** ArcX executes trades on external exchanges using deposited capital. The results (PnL, points) are reported back to the on-chain contracts via oracles.
   </Tab>
-  <Tab title="NAV Oracle">
+  <Tab title="NAV Oracle" icon="dollar-sign">
     **What it does:** Reports the total USDC value of the strategy's positions. NAV determines how many ST shares you receive on deposit and how much USDC you receive on redemption.
 
     **Why it's off-chain:** NAV requires reading the strategy's account positions across multiple perp DEXes. These positions live in exchange accounts, not on-chain. No third-party oracle (Chainlink, Pyth) can compute strategy NAV because it requires access to ArcX's exchange account data. This is fundamentally different from price feeds, which aggregate public market data.
   </Tab>
-  <Tab title="Credits Oracle">
+  <Tab title="Credits Oracle" icon="calculator">
     **What it does:** Periodically pushes credit ticks to the EPT contract. Each tick reports a credits-per-EPT value reflecting the strategy's activity: open interest, volume, and other metrics that drive exchange point generation.
 
     **Why it's off-chain:** Credit tick values derive from the strategy's trading activity on exchange accounts. OI and volume data come from the exchanges, not from on-chain sources. Until exchanges expose verifiable activity feeds, this data must be reported by ArcX.
   </Tab>
-  <Tab title="Points Oracle">
+  <Tab title="Points Oracle" icon="star">
     **What it does:** Reports total points earned by the strategy at epoch finalization. This single number determines the points-per-credit conversion ratio for all EPT holders.
 
     **Why it's off-chain:** Exchange points are tracked per-account on the exchange platform. They are not public on-chain data. ArcX reads its own account's points balance and reports it to the contract.
@@ -271,26 +271,28 @@ ArcX trades full on-chain verifiability for access to off-chain yield sources: p
 
 The tradeoff is intentional: more trust, but access to yield sources that pure on-chain protocols cannot reach. As perp DEXes and exchange point programs evolve toward more transparent and on-chain-verifiable architectures, ArcX's trust surface will shrink accordingly. The decentralization roadmap above tracks this progression.
 
-<Accordion title="How does this compare to Pendle's risk profile?">
-Different risk profile, not strictly more or less risky. Pendle is fully on-chain. You trust only smart contract risk. ArcX adds oracle risk (trusting ArcX's data feeds) and strategy risk (trusting ArcX's execution). In exchange, ArcX gives you access to perp DEX strategy returns and pre-TGE points markets that Pendle does not offer. The additional trust assumptions are the cost of accessing off-chain yield sources.
-</Accordion>
+<AccordionGroup>
+  <Accordion title="How does this compare to Pendle's risk profile?" icon="scale-balanced">
+  Different risk profile, not strictly more or less risky. Pendle is fully on-chain. You trust only smart contract risk. ArcX adds oracle risk (trusting ArcX's data feeds) and strategy risk (trusting ArcX's execution). In exchange, ArcX gives you access to perp DEX strategy returns and pre-TGE points markets that Pendle does not offer. The additional trust assumptions are the cost of accessing off-chain yield sources.
+  </Accordion>
 
-<Accordion title="Why can't ArcX use Chainlink or Pyth for the NAV oracle?">
-No exchange exposes a "strategy NAV" data feed. NAV is computed from ArcX's own exchange positions: principal plus unrealized PnL across multiple perp DEXes. No third-party oracle can compute this without access to ArcX's exchange accounts. This is fundamentally different from price feeds, which aggregate public market data.
-</Accordion>
+  <Accordion title="Why can't ArcX use Chainlink or Pyth for the NAV oracle?" icon="link-slash">
+  No exchange exposes a "strategy NAV" data feed. NAV is computed from ArcX's own exchange positions: principal plus unrealized PnL across multiple perp DEXes. No third-party oracle can compute this without access to ArcX's exchange accounts. This is fundamentally different from price feeds, which aggregate public market data.
+  </Accordion>
 
-<Accordion title="What happens if ArcX goes offline?">
-Deposits in progress can be refunded via the cross-chain escrow timeout. Existing ST and EPT tokens remain on-chain and tradeable on the orderbooks (if the matching engine is also down, they remain in your wallet but cannot trade). Finalization would be delayed. No oracle can report final NAV or points without ArcX. In this extreme scenario, the contracts and token balances persist on Starknet regardless of ArcX's operational status.
-</Accordion>
+  <Accordion title="What happens if ArcX goes offline?" icon="power-off">
+  Deposits in progress can be refunded via the cross-chain escrow timeout. Existing ST and EPT tokens remain on-chain and tradeable on the orderbooks (if the matching engine is also down, they remain in your wallet but cannot trade). Finalization would be delayed. No oracle can report final NAV or points without ArcX. In this extreme scenario, the contracts and token balances persist on Starknet regardless of ArcX's operational status.
+  </Accordion>
 
-<Accordion title="What if a perp DEX that ArcX trades on gets exploited?">
-Strategy capital deployed on that exchange is at risk. This is exchange risk, not ArcX protocol risk. Epoch isolation helps: capital is deployed for a bounded period, not indefinitely. If the exploit occurs mid-epoch, the NAV oracle would reflect the loss, and ST would redeem at the reduced value. EPT and credit accrual are unaffected by exchange-level events.
-</Accordion>
+  <Accordion title="What if a perp DEX that ArcX trades on gets exploited?" icon="triangle-exclamation">
+  Strategy capital deployed on that exchange is at risk. This is exchange risk, not ArcX protocol risk. Epoch isolation helps: capital is deployed for a bounded period, not indefinitely. If the exploit occurs mid-epoch, the NAV oracle would reflect the loss, and ST would redeem at the reduced value. EPT and credit accrual are unaffected by exchange-level events.
+  </Accordion>
 
-<Accordion title="What is my maximum possible loss?">
-Your maximum loss is your deposit amount. ST can go to zero if the strategy loses 100% of capital. There is no margin call and no additional liability beyond what you deposited. Even in this worst case, your EPT credits and PointsToken allocation are unaffected. Points are earned during the epoch regardless of strategy PnL. You still claim your full PointsToken allocation even if ST redeems for zero.
-</Accordion>
+  <Accordion title="What is my maximum possible loss?" icon="coins">
+  Your maximum loss is your deposit amount. ST can go to zero if the strategy loses 100% of capital. There is no margin call and no additional liability beyond what you deposited. Even in this worst case, your EPT credits and PointsToken allocation are unaffected. Points are earned during the epoch regardless of strategy PnL. You still claim your full PointsToken allocation even if ST redeems for zero.
+  </Accordion>
 
-<Accordion title="Is ArcX audited?">
-On-chain contracts on Starknet are verifiable through standard block explorer tools. Contract addresses and audit reports will be published when available. Smart contract risk is present in any DeFi protocol, including ArcX.
-</Accordion>
+  <Accordion title="Is ArcX audited?" icon="magnifying-glass">
+  On-chain contracts on Starknet are verifiable through standard block explorer tools. Contract addresses and audit reports will be published when available. Smart contract risk is present in any DeFi protocol, including ArcX.
+  </Accordion>
+</AccordionGroup>
