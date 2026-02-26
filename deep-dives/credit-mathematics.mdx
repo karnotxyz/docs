@@ -171,18 +171,6 @@ Three properties make the credit system work:
 
 ---
 
-## Edge Cases
-
-**Oracle downtime.** If the oracle stops publishing ticks, no credits accrue during the gap. When the oracle resumes, ticks resume normally. Holders are not penalized or rewarded for the downtime period. It simply does not count.
-
-**Zero-balance holder.** A user with zero EPT earns zero credits per tick ($0 \times c_k = 0$). If they later acquire EPT, credits begin accruing from that point.
-
-**First depositor.** The first user to hold EPT starts with zero credits, like everyone else. There is no retroactive credit grant for time before the first deposit.
-
-**Zero total credits.** If no ticks were published during an epoch (oracle never reported), total credits are zero and no points are distributed. The contract guards against division by zero.
-
----
-
 ## Comparison to Pendle
 
 Pendle's YT (Yield Token) and ArcX's EPT solve the same problem, time-weighted exposure to a future reward, but with different mechanics. Pendle YT streams real yield tokens (SY) continuously to holders; tokens drip as they are generated. ArcX EPT accumulates abstract credits that are converted to points only at finalization. No tokens move during the epoch. The conceptual model is similar (hold longer, earn more), but ArcX's tick-based credits replace Pendle's continuous SY streaming with a discrete, oracle-driven accounting system.
