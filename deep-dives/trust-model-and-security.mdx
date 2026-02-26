@@ -31,7 +31,7 @@ These components live on Starknet. You can verify them directly with a block exp
 
 On-chain components are the foundation. Token mechanics (minting, burning, credit accrual, redemption) are fully auditable without trusting anyone. If it lives on Starknet, you can verify it yourself.
 
-The critical distinction: ArcX does not hold your tokens. ST, EPT, and PointsToken are standard tokens on Starknet. Your balances are yours. ArcX's oracles feed *data* into the contracts (NAV, credit rate, total points), but the contracts enforce the math. No oracle input can directly transfer your tokens to someone else.
+The critical distinction: ArcX does not hold your tokens. ST, EPT, and PointsToken are standard tokens on Starknet. Your balances are yours. ArcX's oracles feed *data* into the contracts (NAV, credit ticks, total points), but the contracts enforce the math. No oracle input can directly transfer your tokens to someone else.
 
 This means the on-chain layer provides a strong floor of verifiability. Even in a scenario where you distrust every off-chain component, you can still verify your token balances, the total supply, and the settlement of every transaction. The question is not "are my tokens safe?" (they are, on-chain) but "are the oracle inputs accurate?" (that requires the protections described below).
 
@@ -62,9 +62,9 @@ ArcX runs five components off-chain. Each one is off-chain for a specific practi
     **Why it's off-chain:** NAV requires reading the strategy's account positions across multiple perp DEXes. These positions live in exchange accounts, not on-chain. No third-party oracle (Chainlink, Pyth) can compute strategy NAV because it requires access to ArcX's exchange account data. This is fundamentally different from price feeds, which aggregate public market data.
   </Tab>
   <Tab title="Credits Oracle">
-    **What it does:** Reports the credit rate that determines how fast EPT holders accumulate credits. Credit rate reflects strategy activity: open interest, volume, and other metrics that drive exchange point generation.
+    **What it does:** Periodically pushes credit ticks to the EPT contract. Each tick reports a credits-per-EPT value reflecting the strategy's activity: open interest, volume, and other metrics that drive exchange point generation.
 
-    **Why it's off-chain:** Credit rate derives from the strategy's trading activity on exchange accounts. OI and volume data come from the exchanges, not from on-chain sources. Until exchanges expose verifiable activity feeds, this data must be reported by ArcX.
+    **Why it's off-chain:** Credit tick values derive from the strategy's trading activity on exchange accounts. OI and volume data come from the exchanges, not from on-chain sources. Until exchanges expose verifiable activity feeds, this data must be reported by ArcX.
   </Tab>
   <Tab title="Points Oracle">
     **What it does:** Reports total points earned by the strategy at epoch finalization. This single number determines the points-per-credit conversion ratio for all EPT holders.
@@ -91,11 +91,11 @@ The structure for each component below follows three questions: **What protects 
 
 ### Credits Oracle
 
-**Protection:** The credit system has a mathematical fairness guarantee. Your share of total points equals your share of total credits, regardless of the credit rate schedule. Variable rates change *when* credits accrue fastest, not *whether* the allocation is fair. See [Credit Mathematics](/deep-dives/credit-mathematics) for the formal proof.
+**Protection:** The credit system has a mathematical fairness guarantee. Your share of total points equals your share of total credits, regardless of the tick schedule. Variable tick amounts change *when* credits accrue fastest, not *whether* the allocation is fair. See [Credit Mathematics](/deep-dives/credit-mathematics) for the formal proof.
 
-**Verification:** Credit rate derives from observable strategy activity metrics (OI, volume) on exchange dashboards. If ArcX reports a high credit rate but the strategy has minimal visible OI, the discrepancy is detectable. The inputs are not secret. They correspond to publicly observable exchange activity.
+**Verification:** Credit tick values derive from observable strategy activity metrics (OI, volume) on exchange dashboards. If ArcX pushes high credit ticks but the strategy has minimal visible OI, the discrepancy is detectable. The inputs are not secret. They correspond to publicly observable exchange activity.
 
-**Bounding:** Even a multi-hour staleness produces modest distortion unless strategy activity changes dramatically during the outage. When the oracle resumes, the new rate applies going forward. Past accruals are already settled on-chain, so correcting forward does not retroactively alter prior balances.
+**Bounding:** Even a multi-hour staleness produces modest distortion unless strategy activity changes dramatically during the outage. When the oracle resumes, new ticks apply going forward. Past accruals are already settled on-chain, so correcting forward does not retroactively alter prior balances.
 
 ### Points Oracle
 
@@ -209,14 +209,14 @@ flowchart TB
         direction TB
         MATCH["Matching Engine\n(EPT/USDC + ST/USDC orderbooks)"]
         NAV["NAV Oracle\n(strategy value)"]
-        CR["Credits Oracle\n(credit rate)"]
+        CR["Credits Oracle\n(credit ticks)"]
         FP["Points Oracle\n(total points)"]
         STRAT["Strategy Execution\n(perp DEX trading)"]
     end
 
     MATCH -->|"matched orders"| SETTLE
     NAV -->|"reports NAV"| ST
-    CR -->|"sets credit rate"| EPT
+    CR -->|"pushes credit ticks"| EPT
     FP -->|"reports total points"| EPT
     STRAT -->|"generates PnL"| NAV
     STRAT -->|"generates activity"| CR
@@ -227,7 +227,7 @@ flowchart TB
 
 *Green = on-chain, verifiable. Yellow = off-chain, protected by the safeguards described above.*
 
-The key boundary: token mechanics (minting, burning, credit accrual, redemption) are fully on-chain. The *inputs* to those mechanics (NAV, credit rate, total points) are reported by ArcX oracles. Settlement enforces that oracle-reported values flow through on-chain logic, not arbitrary off-chain decisions.
+The key boundary: token mechanics (minting, burning, credit accrual, redemption) are fully on-chain. The *inputs* to those mechanics (NAV, credit ticks, total points) are reported by ArcX oracles. Settlement enforces that oracle-reported values flow through on-chain logic, not arbitrary off-chain decisions.
 
 Notice that arrows only flow in one direction: from off-chain to on-chain. Off-chain components *report data* to on-chain contracts. They do not directly control token balances, transfers, or settlement. The contracts use reported data to compute share prices, credit accrual, and point allocations, but the computation itself is on-chain and deterministic.
 
@@ -292,5 +292,5 @@ Your maximum loss is your deposit amount. ST can go to zero if the strategy lose
 </Accordion>
 
 <Accordion title="Is ArcX audited?">
-Contract addresses and audit status will be published in the [Developer Integration Guide](/build/developer-integration-guide). On-chain contracts on Starknet are verifiable through standard block explorer tools. Smart contract risk is present in any DeFi protocol, including ArcX.
+On-chain contracts on Starknet are verifiable through standard block explorer tools. Contract addresses and audit reports will be published when available. Smart contract risk is present in any DeFi protocol, including ArcX.
 </Accordion>

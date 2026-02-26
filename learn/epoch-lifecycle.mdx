@@ -34,7 +34,7 @@ During this phase, users can place orders to buy or sell EPT and ST on their res
 
 When the epoch's scheduled end is reached, it enters Maturity. This transitional state lasts 1 to 2 days while the strategy unwinds its positions across perp DEXes and capital is returned to the vault.
 
-No new orders are accepted and no new deposits can be made. Credit accrual is frozen as of the epoch end timestamp. The protocol waits for all positions to be closed and all capital to be settled before advancing.
+No new deposits can be made, but the EPT/USDC and ST/USDC orderbooks remain open for trading. Credit accrual is frozen as of the epoch end timestamp. The protocol waits for all positions to be closed and all capital to be settled before advancing.
 
 ---
 

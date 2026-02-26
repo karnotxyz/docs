@@ -49,7 +49,7 @@ Why orderbooks: perp DEX points are episodic (epoch-based with discrete finaliza
 
 Pendle wraps on-chain yield-bearing assets: staked ETH, lending positions, LSTs. The yield source is transparent, verifiable on-chain, and runs without human intervention.
 
-ArcX wraps off-chain perp DEX trading strategies. The strategy executes trades on exchanges like Paradex and Hyperliquid, earning both PnL and exchange points. An off-chain oracle reports NAV and credit rates to the on-chain contracts on Starknet.
+ArcX wraps off-chain perp DEX trading strategies. The strategy executes trades on supported perp DEXes, earning both PnL and exchange points. Off-chain oracles report NAV and credit ticks to the on-chain contracts on Starknet.
 
 This means ArcX carries trust assumptions that Pendle does not: trust in the strategy operator to execute correctly, and trust in the oracle to report accurately. See [Trust Model & Security](/deep-dives/trust-model-and-security) for how these are mitigated.
 

@@ -112,14 +112,14 @@ No early redemption is a deliberate design choice. It eliminates complex reserve
 | **Time remaining** | More time = more credits to earn = higher EPT price |
 | **Expected points value** | Higher expected TGE value = higher EPT price |
 | **Strategy OI** | More open interest = more credits per tick = higher EPT price |
-| **ST discount** | Higher ST discount = higher implied EPT cost (via minting parity) |
+| **ST discount** | ST price and EPT price are linked through minting parity |
 | **Points demand** | More buyers on EPT orderbook = higher price |
 
-The relationship between ST discount and EPT cost is direct. From minting parity:
+ST price and EPT value are linked through minting parity:
 
 $$\text{EPT}_{\text{fair}} = 1 - \frac{X}{R}$$
 
-A deeper ST discount (lower $X$) means a **higher** EPT fair value. Points farmers pay more for EPT when ST is cheap, because less of the \$1 minting cost is recovered from the ST side.
+This gives the implied EPT value from a \$1 deposit. The actual EPT price on the orderbook is determined by supply and demand. Cross-matching enforces a ceiling: if EPT + ST buy prices exceed \$1, the engine mints new tokens until the gap closes.
 
 ---
 

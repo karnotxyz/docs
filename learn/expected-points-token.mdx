@@ -42,7 +42,7 @@ Everyone's credits are summed into the denominator. Your fraction of that sum de
 
 Alice and Bob each hold 100 EPT in an 8-week epoch. Alice holds from Day 0. Bob buys on the orderbook at Week 3 (his credits start from zero at purchase).
 
-Assume the oracle reports a constant credit rate for simplicity.
+Assume the oracle reports a constant credits-per-EPT value each tick for simplicity.
 
 | | Holding period | Credits accrued | Share of total | Points (of 1,000) |
 |---|---|---|---|---|
@@ -53,16 +53,16 @@ Alice earns more points because she held longer and accrued credits for 3 additi
 
 ---
 
-## Why Variable Credit Rates
+## Why Tick Amounts Vary
 
-The oracle does not report a fixed rate. It adjusts based on real strategy activity:
+The oracle does not report a fixed credits-per-EPT value. It adjusts each tick based on real strategy activity:
 
-| Strategy type | Credit rate reflects |
+| Strategy type | Tick amount reflects |
 |---|---|
 | Funding arbitrage | Current open interest |
 | Market making | Trading volume throughput |
 
-If a strategy is idle for 3 weeks then active for 5 weeks, the credit rate is low during the idle period and high during the active period. This concentrates credit accrual during the windows when points are actually being generated on the exchange.
+If a strategy is idle for 3 weeks then active for 5 weeks, tick amounts are low during the idle period and high during the active period. This concentrates credit accrual during the windows when points are actually being generated on the exchange.
 
 For the full mathematical treatment, see [Credit Mathematics](/deep-dives/credit-mathematics).
 
@@ -78,7 +78,7 @@ Where:
 - **X** = ST market price on the ST/USDC orderbook
 - **R** = NAV (net asset value per share)
 
-**Intuition:** A \$1 deposit creates both ST and EPT. If ST trades at \$0.90 and NAV is \$1.00, then the implied EPT cost is \$0.10 per token. The deeper the ST discount, the higher the implied EPT cost, because the points farmer is giving up more USDC value on the ST side.
+**Intuition:** A \$1 deposit creates both ST and EPT. If ST trades at \$0.92 and NAV is \$1.00, the implied EPT value from minting parity is \$0.08. On the orderbook, actual EPT prices are set by supply and demand between points farmers and sellers.
 
 ### The Interest Rate Frame
 

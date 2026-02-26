@@ -50,7 +50,7 @@ Unique identifier for an epoch. Encoded in contract deployments and token names.
 ERC20 with built-in credit accrual. Represents a claim on exchange points earned during the epoch, weighted by holding duration and strategy activity. One EPT contract per epoch per exchange per strategy. Tradeable on the EPT/USDC orderbook. *Example: Alice buys 100 EPT on the EPT/USDC orderbook. She holds them through the epoch, accruing credits that convert to points at finalization.*
 
 **EPT implied cost**
-The theoretical cost of EPT derived from the minting parity equation: `EPT_cost = 1 - X/R`, where X = ST market price on the orderbook and R = ST exchange rate. *Example: ST trades at \$0.90, exchange rate R = 1.0. EPT_cost = 1 - 0.90/1.0 = \$0.10.*
+The theoretical cost of EPT derived from the minting parity equation: `EPT_cost = 1 - X/R`, where X = ST market price on the orderbook and R = NAV per share. *Example: ST trades at \$0.90, NAV = \$1.00. EPT_cost = 1 - 0.90/1.0 = \$0.10.*
 
 ### F
 
@@ -189,7 +189,7 @@ The total USDC held in the strategy vault, including principal, unrealized PnL, 
 |---|---|---|
 | ST | `ST-{Strategy}-E{epochId}` | `ST-FundingArb-E007` |
 | EPT | `EPT-{Exchange}-E{epochId}` | `EPT-Exchange-E007` |
-| PointsToken | `x{Exchange}` | `xPC`, `xHL` |
+| PointsToken | `x{Exchange}` | `xPX`, `xHL`, `xPC` |
 
 ---
 
@@ -250,7 +250,4 @@ Full analysis: [Trust Model & Security](/deep-dives/trust-model-and-security)
 | 8 | [Credit Mathematics](/deep-dives/credit-mathematics) | Deep Dives | Advanced | Credit accrual formulas, worked examples, security properties |
 | 9 | [EPT Pricing](/deep-dives/ept-pricing) | Deep Dives | Advanced | EPT cost derivation, ST discount dynamics |
 | 10 | [Trust Model & Security](/deep-dives/trust-model-and-security) | Deep Dives | Intermediate | Trust assumptions, attack vectors, decentralization roadmap |
-| 11 | [Developer Integration Guide](/build/developer-integration-guide) | Build | Advanced | Architecture overview + links to contract and integration docs |
-| 12 | [Contract Reference](/build/contract-reference) | Build | Advanced | Contract interfaces and events |
-| 13 | [Integration & Deployment](/build/integration-and-deployment) | Build | Advanced | Frontend patterns, indexer setup, deployment checklist |
-| 14 | **You are here**, Glossary & Parameters | Reference | All | Every term and parameter defined |
+| 11 | **You are here**, Glossary & Parameters | Reference | All | Every term and parameter defined |
