@@ -18,7 +18,7 @@ $$\text{EPT}_{\text{fair}} = 1 - \frac{X}{R}$$
 
 **Intuition:** a \$1 deposit creates ST worth $X/R$ and 1 EPT. The EPT accounts for whatever value the ST does not. If ST trades at \$0.92 with NAV at \$1.00, then EPT fair value is \$0.08.
 
-This is not a theoretical relationship. Cross-matching enforces it mechanically. If the combined buy-side prices on both orderbooks exceed the minting cost, the matching engine triggers a mint and self-corrects the spread.
+This isn't just a formula — cross-matching enforces it. Whenever an EPT buy and an ST buy appear at prices that sum to \$1 or more, the engine mints new tokens and fills both orders. That keeps the combined price from ever drifting above the minting cost.
 
 ---
 
