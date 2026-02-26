@@ -38,16 +38,6 @@ The credits per tick reflect the strategy's actual activity on the underlying pe
 
 This means credits are not just time-weighted. They are **time-and-activity-weighted**. Holding EPT during a period of high strategy activity earns more credits per tick than holding during a quiet period.
 
-### The constant-tick cancellation property
-
-If $c_k = c$ (constant) for every tick, the exact value of $c$ does not matter:
-
-$$
-\frac{\text{credits}_i}{\text{totalCredits}} = \frac{c \sum_k \text{balance}_i(k)}{c \sum_j \sum_k \text{balance}_j(k)}
-$$
-
-The constant $c$ cancels. With constant tick amounts, credits reduce to a pure tick-weighted balance. The value of $c$ only matters when it varies across ticks and different holders are present during different ticks.
-
 ---
 
 ## Fresh Credits on Transfer
@@ -193,7 +183,7 @@ Your credit fraction of the total equals your point fraction of the total.
 
 Three properties make the credit system work:
 
-**1. Constant-tick invariance.** When tick amounts are constant, the exact value per tick is irrelevant. It cancels in the ratio. Only relative holding duration matters.
+**1. Duration matters, not tick size.** When tick amounts are constant, only how many ticks you held through matters. The worked examples in the "Two Holders" tab above show this directly.
 
 **2. Activity-weighted distribution.** When tick amounts vary, holders who were present during high-activity periods receive proportionally more credits. This correctly reflects that most of the epoch's points were generated during those periods.
 
