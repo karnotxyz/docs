@@ -16,7 +16,7 @@ If a strategy earns points on multiple exchanges, you receive a separate EPT for
 
 ## The Credit System
 
-Credits determine your share of points. The system is tick-based: an off-chain oracle periodically reports the current **credits per EPT**, derived from the strategy's open interest and activity on the exchange.
+Credits determine your share of points. The system is tick-based: an off-chain oracle periodically pushes a **credit tick** reporting credits per EPT since the last tick, derived from the strategy's open interest and activity on the exchange.
 
 While you hold EPT, your credits accumulate based on these oracle updates. The key rules:
 
@@ -40,16 +40,14 @@ Everyone's credits are summed into the denominator. Your fraction of that sum de
 
 ## Worked Example
 
-Alice and Bob each hold 100 EPT in an 8-week epoch. Alice holds from Day 0. Bob buys on the orderbook at Week 3 (his credits start from zero at purchase).
+Alice and Bob each hold 100 EPT in an epoch with 100 ticks at a constant 10 credits/EPT/tick. Alice holds from tick 1. Bob buys on the orderbook at tick 61 (his credits start from zero at purchase). Total points for the epoch: 5,000.
 
-Assume the oracle reports a constant credits-per-EPT value each tick for simplicity.
-
-| | Holding period | Credits accrued | Share of total | Points (of 1,000) |
+| | Holding period | Credits accrued | Share of total | Points (of 5,000) |
 |---|---|---|---|---|
-| Alice | 8 weeks (full epoch) | 604,800 | 63.6% | 636 |
-| Bob | 5 weeks (Week 3 onward) | 345,600 | 36.4% | 364 |
+| Alice | 100 ticks (full epoch) | 100,000 | 71.4% | 3,571 |
+| Bob | 40 ticks (tick 61 onward) | 40,000 | 28.6% | 1,429 |
 
-Alice earns more points because she held longer and accrued credits for 3 additional weeks. The credit system weights **amount held times duration held**. There is no bonus or multiplier for early entry. Accrual is linear.
+Alice earns more points because she held for 2.5x as many ticks. The credit system weights **amount held times ticks held**. There is no bonus or multiplier for early entry. Accrual is linear.
 
 ---
 
