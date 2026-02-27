@@ -95,15 +95,11 @@ If EPT + ST buy prices exceed the minting cost, cross-matching creates new token
 
 **Example:** EPT bids at \$0.12, ST bids at \$0.94 (sum = \$1.06 with R = 1.0). The engine mints, delivers tokens, and new supply pushes prices down to parity.
 
-### Downward Arb Is Broken
+### No Downward Arb (Yet)
 
-If the combined prices fall below minting cost (meaning EPT and ST are both "cheap"), the correcting trade would require buying both tokens and burning them for USDC. **This is not possible.** There is no early redemption mechanism. You cannot burn ST + EPT before finalization.
+If the combined prices fall below minting cost, the correcting trade would require buying both tokens and burning them for USDC. There is no early redemption mechanism today, so this arbitrage path does not exist. The ST discount can therefore persist wider than fair value. Yield seekers buying cheap ST provide a natural floor, but there is no guaranteed mechanical correction on the downside.
 
-The ST discount can therefore persist wider than fair value with no mechanical correction. Yield seekers buying cheap ST provide a natural floor, but there is no guaranteed arbitrage on the downside.
-
-<Info>
-No early redemption is a deliberate design choice. It eliminates complex reserve management and lets the full deposit work in the strategy for the entire epoch. Early redemption is on the roadmap for a future version.
-</Info>
+Early redemption is on the roadmap for a future version.
 
 ---
 

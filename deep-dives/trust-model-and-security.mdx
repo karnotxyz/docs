@@ -77,64 +77,59 @@ We run five components off-chain. Each one is off-chain for a specific practical
 
 ## How Each Off-Chain Component Is Protected
 
-Every off-chain component has specific safeguards that bound its risk.
+Every off-chain component has specific safeguards that bound its risk. For each component below: **what protects you**, **how you can verify it**, and **what bounds the impact**.
 
-The structure for each component below follows three questions: **What protects you?** (the mechanism that limits harm), **How can you verify it?** (what you can check independently), and **What bounds the impact?** (why problems, if they occur, are contained).
+<Tabs>
+  <Tab title="Matching Engine" icon="gears">
+    **Protection:** Settlement is on-chain. The matching engine determines *which* orders fill, but the actual token transfers execute through Starknet smart contracts. A matching engine bug could cause missed fills or incorrect matching, but it cannot move tokens without on-chain settlement.
 
-### NAV Oracle
+    **Verification:** Every matched trade produces an on-chain settlement transaction. You can verify that your fills correspond to the orders you placed and that the prices match what was quoted.
 
-**Protection:** Deposits automatically revert if NAV data is stale. The contract enforces a maximum staleness window. If the oracle has not updated within that window, no new deposits can execute. Your USDC stays in your wallet. This is an on-chain check that operates without any human intervention.
+    **Bounding:** If the matching engine goes down, no trades execute, but no funds are at risk. Existing positions (ST, EPT balances) are unaffected. The worst case is missed trading opportunities, not fund loss.
+  </Tab>
+  <Tab title="Strategy Execution" icon="chart-mixed">
+    **Protection:** Loss is bounded. Your maximum loss is your deposit. ST can never go negative. There is no margin call or additional liability. EPT accrues credits regardless of strategy PnL, so points exposure is unaffected by strategy performance.
 
-**Verification:** NAV is derived from positions on perp DEXes that have public dashboards. While you cannot see our exact account, the strategy's expected exposure (e.g., a funding arb with a stated capital deployment) is checkable against exchange data. NAV trajectory over an epoch should be consistent with observable market conditions. A funding arb should track funding rates, a directional strategy should track the underlying asset.
+    **Verification:** NAV updates reflect strategy performance in near-real-time. You can track the NAV trajectory throughout the epoch. Unusual drawdowns or erratic movements are observable. You can sell your ST on the ST/USDC orderbook to exit at any time during the epoch.
 
-**Bounding:** Each epoch is independent. Even if NAV is slightly off for a few updates, the final NAV at finalization determines actual redemptions. A single stale update does not compound across epochs. Additionally, the deposit fee is calibrated to absorb small NAV discrepancies, making it economically unprofitable to exploit brief staleness windows.
+    **Bounding:** Epoch isolation prevents compounding. A bad epoch does not automatically roll your capital into the next one. You make a fresh decision each epoch. Capital returned at finalization is yours. You choose whether to re-enter.
 
-### Credits Oracle
+    <Note>
+    Strategy losses are an expected outcome, not a security incident. The security model protects against oracle manipulation and system failures, not against market risk.
+    </Note>
+  </Tab>
+  <Tab title="NAV Oracle" icon="dollar-sign">
+    **Protection:** Deposits automatically revert if NAV data is stale. The contract enforces a maximum staleness window. If the oracle has not updated within that window, no new deposits can execute. Your USDC stays in your wallet. This is an on-chain check that operates without any human intervention.
 
-**Protection:** The credit system has a mathematical fairness guarantee. Your share of total points equals your share of total credits, regardless of the update schedule. Variable update amounts change *when* credits accrue fastest, not *whether* the allocation is fair. See [Credit Mathematics](/deep-dives/credit-mathematics) for worked examples.
+    **Verification:** NAV is derived from positions on perp DEXes that have public dashboards. While you cannot see our exact account, the strategy's expected exposure is checkable against exchange data. NAV trajectory over an epoch should be consistent with observable market conditions.
 
-**Verification:** Credit update values derive from observable strategy activity metrics (OI, volume) on exchange dashboards. If we push high credit updates but the strategy has minimal visible OI, the discrepancy is detectable. The inputs are not secret. They correspond to publicly observable exchange activity.
+    **Bounding:** Each epoch is independent. Even if NAV is slightly off for a few updates, the final NAV at finalization determines actual redemptions. A single stale update does not compound across epochs. The deposit fee is calibrated to absorb small NAV discrepancies.
+  </Tab>
+  <Tab title="Credits Oracle" icon="calculator">
+    **Protection:** The credit system has a mathematical fairness guarantee. Your share of total points equals your share of total credits, regardless of the update schedule. Variable update amounts change *when* credits accrue fastest, not *whether* the allocation is fair. See [Credit Mathematics](/deep-dives/credit-mathematics) for worked examples.
 
-**Bounding:** Even a multi-hour staleness produces modest distortion unless strategy activity changes dramatically during the outage. When the oracle resumes, new updates apply going forward. Past accruals are already settled on-chain, so correcting forward does not retroactively alter prior balances.
+    **Verification:** Credit update values derive from observable strategy activity metrics (OI, volume) on exchange dashboards. If we push high credit updates but the strategy has minimal visible OI, the discrepancy is detectable.
 
-### Points Oracle
+    **Bounding:** Even a multi-hour staleness produces modest distortion unless strategy activity changes dramatically during the outage. When the oracle resumes, new updates apply going forward. Past accruals are already settled on-chain.
+  </Tab>
+  <Tab title="Points Oracle" icon="star">
+    **Protection:** Points reporting is a one-time event per epoch at finalization. The reported number is published on-chain and is permanently auditable. Unlike continuous oracles, this is a single data point that the community can scrutinize.
 
-**Protection:** Points reporting is a one-time event per epoch at finalization. The reported number is published on-chain and is permanently auditable. Unlike continuous oracles, this is a single data point that the community can scrutinize.
+    **Verification:** Most exchanges publish points program rules (e.g., X points per dollar of OI per day). If we run a strategy with known capital for a known duration, the expected points are roughly estimable. A large discrepancy would be visible to anyone who understands the exchange's program rules.
 
-**Verification:** Most exchanges publish points program rules (e.g., X points per dollar of OI per day). If we run a strategy with known capital for a known duration, the expected points are roughly estimable. A large discrepancy (say, reported points at half the expected level) would be visible to anyone who understands the exchange's program rules and the strategy's stated activity.
+    **Bounding:** Each epoch's points are reported independently. There is no mechanism for errors in one epoch to affect another. The per-epoch structure creates a natural audit trail.
+  </Tab>
+  <Tab title="Cross-Chain Escrow" icon="bridge">
+    **Protection:** Refund timeout provides self-rescue. If the cross-chain message never arrives on Starknet, you can cancel after a timeout period and receive your USDC back on the source chain. You are never permanently locked out.
 
-**Bounding:** Each epoch's points are reported independently. There is no mechanism for errors in one epoch to affect another. The per-epoch structure creates a natural audit trail where each finalization can be verified in isolation.
+    **Additional safeguards:**
+    - **Idempotency:** Late-arriving messages after cancellation are rejected. No double-minting can occur.
+    - **Multisig control:** The escrow is controlled by a multisig, not a single key.
+    - **On-chain visibility:** Escrow balances are publicly visible on the source chain.
 
-### Strategy Execution
-
-**Protection:** Loss is bounded. Your maximum loss is your deposit. ST can never go negative. There is no margin call or additional liability. EPT accrues credits regardless of strategy PnL, so points exposure is unaffected by strategy performance.
-
-**Verification:** NAV updates reflect strategy performance in near-real-time. You can track the NAV trajectory throughout the epoch. Unusual drawdowns or erratic movements are observable. You can sell your ST on the ST/USDC orderbook to exit at any time during the epoch.
-
-**Bounding:** Epoch isolation prevents compounding. A bad epoch does not automatically roll your capital into the next one. You make a fresh decision each epoch. Capital returned at finalization is yours. You choose whether to re-enter.
-
-<Note>
-Strategy losses are an expected outcome, not a security incident. A funding arb that underperforms or a directional strategy that moves against the position is the normal range of trading results. The security model protects against oracle manipulation and system failures, not against market risk. Strategy risk is covered on the [Strategy Token](/learn/strategy-token) page.
-</Note>
-
-### Matching Engine
-
-**Protection:** Settlement is on-chain. The matching engine determines *which* orders fill, but the actual token transfers execute through Starknet smart contracts. A matching engine bug could cause missed fills or incorrect matching, but it cannot move tokens without on-chain settlement.
-
-**Verification:** Every matched trade produces an on-chain settlement transaction. You can verify that your fills correspond to the orders you placed and that the prices match what was quoted.
-
-**Bounding:** If the matching engine goes down, no trades execute, but no funds are at risk. Existing positions (ST, EPT balances) are unaffected. The worst case is missed trading opportunities, not fund loss.
-
-### Cross-Chain Escrow
-
-**Protection:** Refund timeout provides self-rescue. If the cross-chain message never arrives on Starknet, you can cancel after a timeout period and receive your USDC back on the source chain. You are never permanently locked out.
-
-**Additional safeguards:**
-- **Idempotency:** If a late-arriving message reaches Starknet after you have already cancelled, the contract rejects it. No double-minting can occur. The deposit ID is marked as cancelled on the source chain, and the Starknet contract checks this state.
-- **Multisig control:** The escrow is controlled by a multisig, not a single key. Multiple signers must authorize any non-standard action.
-- **On-chain visibility:** Escrow balances are publicly visible on the source chain. The community can monitor total locked USDC and compare against expected deposit volumes.
-
-**Bounding:** The refund timeout means no funds can be locked indefinitely. The worst case is a temporary delay (the timeout period) before you can self-rescue. This is a safety net, not a normal flow. The vast majority of cross-chain deposits complete within minutes.
+    **Bounding:** The refund timeout means no funds can be locked indefinitely. The worst case is a temporary delay before you can self-rescue.
+  </Tab>
+</Tabs>
 
 ---
 
@@ -190,64 +185,17 @@ What you can check yourself to independently audit our behavior. None of these c
 
 ---
 
-## On-Chain vs. Off-Chain Architecture
-
-The diagram below shows the boundary between what lives on-chain (green) and what runs off-chain (yellow). Arrows show data flow: off-chain components feed data into on-chain contracts, and on-chain contracts enforce the token mechanics. The matching engine feeds matched orders into on-chain settlement. The three oracles feed data that the contracts use for share calculation, credit accrual, and points distribution.
-
-```mermaid
-flowchart TB
-    subgraph ON_CHAIN["On-Chain — Starknet"]
-        direction TB
-        ST["ST Token\n(balances, supply, transfers)"]
-        EPT["EPT Token\n(balances, credits)"]
-        PT["PointsToken\n(supply, burns)"]
-        SETTLE["Settlement\n(deposits, redemptions)"]
-        ESC["Cross-Chain Escrow\n(source chain)"]
-    end
-
-    subgraph OFF_CHAIN["Off-Chain — ArcX Infrastructure"]
-        direction TB
-        MATCH["Matching Engine\n(EPT/USDC + ST/USDC orderbooks)"]
-        NAV["NAV Oracle\n(strategy value)"]
-        CR["Credits Oracle\n(credit updates)"]
-        FP["Points Oracle\n(total points)"]
-        STRAT["Strategy Execution\n(perp DEX trading)"]
-    end
-
-    MATCH -->|"matched orders"| SETTLE
-    NAV -->|"reports NAV"| ST
-    CR -->|"pushes credit updates"| EPT
-    FP -->|"reports total points"| EPT
-    STRAT -->|"generates PnL"| NAV
-    STRAT -->|"generates activity"| CR
-
-    style ON_CHAIN fill:#d4edda,stroke:#28a745
-    style OFF_CHAIN fill:#fff3cd,stroke:#ffc107
-```
-
-*Green = on-chain, verifiable. Yellow = off-chain, protected by the safeguards described above.*
-
-The key boundary: token mechanics (minting, burning, credit accrual, redemption) are fully on-chain. The *inputs* to those mechanics (NAV, credit updates, total points) are reported by our oracles. Settlement enforces that oracle-reported values flow through on-chain logic, not arbitrary off-chain decisions.
-
----
-
 ## Decentralization Roadmap
 
-We are designing for progressive decentralization. Each off-chain component has a planned path toward reduced trust. The goal is not decentralization for its own sake, but reducing the number of things users must trust us to do correctly.
+Each off-chain component has a planned path toward reduced trust.
 
-| Component | Current State | Next Step | End State |
+| Component | Current | Next Step | End State |
 |---|---|---|---|
-| **NAV** | Our oracle | Community monitoring dashboards | Third-party attestation or ZK proofs of exchange balances |
+| **NAV** | Our oracle | Community monitoring dashboards | Third-party attestation or ZK proofs |
 | **Credits** | Our oracle | On-chain staleness checks | Verifiable activity feeds from exchanges |
-| **Points** | Our oracle | Public attestation of points balances | Exchange-native on-chain verification |
+| **Points** | Our oracle | Public attestation | Exchange-native on-chain verification |
 | **Strategy** | Trust our execution | On-chain constraints (max leverage, drawdown triggers) | Isolated vaults with insurance |
-| **Escrow** | Multisig + refund timeout | Reduced signer threshold, enhanced monitoring | Trustless bridge integration |
-
-The order reflects feasibility:
-
-- **Near-term** (no external dependencies): Community monitoring dashboards, on-chain staleness checks for the credits oracle, public attestation of points balances. These require only our engineering effort.
-- **Medium-term** (requires exchange cooperation): Verifiable activity feeds, exchange-native points verification. These depend on exchanges exposing more data publicly or via APIs.
-- **Long-term** (requires infrastructure advances): ZK proofs of exchange balances, trustless bridge integration, isolated vaults with insurance. These depend on technology that is actively being developed across the industry but is not production-ready today.
+| **Escrow** | Multisig + refund timeout | Reduced signer threshold | Trustless bridge integration |
 
 ---
 
