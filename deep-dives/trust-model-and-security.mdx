@@ -5,7 +5,7 @@ icon: "shield"
 ---
 
 <Info>
-**The core idea:** ArcX settles tokens and balances on-chain, but runs strategy execution and data reporting off-chain. Every off-chain component has a specific practical reason for being off-chain, a defined protection mechanism, and a path toward decentralization.
+**The core idea:** We settle tokens and balances on-chain, but run strategy execution and data reporting off-chain. Every off-chain component has a specific practical reason for being off-chain, a defined protection mechanism, and a path toward decentralization.
 
 This page walks through each component, its safeguards, and the residual risks that remain.
 </Info>
@@ -31,7 +31,7 @@ These components live on Starknet. You can verify them directly with a block exp
 
 On-chain components are the foundation. Token mechanics (minting, burning, credit accrual, redemption) are fully auditable without trusting anyone. If it lives on Starknet, you can verify it yourself.
 
-The critical distinction: ArcX does not hold your tokens. ST, EPT, and PointsToken are standard tokens on Starknet. Your balances are yours. ArcX's oracles feed *data* into the contracts (NAV, credit ticks, total points), but the contracts enforce the math. No oracle input can directly transfer your tokens to someone else.
+The critical distinction: We do not hold your tokens. ST, EPT, and PointsToken are standard tokens on Starknet. Your balances are yours. Our oracles feed *data* into the contracts (NAV, credit updates, total points), but the contracts enforce the math. No oracle input can directly transfer your tokens to someone else.
 
 This means the on-chain layer provides a strong floor of verifiability. Even in a scenario where you distrust every off-chain component, you can still verify your token balances, the total supply, and the settlement of every transaction. The question is not "are my tokens safe?" (they are, on-chain) but "are the oracle inputs accurate?" (that requires the protections described below).
 
@@ -39,7 +39,7 @@ This means the on-chain layer provides a strong floor of verifiability. Even in 
 
 ## What's Off-Chain (and Why)
 
-ArcX runs five components off-chain. Each one is off-chain for a specific practical reason, not because of a preference for centralization. Click through each tab below to understand what the component does and why it cannot currently run on-chain.
+We run five components off-chain. Each one is off-chain for a specific practical reason, not because of a preference for centralization. Click through each tab below to understand what the component does and why it cannot currently run on-chain.
 
 <Tabs>
   <Tab title="Matching Engine" icon="gears">
@@ -54,22 +54,22 @@ ArcX runs five components off-chain. Each one is off-chain for a specific practi
 
     **Why it's off-chain:** The exchanges themselves are off-chain. You cannot execute trades on Hyperliquid from a Starknet smart contract. Strategy execution necessarily happens where the exchanges operate.
 
-    **The pattern:** ArcX executes trades on external exchanges using deposited capital. The results (PnL, points) are reported back to the on-chain contracts via oracles.
+    **The pattern:** We execute trades on external exchanges using deposited capital. The results (PnL, points) are reported back to the on-chain contracts via oracles.
   </Tab>
   <Tab title="NAV Oracle" icon="dollar-sign">
     **What it does:** Reports the total USDC value of the strategy's positions. NAV determines how many ST shares you receive on deposit and how much USDC you receive on redemption.
 
-    **Why it's off-chain:** NAV requires reading the strategy's account positions across multiple perp DEXes. These positions live in exchange accounts, not on-chain. No third-party oracle (Chainlink, Pyth) can compute strategy NAV because it requires access to ArcX's exchange account data. This is fundamentally different from price feeds, which aggregate public market data.
+    **Why it's off-chain:** NAV requires reading the strategy's account positions across multiple perp DEXes. These positions live in exchange accounts, not on-chain. No third-party oracle (Chainlink, Pyth) can compute strategy NAV because it requires access to our exchange account data. This is fundamentally different from price feeds, which aggregate public market data.
   </Tab>
   <Tab title="Credits Oracle" icon="calculator">
-    **What it does:** Periodically pushes credit ticks to the EPT contract. Each tick reports a credits-per-EPT value reflecting the strategy's activity: open interest, volume, and other metrics that drive exchange point generation.
+    **What it does:** Periodically pushes credit updates to the EPT contract. Each update reports a credits-per-EPT value reflecting the strategy's activity: open interest, volume, and other metrics that drive exchange point generation.
 
-    **Why it's off-chain:** Credit tick values derive from the strategy's trading activity on exchange accounts. OI and volume data come from the exchanges, not from on-chain sources. Until exchanges expose verifiable activity feeds, this data must be reported by ArcX.
+    **Why it's off-chain:** Credit update values derive from the strategy's trading activity on exchange accounts. OI and volume data come from the exchanges, not from on-chain sources. Until exchanges expose verifiable activity feeds, this data must be reported by us.
   </Tab>
   <Tab title="Points Oracle" icon="star">
     **What it does:** Reports total points earned by the strategy at epoch finalization. This single number determines the points-per-credit conversion ratio for all EPT holders.
 
-    **Why it's off-chain:** Exchange points are tracked per-account on the exchange platform. They are not public on-chain data. ArcX reads its own account's points balance and reports it to the contract.
+    **Why it's off-chain:** Exchange points are tracked per-account on the exchange platform. They are not public on-chain data. We read our own account's points balance and report it to the contract.
   </Tab>
 </Tabs>
 
@@ -85,23 +85,23 @@ The structure for each component below follows three questions: **What protects 
 
 **Protection:** Deposits automatically revert if NAV data is stale. The contract enforces a maximum staleness window. If the oracle has not updated within that window, no new deposits can execute. Your USDC stays in your wallet. This is an on-chain check that operates without any human intervention.
 
-**Verification:** NAV is derived from positions on perp DEXes that have public dashboards. While you cannot see ArcX's exact account, the strategy's expected exposure (e.g., a funding arb with a stated capital deployment) is checkable against exchange data. NAV trajectory over an epoch should be consistent with observable market conditions. A funding arb should track funding rates, a directional strategy should track the underlying asset.
+**Verification:** NAV is derived from positions on perp DEXes that have public dashboards. While you cannot see our exact account, the strategy's expected exposure (e.g., a funding arb with a stated capital deployment) is checkable against exchange data. NAV trajectory over an epoch should be consistent with observable market conditions. A funding arb should track funding rates, a directional strategy should track the underlying asset.
 
 **Bounding:** Each epoch is independent. Even if NAV is slightly off for a few updates, the final NAV at finalization determines actual redemptions. A single stale update does not compound across epochs. Additionally, the deposit fee is calibrated to absorb small NAV discrepancies, making it economically unprofitable to exploit brief staleness windows.
 
 ### Credits Oracle
 
-**Protection:** The credit system has a mathematical fairness guarantee. Your share of total points equals your share of total credits, regardless of the tick schedule. Variable tick amounts change *when* credits accrue fastest, not *whether* the allocation is fair. See [Credit Mathematics](/deep-dives/credit-mathematics) for worked examples.
+**Protection:** The credit system has a mathematical fairness guarantee. Your share of total points equals your share of total credits, regardless of the update schedule. Variable update amounts change *when* credits accrue fastest, not *whether* the allocation is fair. See [Credit Mathematics](/deep-dives/credit-mathematics) for worked examples.
 
-**Verification:** Credit tick values derive from observable strategy activity metrics (OI, volume) on exchange dashboards. If ArcX pushes high credit ticks but the strategy has minimal visible OI, the discrepancy is detectable. The inputs are not secret. They correspond to publicly observable exchange activity.
+**Verification:** Credit update values derive from observable strategy activity metrics (OI, volume) on exchange dashboards. If we push high credit updates but the strategy has minimal visible OI, the discrepancy is detectable. The inputs are not secret. They correspond to publicly observable exchange activity.
 
-**Bounding:** Even a multi-hour staleness produces modest distortion unless strategy activity changes dramatically during the outage. When the oracle resumes, new ticks apply going forward. Past accruals are already settled on-chain, so correcting forward does not retroactively alter prior balances.
+**Bounding:** Even a multi-hour staleness produces modest distortion unless strategy activity changes dramatically during the outage. When the oracle resumes, new updates apply going forward. Past accruals are already settled on-chain, so correcting forward does not retroactively alter prior balances.
 
 ### Points Oracle
 
 **Protection:** Points reporting is a one-time event per epoch at finalization. The reported number is published on-chain and is permanently auditable. Unlike continuous oracles, this is a single data point that the community can scrutinize.
 
-**Verification:** Most exchanges publish points program rules (e.g., X points per dollar of OI per day). If ArcX runs a strategy with known capital for a known duration, the expected points are roughly estimable. A large discrepancy (say, reported points at half the expected level) would be visible to anyone who understands the exchange's program rules and the strategy's stated activity.
+**Verification:** Most exchanges publish points program rules (e.g., X points per dollar of OI per day). If we run a strategy with known capital for a known duration, the expected points are roughly estimable. A large discrepancy (say, reported points at half the expected level) would be visible to anyone who understands the exchange's program rules and the strategy's stated activity.
 
 **Bounding:** Each epoch's points are reported independently. There is no mechanism for errors in one epoch to affect another. The per-epoch structure creates a natural audit trail where each finalization can be verified in isolation.
 
@@ -148,7 +148,7 @@ Despite the protections above, these risks remain. Each is listed with what happ
 | **Strategy underperformance** | NAV drops. ST redeems for less than the deposit price. | Loss of deposited capital (partial or full) | Expected strategy risk, not a security issue. Maximum loss = deposit. EPT and points are unaffected. |
 | **Matching engine downtime** | Orders cannot execute on EPT/USDC or ST/USDC orderbooks | Missed trading opportunities | On-chain settlement means no fund loss during downtime. Existing positions are unaffected. |
 | **Points backing gap** | PointsTokens exceed real points if reporting is inaccurate | Each PointsToken is backed by less than 1 real point | Hardest assumption to verify independently. Exchange points are per-account and not publicly queryable. |
-| **Exchange risk** | A perp DEX suffers an exploit, freeze, or insolvency | Strategy capital on that exchange is at risk | ArcX diversifies across exchanges where possible. Epoch isolation limits exposure duration. |
+| **Exchange risk** | A perp DEX suffers an exploit, freeze, or insolvency | Strategy capital on that exchange is at risk | We diversify across exchanges where possible. Epoch isolation limits exposure duration. |
 | **Smart contract bug** | A bug in ArcX's Starknet contracts causes incorrect settlement | Potential mispricing of deposits, redemptions, or credit accrual | Standard smart contract risk. Mitigated through audits and testing. Present in all DeFi protocols. |
 
 Strategy underperformance is listed here for completeness, but it is a market risk, not a security risk. It is the expected range of outcomes when capital is deployed into trading strategies.
@@ -159,7 +159,7 @@ The points backing gap is the least verifiable risk in the system. Unlike NAV (w
 
 ## Verification Steps
 
-What you can check yourself to independently audit ArcX's behavior. None of these checks require special access or ArcX's cooperation. They use publicly available on-chain data and exchange information.
+What you can check yourself to independently audit our behavior. None of these checks require special access or our cooperation. They use publicly available on-chain data and exchange information.
 
 <Steps>
   <Step title="Track NAV over time">
@@ -209,14 +209,14 @@ flowchart TB
         direction TB
         MATCH["Matching Engine\n(EPT/USDC + ST/USDC orderbooks)"]
         NAV["NAV Oracle\n(strategy value)"]
-        CR["Credits Oracle\n(credit ticks)"]
+        CR["Credits Oracle\n(credit updates)"]
         FP["Points Oracle\n(total points)"]
         STRAT["Strategy Execution\n(perp DEX trading)"]
     end
 
     MATCH -->|"matched orders"| SETTLE
     NAV -->|"reports NAV"| ST
-    CR -->|"pushes credit ticks"| EPT
+    CR -->|"pushes credit updates"| EPT
     FP -->|"reports total points"| EPT
     STRAT -->|"generates PnL"| NAV
     STRAT -->|"generates activity"| CR
@@ -227,25 +227,25 @@ flowchart TB
 
 *Green = on-chain, verifiable. Yellow = off-chain, protected by the safeguards described above.*
 
-The key boundary: token mechanics (minting, burning, credit accrual, redemption) are fully on-chain. The *inputs* to those mechanics (NAV, credit ticks, total points) are reported by ArcX oracles. Settlement enforces that oracle-reported values flow through on-chain logic, not arbitrary off-chain decisions.
+The key boundary: token mechanics (minting, burning, credit accrual, redemption) are fully on-chain. The *inputs* to those mechanics (NAV, credit updates, total points) are reported by our oracles. Settlement enforces that oracle-reported values flow through on-chain logic, not arbitrary off-chain decisions.
 
 ---
 
 ## Decentralization Roadmap
 
-ArcX is designed for progressive decentralization. Each off-chain component has a planned path toward reduced trust. The goal is not decentralization for its own sake, but reducing the number of things users must trust ArcX to do correctly.
+We are designing for progressive decentralization. Each off-chain component has a planned path toward reduced trust. The goal is not decentralization for its own sake, but reducing the number of things users must trust us to do correctly.
 
 | Component | Current State | Next Step | End State |
 |---|---|---|---|
-| **NAV** | ArcX oracle | Community monitoring dashboards | Third-party attestation or ZK proofs of exchange balances |
-| **Credits** | ArcX oracle | On-chain staleness checks | Verifiable activity feeds from exchanges |
-| **Points** | ArcX oracle | Public attestation of points balances | Exchange-native on-chain verification |
-| **Strategy** | Trust ArcX execution | On-chain constraints (max leverage, drawdown triggers) | Isolated vaults with insurance |
+| **NAV** | Our oracle | Community monitoring dashboards | Third-party attestation or ZK proofs of exchange balances |
+| **Credits** | Our oracle | On-chain staleness checks | Verifiable activity feeds from exchanges |
+| **Points** | Our oracle | Public attestation of points balances | Exchange-native on-chain verification |
+| **Strategy** | Trust our execution | On-chain constraints (max leverage, drawdown triggers) | Isolated vaults with insurance |
 | **Escrow** | Multisig + refund timeout | Reduced signer threshold, enhanced monitoring | Trustless bridge integration |
 
 The order reflects feasibility:
 
-- **Near-term** (no external dependencies): Community monitoring dashboards, on-chain staleness checks for the credits oracle, public attestation of points balances. These require only ArcX engineering effort.
+- **Near-term** (no external dependencies): Community monitoring dashboards, on-chain staleness checks for the credits oracle, public attestation of points balances. These require only our engineering effort.
 - **Medium-term** (requires exchange cooperation): Verifiable activity feeds, exchange-native points verification. These depend on exchanges exposing more data publicly or via APIs.
 - **Long-term** (requires infrastructure advances): ZK proofs of exchange balances, trustless bridge integration, isolated vaults with insurance. These depend on technology that is actively being developed across the industry but is not production-ready today.
 
@@ -253,21 +253,21 @@ The order reflects feasibility:
 
 ## Comparison: ArcX vs. Alternatives
 
-How does ArcX's trust model compare to other ways of earning yield or farming points? The table below compares along the dimensions that matter most: where execution trust lies, how you exit, what data you can verify, and what your worst case looks like.
+How does our trust model compare to other ways of earning yield or farming points? The table below compares along the dimensions that matter most: where execution trust lies, how you exit, what data you can verify, and what your worst case looks like.
 
 | | **ArcX** | **Pendle** | **Yield Aggregator** (e.g., Yearn) | **CEX Earn** |
 |---|---|---|---|---|
-| **Strategy execution** | ArcX (off-chain, perp DEXes) | N/A (no strategy) | Strategist / governance | Exchange |
+| **Strategy execution** | Us (off-chain, perp DEXes) | N/A (no strategy) | Strategist / governance | Exchange |
 | **Price discovery** | Orderbook (off-chain matching, on-chain settlement) | On-chain AMM | On-chain vault share price | Exchange-internal |
-| **Yield / points data** | ArcX oracles | On-chain (SY wrapper) | On-chain (vault NAV) | Exchange-internal |
+| **Yield / points data** | Our oracles | On-chain (SY wrapper) | On-chain (vault NAV) | Exchange-internal |
 | **Asset custody** | Smart contract + exchange accounts | Smart contract only | Smart contract only | Full exchange custody |
 | **Early exit** | Sell on ST/USDC or EPT/USDC orderbook | Sell on Pendle AMM | Withdraw from vault | Depends on product |
 | **Worst-case loss** | Deposit amount (ST to zero) | Opportunity cost (mispricing) | Deposit amount (vault to zero) | Full balance (exchange failure) |
 | **Verifiability** | Partial (on-chain settlement, off-chain oracles) | Full (all on-chain) | Full (all on-chain) | None |
 
-ArcX trades full on-chain verifiability for access to off-chain yield sources: perp DEX strategies and exchange points programs that do not exist on-chain. Fully on-chain protocols like Pendle work because their underlying yield is itself on-chain. ArcX's off-chain components exist because perp DEX trading is inherently off-chain.
+We trade full on-chain verifiability for access to off-chain yield sources: perp DEX strategies and exchange points programs that do not exist on-chain. Fully on-chain protocols like Pendle work because their underlying yield is itself on-chain. Our off-chain components exist because perp DEX trading is inherently off-chain.
 
-The tradeoff is intentional: more trust, but access to yield sources that pure on-chain protocols cannot reach. As perp DEXes and exchange point programs evolve toward more transparent and on-chain-verifiable architectures, ArcX's trust surface will shrink accordingly. The decentralization roadmap above tracks this progression.
+The tradeoff is intentional: more trust, but access to yield sources that pure on-chain protocols cannot reach. As perp DEXes and exchange point programs evolve toward more transparent and on-chain-verifiable architectures, our trust surface will shrink accordingly. The decentralization roadmap above tracks this progression.
 
 <AccordionGroup>
   <Accordion title="How does this compare to Pendle's risk profile?" icon="scale-balanced">
@@ -275,14 +275,14 @@ The tradeoff is intentional: more trust, but access to yield sources that pure o
   </Accordion>
 
   <Accordion title="Why can't ArcX use Chainlink or Pyth for the NAV oracle?" icon="link-slash">
-  No exchange exposes a "strategy NAV" data feed. NAV is computed from ArcX's own exchange positions: principal plus unrealized PnL across multiple perp DEXes. No third-party oracle can compute this without access to ArcX's exchange accounts. This is fundamentally different from price feeds, which aggregate public market data.
+  No exchange exposes a "strategy NAV" data feed. NAV is computed from ArcX's own exchange positions: principal plus unrealized PnL across multiple perp DEXes. No third-party oracle can compute this without access to our exchange accounts. This is fundamentally different from price feeds, which aggregate public market data.
   </Accordion>
 
   <Accordion title="What happens if ArcX goes offline?" icon="power-off">
   Deposits in progress can be refunded via the cross-chain escrow timeout. Existing ST and EPT tokens remain on-chain and tradeable on the orderbooks (if the matching engine is also down, they remain in your wallet but cannot trade). Finalization would be delayed. No oracle can report final NAV or points without ArcX. In this extreme scenario, the contracts and token balances persist on Starknet regardless of ArcX's operational status.
   </Accordion>
 
-  <Accordion title="What if a perp DEX that ArcX trades on gets exploited?" icon="triangle-exclamation">
+  <Accordion title="What if a perp DEX that we trade on gets exploited?" icon="triangle-exclamation">
   Strategy capital deployed on that exchange is at risk. This is exchange risk, not ArcX protocol risk. Epoch isolation helps: capital is deployed for a bounded period, not indefinitely. If the exploit occurs mid-epoch, the NAV oracle would reflect the loss, and ST would redeem at the reduced value. EPT and credit accrual are unaffected by exchange-level events.
   </Accordion>
 

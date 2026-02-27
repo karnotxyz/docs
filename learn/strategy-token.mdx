@@ -4,6 +4,8 @@ description: "Your claim on the strategy's USDC value. Buy at a discount, redeem
 icon: "vault"
 ---
 
+Want the USDC returns from a perp DEX strategy without caring about points? ST is your token.
+
 ## What Is ST
 
 Each epoch creates a new ST for each strategy, representing your share of the vault's USDC value. When the epoch finalizes, you redeem ST for USDC based on the strategy's final NAV.
@@ -16,9 +18,9 @@ ST trades on the **ST/USDC orderbook**. Yield seekers buy ST at a discount to NA
 
 When you deposit USDC, you receive ST shares based on the current <Tooltip tip="Net Asset Value. The per-share USDC value of the strategy vault.">NAV</Tooltip>:
 
-$$\text{NAV} = \frac{\text{vault\_value}}{\text{total\_shares}}$$
+$$\text{NAV} = \frac{\text{Total Vault Value}}{\text{Total Shares}}$$
 
-$$\text{shares} = \frac{\text{deposit\_amount}}{\text{NAV}}$$
+$$\text{Your Shares} = \frac{\text{Deposit Amount}}{\text{NAV}}$$
 
 A small fee (varies by strategy) is deducted from your deposit before shares are calculated.
 
@@ -56,7 +58,7 @@ You paid \$0.90, redeemed for \$1.01. The return is the discount capture (\$0.10
 
 After the epoch finalizes, you redeem ST for USDC:
 
-$$\text{usdcOut} = \text{yourShares} \times \text{NAV}_{\text{final}}$$
+$$\text{USDC Received} = \text{Your Shares} \times \text{Final NAV}$$
 
 Redemption burns your ST and transfers USDC to your wallet. There is no fee on redemption.
 

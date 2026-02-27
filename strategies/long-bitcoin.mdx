@@ -16,7 +16,7 @@ This is a directional strategy. No hedging, no second leg, no delta-neutral stru
 
 The long BTC position carries <Tooltip tip="The total notional value of outstanding perpetual contract positions. More OI means more exchange points earned.">open interest</Tooltip> on the exchange where it is held. That open interest generates exchange points over time. Because this is a single-leg strategy (long only, on one exchange), it earns fewer points per dollar of vault capital compared to a two-leg strategy like funding arb.
 
-The credits-per-tick amount reflects the strategy's OI on the exchange. Larger vault size means a larger position, more OI, and faster credit accrual.
+The credits-per-update amount reflects the strategy's OI on the exchange. Larger vault size means a larger position, more OI, and faster credit accrual.
 
 ---
 
@@ -36,9 +36,9 @@ EPT on the Long Bitcoin strategy earns fewer credits per dollar than funding arb
 
 | Factor | Why It Matters |
 |---|---|
-| **Open interest** | Single-leg OI means lower credits per tick than a dual-leg strategy. |
+| **Open interest** | Single-leg OI means lower credits per update than a dual-leg strategy. |
 | **Points value at TGE** | If the exchange's points end up being highly valued, even lower-rate EPT can be worthwhile. |
-| **EPT price on orderbook** | Lower credits per tick should mean lower EPT price. If the market prices this correctly, the return per dollar can still be attractive. |
+| **EPT price on orderbook** | Lower credits per update should mean lower EPT price. If the market prices this correctly, the return per dollar can still be attractive. |
 | **Epoch duration** | Same as any strategy: longer epochs and earlier entry mean more credits. |
 
 EPT holders on this strategy are making a bet that the points from a single exchange's OI are worth more than what they paid for the EPT.

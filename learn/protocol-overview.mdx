@@ -10,7 +10,7 @@ Points farming on perp DEXes is capital-inefficient. You deposit capital, lock i
 
 ## The Solution
 
-ArcX splits the output of a perp trading strategy into two tokens, **ST** (claim on USDC returns) and **EPT** (claim on exchange points), and runs a separate orderbook for each. Points farmers buy EPT. Yield seekers buy discounted ST. Each user gets exactly the exposure they want, at a price set by the market.
+We split the output of a perp trading strategy into two tokens, **ST** (claim on USDC returns) and **EPT** (claim on exchange points), and run a separate orderbook for each. Points farmers buy EPT. Yield seekers buy discounted ST. Each user gets exactly the exposure they want, at a price set by the market.
 
 ---
 
@@ -67,7 +67,7 @@ where $R$ is the current <Tooltip tip="Net Asset Value. The per-share USDC value
 
 ### Two Orderbooks, One Matching Engine
 
-ArcX runs two separate orderbooks: **EPT/USDC** and **ST/USDC**. Orders are matched off-chain and settled on-chain (Starknet).
+We run two separate orderbooks: **EPT/USDC** and **ST/USDC**. Orders are matched off-chain and settled on-chain (Starknet).
 
 **Cross-matching for mints.** When a buy order on the EPT book and a buy order on the ST book have prices that sum to at least the minting cost, the engine cross-matches them. The protocol takes the combined USDC, deposits it into the vault, and delivers EPT to one buyer and ST to the other. Neither buyer had to deposit into the strategy directly.
 
@@ -83,7 +83,7 @@ where $X$ is the ST market price and $R$ is the current NAV. As the epoch progre
 
 ### Credits and Points
 
-EPT accrues **credits** over time. An oracle periodically pushes credit ticks reporting credits per EPT, derived from the strategy's open interest on the exchange. Credits start fresh on acquisition. A buyer starts from zero regardless of the token's history.
+EPT accrues **credits** over time. Credit amounts are based on the strategy's activity on the exchange. Credits start fresh on acquisition. A buyer starts from zero regardless of the token's history.
 
 At finalization:
 
@@ -125,10 +125,9 @@ Epochs are independent. There is no automatic rollover. See [Epoch Lifecycle](/l
 
 ## Strategies at Launch
 
-ArcX launches with strategies on supported perp DEXes (Paradex, Hyperliquid, Pacifica, and others):
+We launch with strategies on supported perp DEXes (Paradex, Hyperliquid, Pacifica, and others):
 
 - **Bluechip Funding Arbitrage**: captures funding rate spreads across major pairs
 - **Long Bitcoin**: directional BTC exposure through perpetual contracts
 
 Each strategy has its own vault, its own ST, and mints EPT for each exchange where it earns points.
-

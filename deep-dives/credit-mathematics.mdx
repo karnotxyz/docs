@@ -1,8 +1,10 @@
 ---
 title: "Credit Mathematics"
-description: "How the tick-based credit system distributes points fairly across EPT holders, weighted by time and activity."
+description: "How the credit system distributes points fairly across EPT holders, weighted by time and activity."
 icon: "calculator"
 ---
+
+Credits determine your share of points at the end of an epoch. This page explains exactly how they accumulate.
 
 **Prerequisites:** [Protocol Overview](/learn/protocol-overview), [Expected Points Token](/learn/expected-points-token)
 
@@ -12,31 +14,31 @@ icon: "calculator"
 
 Without credits, points distribution would be trivially gameable. A naive design that distributes points proportional to EPT balance at epoch end lets anyone deposit one second before finalization and claim the same share as a day-one holder.
 
-Credits prevent this by tracking **how much EPT you held** and **for how many ticks** during the epoch. Your share of points is proportional to your cumulative credit balance, not a single end-of-epoch snapshot. A last-second depositor accumulates nearly zero credits and receives a negligible share of points, making the attack economically worthless.
+Credits prevent this by tracking **how much EPT you held** and **for how long** during the epoch. Your share of points is proportional to your cumulative credit balance, not a single end-of-epoch snapshot. A last-second depositor accumulates nearly zero credits and receives a negligible share of points, making the attack economically worthless.
 
 ---
 
-## How Tick-Based Credits Work
+## How Credits Accumulate
 
-An off-chain oracle periodically publishes a **tick** to the ArcX settlement contract. Each tick specifies a number: **credits per EPT since the last tick**.
+ArcX periodically publishes a **credit update** on-chain. Each update specifies a number: **credits per EPT since the last update**.
 
 $$
-\text{credits}_\text{tick} = \text{EPT balance} \times \text{credits per EPT for that tick}
+\text{credits per update} = \text{EPT balance} \times \text{credits per EPT for that update}
 $$
 
-Every EPT holder's credit balance increases by this amount on each tick. Over an epoch with $n$ ticks, a holder's total credits are:
+Every EPT holder's credit balance increases by this amount on each update. Over an epoch with $n$ updates, a holder's total credits are:
 
 $$
 \text{totalCredits}_i = \sum_{k=1}^{n} \text{balance}_i(k) \times c_k
 $$
 
-where $c_k$ is the credits-per-EPT published at tick $k$, and $\text{balance}_i(k)$ is user $i$'s EPT balance at that tick.
+where $c_k$ is the credits-per-EPT published at update $k$, and $\text{balance}_i(k)$ is user $i$'s EPT balance at that update.
 
-### What drives the credit amount per tick?
+### What drives the credit amount per update?
 
-The credits per tick reflect the strategy's actual activity on the underlying perp DEX during that interval. More open interest means the strategy is generating more exchange points, so the oracle publishes a higher credit amount. When activity drops, credit amounts per tick decrease accordingly.
+The credits per update reflect the strategy's actual activity on the underlying perp DEX during that interval. More open interest means the strategy is generating more exchange points, so a higher credit amount is published. When activity drops, credit amounts decrease accordingly.
 
-This means credits are not just time-weighted. They are **time-and-activity-weighted**. Holding EPT during a period of high strategy activity earns more credits per tick than holding during a quiet period.
+This means credits are not just time-weighted. They are **time-and-activity-weighted**. Holding EPT during a period of high strategy activity earns more credits than holding during a quiet period.
 
 ---
 
@@ -48,13 +50,13 @@ When EPT changes hands, whether through a secondary trade on the EPT/USDC orderb
 - **Minting:** You deposit USDC and receive freshly minted EPT. The new EPT starts at zero credits.
 - **No credit inheritance:** Credits are non-transferable. The buyer never receives the seller's accumulated credits.
 
-This is essential for fairness. Without the fresh-start rule, an attacker could buy EPT one tick before finalization and inherit the seller's entire credit history, defeating the purpose of the credit system.
+This is essential for fairness. Without the fresh-start rule, an attacker could buy EPT right before finalization and inherit the seller's entire credit history, defeating the purpose of the credit system.
 
 ---
 
 ## Points Distribution at Finalization
 
-At epoch finalization, the oracle reports the **total points** earned by the strategy during the epoch. Each holder's share is a simple pro-rata calculation:
+At epoch finalization, the **total points** earned by the strategy during the epoch are reported on-chain. Each holder's share is a simple pro-rata calculation:
 
 $$
 \text{yourPoints} = \frac{\text{yourCredits}}{\text{totalCredits}} \times \text{totalPoints}
@@ -68,9 +70,9 @@ Your credit fraction of the total equals your point fraction of the total.
 
 <Tabs>
   <Tab title="Two Holders, Different Entry" icon="users">
-    **Setup:** 100 ticks at 10 credits/EPT/tick. Total points: 5,000.
-    - Alice holds 100 EPT from tick 1 (present for all 100 ticks)
-    - Bob buys 100 EPT at tick 61 (present for 40 ticks)
+    **Setup:** 100 updates at 10 credits/EPT/update. Total points: 5,000.
+    - Alice holds 100 EPT from the start (present for all 100 updates)
+    - Bob buys 100 EPT at update 61 (present for 40 updates)
 
     **Credits:**
 
@@ -93,15 +95,15 @@ Your credit fraction of the total equals your point fraction of the total.
     | Alice  | 100,000 | 71.4% | 3,571  |
     | Bob    | 40,000  | 28.6% | 1,429  |
 
-    Alice held the same amount of EPT as Bob, but for 2.5x as many ticks. She gets 2.5x the credits and 2.5x the points.
+    Alice held the same amount of EPT as Bob, but for 2.5x as long. She gets 2.5x the credits and 2.5x the points.
   </Tab>
 
-  <Tab title="Variable Tick Amounts" icon="chart-mixed">
-    **Setup:** 100 ticks total. Total points: 5,000.
-    - First 50 ticks: 20 credits/EPT/tick (high OI period)
-    - Last 50 ticks: 5 credits/EPT/tick (low OI period)
-    - Alice holds 100 EPT from tick 1 (full epoch)
-    - Bob buys 100 EPT at tick 51 (second half only)
+  <Tab title="Variable Credit Amounts" icon="chart-mixed">
+    **Setup:** 100 updates total. Total points: 5,000.
+    - First 50 updates: 20 credits/EPT/update (high activity period)
+    - Last 50 updates: 5 credits/EPT/update (low activity period)
+    - Alice holds 100 EPT from the start (full epoch)
+    - Bob buys 100 EPT at update 51 (second half only)
 
     **Credits:**
 
@@ -124,13 +126,13 @@ Your credit fraction of the total equals your point fraction of the total.
     | Alice  | 125,000 | 83.3% | 4,167  |
     | Bob    | 25,000  | 16.7% | 833    |
 
-    Compare to constant ticks (previous tab): Alice got 71.4% there vs 83.3% here. With variable ticks, Alice is rewarded more because she held EPT during the high-activity period when the strategy was generating most of its points. Bob only held during the quiet period.
+    Compare to constant credit amounts (previous tab): Alice got 71.4% there vs 83.3% here. With variable credit amounts, Alice is rewarded more because she held EPT during the high-activity period when the strategy was generating most of its points. Bob only held during the quiet period.
   </Tab>
 
   <Tab title="Last-Second Attack" icon="clock">
-    **Setup:** 100 ticks at 10 credits/EPT/tick. Total points: 5,000.
-    - Alice holds 100 EPT for all 100 ticks
-    - Eve buys 100 EPT at tick 100 (the final tick)
+    **Setup:** 100 updates at 10 credits/EPT/update. Total points: 5,000.
+    - Alice holds 100 EPT for all 100 updates
+    - Eve buys 100 EPT at update 100 (the final update)
 
     **Credits:**
 
@@ -153,7 +155,6 @@ Your credit fraction of the total equals your point fraction of the total.
     | Alice  | 100,000 | 99.0% | 4,950  |
     | Eve    | 1,000   | 1.0%  | 50     |
 
-    Eve deposited the same dollar amount as Alice but accumulated credits for only 1 out of 100 ticks. She receives 1% of points. The attack is economically neutralized.
+    Eve deposited the same dollar amount as Alice but accumulated credits for only 1 out of 100 updates. She receives 1% of points. The attack is economically neutralized.
   </Tab>
 </Tabs>
-

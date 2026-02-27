@@ -14,11 +14,11 @@ icon: "scale-balanced"
 |---|---|---|
 | **PT** (Principal Token) | **ST** (Strategy Token) | Both represent a claim on principal. ArcX ST also includes strategy PnL, so redemption value depends on strategy performance. |
 | **YT** (Yield Token) | **EPT** (Expected Points Token) | Pendle YT streams yield continuously. ArcX EPT accrues credits for a points claim at epoch finalization. |
-| **SY** (Standardized Yield) | Strategy Vault | Pendle wraps on-chain yield-bearing assets. ArcX wraps off-chain perp DEX trading strategies. |
+| **SY** (Standardized Yield) | Strategy Vault | Pendle wraps on-chain yield-bearing assets. We wrap off-chain perp DEX trading strategies. |
 | Pendle AMM (logit curve) | ArcX Orderbooks (EPT/USDC + ST/USDC) | AMM with time-decay curve vs two separate limit order books. |
 | Flash swap (leveraged YT) | N/A | Pendle has atomic flash swaps for leveraged exposure. ArcX has standard orderbook buying. |
 | YT decays to \$0 at maturity | EPT converts to PointsTokens at finalization | Pendle YT has zero terminal value. ArcX EPT retains value tied to eventual TGE. |
-| Yield streaming (real-time SY to YT holders) | Credit accrual (oracle ticks, claim after finalization) | Different delivery mechanism. |
+| Yield streaming (real-time SY to YT holders) | Credit accrual (periodic updates, claim after finalization) | Different delivery mechanism. |
 | Two-way arbitrage (mint + redeem) | One-way arbitrage (mint only, no early redemption) | Pendle has tighter pricing corridors. |
 
 ---
@@ -27,7 +27,7 @@ icon: "scale-balanced"
 
 Despite different mechanisms, the structural concepts map closely:
 
-- **Token splitting.** Both protocols take a single deposit and produce two tokens: one representing principal, one representing variable upside. Pendle splits yield-bearing assets into PT + YT. ArcX splits a strategy deposit into ST + EPT.
+- **Token splitting.** Both protocols take a single deposit and produce two tokens: one representing principal, one representing variable upside. Pendle splits yield-bearing assets into PT + YT. We split a strategy deposit into ST + EPT.
 
 - **Minting parity.** In both systems, a conservation law governs the relationship between the two tokens and the underlying. Pendle: PT + YT = Underlying. ArcX: (1/R) ST + 1 EPT = \$1 deposited. The value of the parts equals the value of the whole.
 
@@ -41,7 +41,7 @@ Despite different mechanisms, the structural concepts map closely:
 
 Pendle uses a custom AMM with a logit-based time-decay curve. Liquidity is pooled, and the curve concentrates it around expected yield ranges. Flash swaps route YT trades atomically through the PT/SY pool.
 
-ArcX uses two separate orderbooks: EPT/USDC and ST/USDC. Price discovery happens through limit orders placed by participants. When an EPT buy and an ST buy can be matched against a single mint, the system cross-matches them. No depositor needs to be on the other side.
+We use two separate orderbooks: EPT/USDC and ST/USDC. Price discovery happens through limit orders placed by participants. When an EPT buy and an ST buy can be matched against a single mint, the system cross-matches them. No depositor needs to be on the other side.
 
 Why orderbooks: perp DEX points are episodic (epoch-based with discrete finalization), not continuous yield streams. An orderbook where participants set their own prices fits this structure better than a curve optimized for continuous time-decay.
 
@@ -49,15 +49,15 @@ Why orderbooks: perp DEX points are episodic (epoch-based with discrete finaliza
 
 Pendle wraps on-chain yield-bearing assets: staked ETH, lending positions, LSTs. The yield source is transparent, verifiable on-chain, and runs without human intervention.
 
-ArcX wraps off-chain perp DEX trading strategies. The strategy executes trades on supported perp DEXes, earning both PnL and exchange points. Off-chain oracles report NAV and credit ticks to the on-chain contracts on Starknet.
+We wrap off-chain perp DEX trading strategies. The strategy executes trades on supported perp DEXes, earning both PnL and exchange points. NAV and credit data are reported on-chain on Starknet.
 
-This means ArcX relies on off-chain oracles and strategy execution, while Pendle operates fully on-chain. See [Trust Model & Security](/deep-dives/trust-model-and-security) for how each component is protected.
+This means we rely on off-chain oracles and strategy execution, while Pendle operates fully on-chain. See [Trust Model & Security](/deep-dives/trust-model-and-security) for how each component is protected.
 
 ### 3. Credit Accrual vs Yield Streaming
 
 Pendle YT streams yield in real-time. Holders receive SY tokens continuously as the underlying asset generates yield. You can claim at any time during the period.
 
-ArcX EPT accumulates credits via periodic oracle ticks. Credits are an abstract accounting unit. No tokens move until the epoch finalizes. At finalization, your share of total credits determines your share of total points earned. Credits are personal to the holder: when EPT changes hands, the seller keeps their accumulated credits and the buyer starts fresh.
+ArcX EPT accumulates credits over time based on strategy activity. Credits are an abstract accounting unit. No tokens move until the epoch finalizes. At finalization, your share of total credits determines your share of total points earned. Credits are personal to the holder: when EPT changes hands, the seller keeps their accumulated credits and the buyer starts fresh.
 
 No tokens move until finalization. No partial claiming. No streaming.
 
@@ -71,7 +71,7 @@ ArcX EPT converts to PointsTokens at epoch finalization. PointsTokens represent 
 
 | | Pendle YT | ArcX EPT |
 |---|---|---|
-| **During the period** | Yield streams continuously (claimable SY) | Credits accrue via oracle ticks (not claimable) |
+| **During the period** | Yield streams continuously (claimable SY) | Credits accrue over time (not claimable until finalization) |
 | **At maturity** | \$0 (all yield already paid out) | Converts to PointsTokens (positive value) |
 | **Decay pattern** | Monotonic decay toward zero | Value depends on points sentiment and time remaining |
 
@@ -79,13 +79,13 @@ ArcX EPT converts to PointsTokens at epoch finalization. PointsTokens represent 
 
 Pendle's flash swap is an atomic operation: deposit underlying, mint PT + YT, sell PT into the AMM pool, keep YT, all in one transaction. This gives leveraged YT exposure efficiently.
 
-ArcX has no equivalent mechanism. If you want EPT exposure, you buy it on the EPT/USDC orderbook at whatever price the market offers. There is no looping, no atomic leverage, and no AMM to route through. The simplicity is a tradeoff: less capital efficiency for leveraged positions, but a simpler user experience.
+We have no equivalent mechanism. If you want EPT exposure, you buy it on the EPT/USDC orderbook at whatever price the market offers. There is no looping, no atomic leverage, and no AMM to route through. The simplicity is a tradeoff: less capital efficiency for leveraged positions, but a simpler user experience.
 
 ---
 
 ## Why the Differences Matter
 
-**Price discovery.** ArcX's orderbook model means prices are set by individual limit orders, not by curve parameters. There is no implied APY metric. EPT price reflects the market's view on points value directly.
+**Price discovery.** Our orderbook model means prices are set by individual limit orders, not by curve parameters. There is no implied APY metric. EPT price reflects the market's view on points value directly.
 
 **Terminal value.** ArcX EPT retaining value at finalization makes it fundamentally different from Pendle YT. Holding EPT through finalization gives you PointsTokens with TGE-dependent upside, not a token that has already paid out everything it will ever pay.
 

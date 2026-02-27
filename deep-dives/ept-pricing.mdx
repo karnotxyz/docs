@@ -4,6 +4,8 @@ description: "How EPT gets its value from minting parity, why the interest rate 
 icon: "chart-line"
 ---
 
+EPT price depends on one equation. This page walks through that equation and what drives it.
+
 ## The Minting Parity Equation
 
 Every EPT pricing analysis starts from the deposit contract:
@@ -111,7 +113,7 @@ No early redemption is a deliberate design choice. It eliminates complex reserve
 |---|---|
 | **Time remaining** | More time = more credits to earn = higher EPT price |
 | **Expected points value** | Higher expected TGE value = higher EPT price |
-| **Strategy OI** | More open interest = more credits per tick = higher EPT price |
+| **Strategy OI** | More open interest = more credits per update = higher EPT price |
 | **ST discount** | ST price and EPT price are linked through minting parity |
 | **Points demand** | More buyers on EPT orderbook = higher price |
 
@@ -181,6 +183,6 @@ The 8% discount provides a buffer against strategy losses. The strategy can lose
 | Yield seeker | \$92 per ST | 1 ST (redeemable at final NAV) | Discounted USDC yield |
 | Direct depositor | \$100 USDC | 100 ST + 100 EPT | Both exposures at par |
 
-The same \$100 buys radically different exposure depending on which token you choose. ArcX does not create value. It separates it. The points farmer concentrates into points. The yield seeker concentrates into USDC returns. The direct depositor gets the unseparated bundle.
+The same \$100 buys radically different exposure depending on which token you choose. We do not create value. We separate it. The points farmer concentrates into points. The yield seeker concentrates into USDC returns. The direct depositor gets the unseparated bundle.
 
 For the full treatment of credit mathematics and how credits translate to points at finalization, see [Credit Mathematics](/deep-dives/credit-mathematics).

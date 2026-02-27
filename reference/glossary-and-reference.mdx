@@ -11,15 +11,15 @@ icon: "book"
 ### A
 
 **Admin**
-The ArcX-operated address with administrative control over strategy epochs and parameters. *Example: Admin finalizes an epoch after the strategy unwind is complete, enabling redemptions.*
+Our admin address with administrative control over strategy epochs and parameters. *Example: Admin finalizes an epoch after the strategy unwind is complete, enabling redemptions.*
 
 ### C
 
 **Credit**
-The unit that determines your share of points. Credits accumulate per-EPT from periodic oracle ticks. More EPT held, for longer, during higher-activity ticks = more credits. *Example: Holding 100 EPT across 50 ticks, each at 20 credits/EPT, produces 100,000 credits.*
+The unit that determines your share of points. Credits accumulate per-EPT from periodic credit updates. More EPT held, for longer, during higher-activity updates = more credits. *Example: Holding 100 EPT across 50 updates, each at 20 credits/EPT, produces 100,000 credits.*
 
 **Credits Oracle**
-ArcX-operated off-chain service that periodically pushes credit ticks to the EPT contract during the epoch. Each tick reports a credits-per-EPT value based on strategy activity. *Example: Strategy activity increases, so the next tick reports a higher credits-per-EPT value.*
+Our off-chain service that periodically pushes credit updates to the EPT contract during the epoch. Each update reports a credits-per-EPT value based on strategy activity. *Example: Strategy activity increases, so the next update reports a higher credits-per-EPT value.*
 
 **Cross-chain deposit**
 A deposit originating from a non-Starknet chain (Ethereum, Arbitrum, Solana). USDC is locked on the source chain, a cross-chain message delivers the deposit instruction to Starknet, and tokens are minted at arrival-time NAV. If the message never arrives, you can cancel after a timeout and get your USDC back.
@@ -49,10 +49,10 @@ The theoretical cost of EPT derived from minting parity: EPT = 1 - X/R, where X 
 ### F
 
 **Finalization**
-The event where ArcX publishes the final NAV and total points for an epoch. After finalization, ST redeems for USDC and EPT claims PointsTokens. *Example: Epoch 7 ends, positions unwind over 1-2 days, admin finalizes. Users can now redeem.*
+The event where we publish the final NAV and total points for an epoch. After finalization, ST redeems for USDC and EPT claims PointsTokens. *Example: Epoch 7 ends, positions unwind over 1-2 days, admin finalizes. Users can now redeem.*
 
 **Final Points Oracle**
-ArcX-operated off-chain service that reports the total points earned by the strategy during the epoch. Called once, after maturity. *Example: The strategy earned 12,500 points during Epoch 7. The oracle reports this number to the contract.*
+Our off-chain service that reports the total points earned by the strategy during the epoch. Called once, after maturity. *Example: The strategy earned 12,500 points during Epoch 7. The oracle reports this number to the contract.*
 
 ### M
 
@@ -68,7 +68,7 @@ When a strategy earns points on multiple exchanges, a single deposit produces se
 The per-share USDC value of the strategy vault: total vault value divided by total shares outstanding. *Example: Vault holds \$101,500, 100,000 shares outstanding. NAV = \$1.015.*
 
 **NAV Oracle**
-ArcX-operated off-chain service that periodically reports strategy NAV. Computed from exchange position data (principal + unrealized PnL + fees).
+Our off-chain service that periodically reports strategy NAV. Computed from exchange position data (principal + unrealized PnL + fees).
 
 ### O
 
@@ -81,7 +81,7 @@ A limit order book where users place buy and sell orders for EPT/USDC or ST/USDC
 Admin action that stops new deposits into an epoch. Does not affect orderbook trading, credit accrual, or redemptions.
 
 **PointsToken**
-On-chain representation of exchange points, 1:1 backed by real points in ArcX's exchange account. One PointsToken per exchange. Persists across epochs. *Example: Alice claims 450 PointsTokens from Epoch 7. She already had 320 from earlier epochs. Her total: 770.*
+On-chain representation of exchange points, 1:1 backed by real points in our exchange account. One PointsToken per exchange. Persists across epochs. *Example: Alice claims 450 PointsTokens from Epoch 7. She already had 320 from earlier epochs. Her total: 770.*
 
 ### R
 
@@ -100,15 +100,15 @@ A trade between existing token holders on the orderbook. No new tokens are minte
 Your claim on the strategy's USDC value at finalization. One ST per epoch per strategy. Tradeable on the ST/USDC orderbook during the epoch, redeemable for USDC after finalization. *Example: Alice deposits \$100, receives ST shares. The strategy makes 2%. She redeems for approximately \$102.*
 
 **Strategy**
-An actively managed trading approach executed by ArcX on supported perp DEXes. Each strategy has its own vault, producing unique ST and EPT tokens each epoch. *Example: A funding arb strategy goes long on one exchange and short on another to capture funding rate differentials.*
+An actively managed trading approach executed by us on supported perp DEXes. Each strategy has its own vault, producing unique ST and EPT tokens each epoch. *Example: A funding arb strategy goes long on one exchange and short on another to capture funding rate differentials.*
 
 ### T
 
 **TGE (Token Generation Event)**
 When a perp DEX launches its token and distributes airdrops. After TGE, PointsTokens become redeemable for airdrop tokens. *Example: A perp DEX conducts TGE. PointsToken holders burn their tokens to receive airdrop tokens.*
 
-**Tick**
-A single oracle credit update, reporting the credits-per-EPT accrued since the last update. Each tick reflects the strategy's activity level during that interval. *Example: A tick reports 25 credits/EPT. All EPT holders accrue 25 credits per EPT they hold.*
+**Credit Update**
+A single oracle update, reporting the credits-per-EPT accrued since the last update. Each update reflects the strategy's activity level during that interval. *Example: An update reports 25 credits/EPT. All EPT holders accrue 25 credits per EPT they hold.*
 
 ---
 
@@ -146,7 +146,7 @@ A single oracle credit update, reporting the credits-per-EPT accrued since the l
 
 | State | Deposits | Credit Accrual | Orderbook Trading | Redemption |
 |---|---|---|---|---|
-| **ACTIVE** | Yes | Yes (oracle ticks) | Yes | No |
+| **ACTIVE** | Yes | Yes (credit updates) | Yes | No |
 | **MATURITY** | No | Stopped | Yes | No |
 | **FINALIZED** | No | Final credits settled | No | Yes |
 
@@ -156,12 +156,12 @@ A single oracle credit update, reporting the credits-per-EPT accrued since the l
 
 | Component | Trust Model | Verifiable? |
 |---|---|---|
-| NAV Oracle | ArcX-operated | Partially (exchange dashboards) |
-| Credits Oracle | ArcX-operated | Partially (observable activity) |
-| Final Points Oracle | ArcX-operated | Partially (exchange programs) |
-| PointsToken backing | ArcX-reported | Not currently |
-| Strategy execution | ArcX-operated | Not on-chain |
-| Orderbook matching | ArcX-operated | Settlement is on-chain |
+| NAV Oracle | Operated by us | Partially (exchange dashboards) |
+| Credits Oracle | Operated by us | Partially (observable activity) |
+| Final Points Oracle | Operated by us | Partially (exchange programs) |
+| PointsToken backing | Reported by us | Not currently |
+| Strategy execution | Operated by us | Not on-chain |
+| Orderbook matching | Operated by us | Settlement is on-chain |
 | Cross-chain deposits | Multisig + refund timeout | Refund timeout as safety valve |
 | Smart contracts | On-chain | Fully (code is on-chain) |
 

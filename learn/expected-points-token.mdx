@@ -4,6 +4,8 @@ description: "Your claim on exchange points earned during the epoch. Trade on th
 icon: "star"
 ---
 
+Want leveraged exposure to exchange points without running a trading strategy yourself? EPT is your token.
+
 ## What Is EPT
 
 EPT is your claim on exchange points earned by a strategy during the epoch. Each epoch creates a new EPT per exchange per strategy. When you deposit USDC, you receive both ST and EPT. When the epoch finalizes, your EPT entitles you to a share of the total points earned, proportional to the credits you accrued. You then claim your points as <Tooltip tip="1:1 on-chain representation of exchange points. Persists across epochs. Burn for airdrop tokens after TGE." href="/learn/points-token">PointsTokens</Tooltip>.
@@ -16,9 +18,9 @@ If a strategy earns points on multiple exchanges, you receive a separate EPT for
 
 ## The Credit System
 
-Credits determine your share of points. The system is tick-based: an off-chain oracle periodically pushes a **credit tick** reporting credits per EPT since the last tick, derived from the strategy's open interest and activity on the exchange.
+Credits determine your share of points. The system periodically updates the **credits per EPT** based on the strategy's open interest and activity on the exchange.
 
-While you hold EPT, your credits accumulate based on these oracle updates. The key rules:
+While you hold EPT, your credits accumulate based on these periodic updates. The key rules:
 
 - **Credits are personal.** They belong to the holder, not the token.
 - **Fresh start on acquisition.** Whether you mint new EPT or buy it on the orderbook, your credit counter for those tokens starts from zero. The seller's accumulated credits stay with the seller.
@@ -40,27 +42,27 @@ Everyone's credits are summed into the denominator. Your fraction of that sum de
 
 ## Worked Example
 
-Alice and Bob each hold 100 EPT in an epoch with 100 ticks at a constant 10 credits/EPT/tick. Alice holds from tick 1. Bob buys on the orderbook at tick 61 (his credits start from zero at purchase). Total points for the epoch: 5,000.
+Alice and Bob each hold 100 EPT in an epoch with 100 credit updates at a constant rate of 10 credits per EPT per update. Alice holds from the start. Bob buys on the orderbook at update 61 (his credits start from zero at purchase). Total points for the epoch: 5,000.
 
 | | Holding period | Credits accrued | Share of total | Points (of 5,000) |
 |---|---|---|---|---|
-| Alice | 100 ticks (full epoch) | 100,000 | 71.4% | 3,571 |
-| Bob | 40 ticks (tick 61 onward) | 40,000 | 28.6% | 1,429 |
+| Alice | Full epoch (100 updates) | 100,000 | 71.4% | 3,571 |
+| Bob | 40 updates (update 61 onward) | 40,000 | 28.6% | 1,429 |
 
-Alice earns more points because she held for 2.5x as many ticks. The credit system weights **amount held times ticks held**. There is no bonus or multiplier for early entry. Accrual is linear.
+Alice earns more points because she held for 2.5x as long. The credit system weights **amount held times time held**. There is no bonus or multiplier for early entry. Accrual is linear.
 
 ---
 
-## Why Tick Amounts Vary
+## Why Credit Amounts Vary
 
-The oracle does not report a fixed credits-per-EPT value. It adjusts each tick based on real strategy activity:
+Credits per EPT are not fixed. They adjust based on real strategy activity:
 
-| Strategy type | Tick amount reflects |
+| Strategy type | Credit amount reflects |
 |---|---|
 | Funding arbitrage | Current open interest |
 | Market making | Trading volume throughput |
 
-If a strategy is idle for 3 weeks then active for 5 weeks, tick amounts are low during the idle period and high during the active period. This concentrates credit accrual during the windows when points are actually being generated on the exchange.
+If a strategy is idle for 3 weeks then active for 5 weeks, credit amounts are low during the idle period and high during the active period. This concentrates credit accrual during the windows when points are actually being generated on the exchange.
 
 For the full mathematical treatment, see [Credit Mathematics](/deep-dives/credit-mathematics).
 

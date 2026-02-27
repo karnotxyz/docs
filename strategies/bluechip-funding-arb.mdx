@@ -20,7 +20,7 @@ Each supported perp DEX awards points based on <Tooltip tip="The total notional 
 
 A funding arb position requires two legs, long and short, on two different exchanges. Both legs carry open interest. Both legs earn points. This means funding arb earns roughly twice the points per dollar of vault capital compared to a single-leg directional strategy.
 
-The strategy's credit tick amounts reflect aggregate OI across all exchanges. More capital in the vault means larger positions, more OI, and faster credit accrual for EPT holders.
+The strategy's credit update amounts reflect aggregate OI across all exchanges. More capital in the vault means larger positions, more OI, and faster credit accrual for EPT holders.
 
 ---
 
@@ -30,7 +30,7 @@ EPT holders are buying a claim on the points this strategy generates. The key va
 
 | Factor | Why It Matters |
 |---|---|
-| **Open interest levels** | More OI across exchanges means more points generated per unit of time. OI drives the credits-per-tick amount. |
+| **Open interest levels** | More OI across exchanges means more points generated per unit of time. OI drives the credits-per-update amount. |
 | **Number of exchanges** | Each exchange where the strategy holds OI produces its own points stream. More exchanges, more EPT instances. |
 | **Epoch duration** | Longer epochs (8-12 weeks) give more time to accumulate credits. Depositing early maximizes your credit share. |
 | **Expected points value** | The eventual value of exchange points at TGE determines what your EPT is ultimately worth. |
