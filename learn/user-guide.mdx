@@ -28,9 +28,7 @@ ArcX has two orderbooks, **EPT/USDC** and **ST/USDC**, one for each token. Every
         Credits accrue automatically as the oracle reports ticks. You do not need to take any action. Credits start fresh from the moment you acquire the EPT.
       </Step>
       <Step title="Claim PointsTokens after finalization">
-        Once the epoch is finalized, go to the claims page and claim your PointsTokens. Your share is proportional to your credits:
-
-        $$\text{your points} = \frac{\text{your credits}}{\text{total credits}} \times \text{total points}$$
+        Once the epoch is finalized, go to the claims page and claim your PointsTokens. Your share is proportional to your [credits](/learn/expected-points-token#the-credit-system).
       </Step>
     </Steps>
   </Tab>
@@ -55,9 +53,7 @@ ArcX has two orderbooks, **EPT/USDC** and **ST/USDC**, one for each token. Every
         Your ST tracks the strategy's NAV. If the strategy earns 1% over the epoch, NAV rises to approximately \$1.01. Monitor performance on the ArcX dashboard.
       </Step>
       <Step title="Redeem ST after finalization">
-        Once the epoch is finalized, go to the redemption page and redeem your ST for USDC at the final NAV.
-
-        $$\text{Return} = \frac{1.01 - 0.90}{0.90} \approx 12.2\%\text{ per epoch}$$
+        Once the epoch is finalized, go to the redemption page and redeem your ST for USDC at the final NAV. Your return is the gap between your purchase price and the redemption value. See [Strategy Token](/learn/strategy-token#yield-seekers-buy-the-discount) for worked examples.
       </Step>
     </Steps>
   </Tab>
@@ -76,17 +72,9 @@ This is a secondary trade, not a redemption. Redemption (ST for USDC at NAV, EPT
 
 ---
 
-<Info>
-Most users buy the specific token they want on the orderbook. Direct minting is for users who want both ST and EPT simultaneously.
-</Info>
-
 ## Direct Minting
 
-Instead of buying on the orderbook, you can deposit USDC directly into a strategy. You receive both tokens:
-
-$$1 \text{ USDC} = \frac{1}{R} \text{ ST} + 1 \text{ EPT}$$
-
-where $R$ is the current NAV per share.
+Instead of buying on the orderbook, you can deposit USDC directly into a strategy. You receive both ST and EPT per the [minting equation](/learn/protocol-overview#the-minting-equation).
 
 <Steps>
   <Step title="Select the strategy and epoch">
@@ -103,7 +91,7 @@ where $R$ is the current NAV per share.
   </Step>
 </Steps>
 
-Direct minting is useful when orderbook spreads are wide, or when you want exposure to both tokens simultaneously. Most users will prefer buying the specific token they want on the orderbook. See [Protocol Overview](/learn/protocol-overview) for details on the minting equation.
+Direct minting is useful when orderbook spreads are wide, or when you want exposure to both tokens simultaneously. Most users will prefer buying the specific token they want on the orderbook.
 
 ---
 
@@ -119,16 +107,12 @@ You can deposit USDC from Ethereum, Arbitrum, Solana, and other supported chains
     Specify the Starknet wallet that should receive the tokens, and enter your USDC amount.
   </Step>
   <Step title="Confirm the transaction">
-    Your USDC is locked in an escrow contract on the source chain. A message is sent to Starknet to complete the deposit.
+    Your USDC is locked in an escrow contract on the source chain. A cross-chain message delivers the deposit to Starknet.
   </Step>
   <Step title="Tokens arrive on Starknet">
-    Within 1-5 minutes (typical), your tokens are minted on Starknet and delivered to your wallet.
+    Your tokens are minted on Starknet and delivered to your wallet. If the message never arrives, you can cancel after the timeout period and get your USDC refunded on the source chain.
   </Step>
 </Steps>
-
-<Tip>
-Cross-chain deposits typically complete in 1-5 minutes. If the message never arrives, you can cancel after the timeout period and get your USDC refunded on the source chain.
-</Tip>
 
 ---
 

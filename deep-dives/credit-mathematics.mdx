@@ -157,20 +157,3 @@ Your credit fraction of the total equals your point fraction of the total.
   </Tab>
 </Tabs>
 
----
-
-## Fairness Properties
-
-Three properties make the credit system work:
-
-**1. Duration matters, not tick size.** When tick amounts are constant, only how many ticks you held through matters. The worked examples in the "Two Holders" tab above show this directly.
-
-**2. Activity-weighted distribution.** When tick amounts vary, holders who were present during high-activity periods receive proportionally more credits. This correctly reflects that most of the epoch's points were generated during those periods.
-
-**3. Transfer isolation.** The fresh-start rule on acquisition prevents credit theft. A buyer cannot claim the seller's accrued credits, and a last-second minter starts from zero. Credits are earned, not purchased.
-
----
-
-## Comparison to Pendle
-
-Pendle's YT (Yield Token) and ArcX's EPT solve the same problem, time-weighted exposure to a future reward, but with different mechanics. Pendle YT streams real yield tokens (SY) continuously to holders; tokens drip as they are generated. ArcX EPT accumulates abstract credits that are converted to points only at finalization. No tokens move during the epoch. The conceptual model is similar (hold longer, earn more), but ArcX's tick-based credits replace Pendle's continuous SY streaming with a discrete, oracle-driven accounting system.

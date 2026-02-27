@@ -229,8 +229,6 @@ flowchart TB
 
 The key boundary: token mechanics (minting, burning, credit accrual, redemption) are fully on-chain. The *inputs* to those mechanics (NAV, credit ticks, total points) are reported by ArcX oracles. Settlement enforces that oracle-reported values flow through on-chain logic, not arbitrary off-chain decisions.
 
-Notice that arrows only flow in one direction: from off-chain to on-chain. Off-chain components *report data* to on-chain contracts. They do not directly control token balances, transfers, or settlement. The contracts use reported data to compute share prices, credit accrual, and point allocations, but the computation itself is on-chain and deterministic.
-
 ---
 
 ## Decentralization Roadmap
@@ -273,7 +271,7 @@ The tradeoff is intentional: more trust, but access to yield sources that pure o
 
 <AccordionGroup>
   <Accordion title="How does this compare to Pendle's risk profile?" icon="scale-balanced">
-  Different risk profile, not strictly more or less risky. Pendle is fully on-chain. You trust only smart contract risk. ArcX adds oracle risk (trusting ArcX's data feeds) and strategy risk (trusting ArcX's execution). In exchange, ArcX gives you access to perp DEX strategy returns and pre-TGE points markets that Pendle does not offer. The additional trust assumptions are the cost of accessing off-chain yield sources.
+  Different risk profile, not strictly more or less risky. Pendle is fully on-chain with only smart contract risk. ArcX adds oracle and strategy execution dependencies in exchange for access to perp DEX strategies and pre-TGE points. See [ArcX vs Pendle](/learn/pendle-comparison) for the full comparison.
   </Accordion>
 
   <Accordion title="Why can't ArcX use Chainlink or Pyth for the NAV oracle?" icon="link-slash">
@@ -289,7 +287,7 @@ The tradeoff is intentional: more trust, but access to yield sources that pure o
   </Accordion>
 
   <Accordion title="What is my maximum possible loss?" icon="coins">
-  Your maximum loss is your deposit amount. ST can go to zero if the strategy loses 100% of capital. There is no margin call and no additional liability beyond what you deposited. Even in this worst case, your EPT credits and PointsToken allocation are unaffected. Points are earned during the epoch regardless of strategy PnL. You still claim your full PointsToken allocation even if ST redeems for zero.
+  Your maximum loss is your deposit amount. There is no margin call or additional liability. EPT credits and PointsToken allocation are unaffected by strategy PnL — you claim your full PointsToken allocation regardless.
   </Accordion>
 
   <Accordion title="Is ArcX audited?" icon="magnifying-glass">

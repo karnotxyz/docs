@@ -6,7 +6,7 @@ icon: "gift"
 
 ## What Is a PointsToken
 
-A PointsToken is a 1:1 on-chain representation of an exchange's loyalty points. Each supported perp DEX has its own PointsToken:
+Each supported perp DEX has its own PointsToken on Starknet, representing the exchange's loyalty points 1:1:
 
 | PointsToken | Exchange | Meaning |
 |---|---|---|
@@ -20,11 +20,7 @@ Additional PointsTokens are created as new exchanges are integrated. One PointsT
 
 ## How Claiming Works
 
-After an epoch finalizes, <Tooltip tip="Expected Points Token. Your claim on exchange points earned during the epoch." href="/learn/expected-points-token">EPT</Tooltip> holders claim their share of the epoch's points as PointsTokens. The number you receive is determined by your credit share:
-
-$$\text{your\_PointsTokens} = \frac{\text{your\_credits}}{\text{total\_credits}} \times \text{total\_points}$$
-
-A small fee (varies by strategy) is deducted before minting.
+After an epoch finalizes, <Tooltip tip="Expected Points Token. Your claim on exchange points earned during the epoch." href="/learn/expected-points-token">EPT</Tooltip> holders claim their share of the epoch's points as PointsTokens. The number you receive is proportional to your [credit share](/learn/expected-points-token#how-credits-determine-your-points). A small fee (varies by strategy) is deducted before minting.
 
 The claim process:
 

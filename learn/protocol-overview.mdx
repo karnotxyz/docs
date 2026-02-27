@@ -39,18 +39,6 @@ ArcX splits the output of a perp trading strategy into two tokens, **ST** (claim
 
 ---
 
-## Before and After ArcX
-
-| Before ArcX | With ArcX |
-|---|---|
-| Deposit capital, earn points, hope for airdrop. Capital locked. | Buy EPT directly. Capital stays liquid on the orderbook. |
-| Can't sell points pre-TGE. Stuck until airdrop. | Sell EPT on the orderbook anytime. |
-| Want yield from perp strategies? Must also hold points risk. | Buy ST only. Pure yield, no points risk. |
-| One-size-fits-all: everyone gets the same bundle. | Two orderbooks: points people and yield people each get what they want. |
-| Capital efficiency: 1x. Deposit and wait. | EPT at \$0.05 = 20x leverage on points exposure. |
-
----
-
 ## The Three Tokens
 
 <CardGroup cols={3}>
@@ -144,13 +132,3 @@ ArcX launches with strategies on supported perp DEXes (Paradex, Hyperliquid, Pac
 
 Each strategy has its own vault, its own ST, and mints EPT for each exchange where it earns points.
 
----
-
-## Key Formulas
-
-| Formula | Definition |
-|---|---|
-| $\text{NAV} = \frac{\text{vault value}}{\text{total shares}}$ | Per-share value of the strategy |
-| $\text{shares} = \frac{\text{deposit amount}}{\text{NAV}}$ | ST shares received on deposit |
-| $\text{EPT}_{\text{fair}} = 1 - \frac{X}{R}$ | Fair value of EPT given ST price $X$ and NAV $R$ |
-| $\text{your points} = \frac{\text{your credits}}{\text{total credits}} \times \text{total points}$ | Points allocation at finalization |

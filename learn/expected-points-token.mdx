@@ -86,25 +86,8 @@ Full pricing analysis and decay mechanics are covered in [EPT Pricing](/deep-div
 
 ---
 
-## Cross-Matching: How Minting Works
-
-The ST/USDC and EPT/USDC orderbooks are separate, but they share a minting mechanism. When a new deposit occurs, it creates both ST and EPT. The protocol's matching engine can cross-match across the two books:
-
-- A buyer on the EPT/USDC book and a buyer on the ST/USDC book can together trigger a mint, each receiving the token they want
-- Secondary trades (EPT seller to EPT buyer, or ST seller to ST buyer) happen within each respective book
-
-This means liquidity on one book affects pricing on the other through the minting parity relationship.
-
----
-
 ## Claiming Points
 
-After the epoch finalizes, the total points are reported and you can claim your share as [PointsTokens](/learn/points-token).
-
-Your claim is based on your credit share:
-
-$$\text{your\_PointsTokens} = \frac{\text{your\_credits}}{\text{total\_credits}} \times \text{total\_points}$$
-
-A small fee (varies by strategy) is deducted, and the net PointsTokens are minted to your wallet.
+After the epoch finalizes, claim your share as [PointsTokens](/learn/points-token). Your allocation is based on your [credit share](#how-credits-determine-your-points). A small fee (varies by strategy) is deducted, and PointsTokens are minted to your wallet.
 
 Each epoch produces a separate EPT. You claim from each epoch independently. Credits do not carry over between epochs.

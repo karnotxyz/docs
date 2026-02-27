@@ -11,7 +11,7 @@ icon: "book"
 ### A
 
 **Admin**
-The ArcX-operated address that can pause deposits, finalize epochs, and configure fees. *Example: Admin finalizes an epoch after the strategy unwind is complete, enabling redemptions.*
+The ArcX-operated address with administrative control over strategy epochs and parameters. *Example: Admin finalizes an epoch after the strategy unwind is complete, enabling redemptions.*
 
 ### C
 
@@ -22,7 +22,7 @@ The unit that determines your share of points. Credits accumulate per-EPT from p
 ArcX-operated off-chain service that periodically pushes credit ticks to the EPT contract during the epoch. Each tick reports a credits-per-EPT value based on strategy activity. *Example: Strategy activity increases, so the next tick reports a higher credits-per-EPT value.*
 
 **Cross-chain deposit**
-A deposit originating from a non-Starknet chain (Ethereum, Arbitrum, Solana). USDC is locked on the source chain, a cross-chain message delivers the deposit instruction to Starknet, and tokens are minted at arrival-time NAV. Deposits typically complete in 1-5 minutes. If the message never arrives, you can cancel after a timeout and get your USDC back.
+A deposit originating from a non-Starknet chain (Ethereum, Arbitrum, Solana). USDC is locked on the source chain, a cross-chain message delivers the deposit instruction to Starknet, and tokens are minted at arrival-time NAV. If the message never arrives, you can cancel after a timeout and get your USDC back.
 
 **Cross-match**
 When a buy-EPT order and a buy-ST order at compatible prices are matched together, the engine mints new ST + EPT from deposited USDC and fills both sides. This is how new tokens enter circulation via the orderbooks. *Example: Alice bids \$0.10 for EPT, Bob bids \$0.90 for ST. The engine deposits \$1, mints both tokens, fills both orders.*
@@ -156,12 +156,12 @@ A single oracle credit update, reporting the credits-per-EPT accrued since the l
 
 | Component | Trust Model | Verifiable? |
 |---|---|---|
-| NAV Oracle | Centralized (ArcX) | Partially (exchange dashboards) |
-| Credits Oracle | Centralized (ArcX) | Partially (observable activity) |
-| Final Points Oracle | Centralized (ArcX) | Partially (exchange programs) |
-| PointsToken backing | Trust-based | Not currently |
-| Strategy execution | Centralized (ArcX) | Not on-chain |
-| Orderbook matching | Centralized (ArcX) | Settlement is on-chain |
+| NAV Oracle | ArcX-operated | Partially (exchange dashboards) |
+| Credits Oracle | ArcX-operated | Partially (observable activity) |
+| Final Points Oracle | ArcX-operated | Partially (exchange programs) |
+| PointsToken backing | ArcX-reported | Not currently |
+| Strategy execution | ArcX-operated | Not on-chain |
+| Orderbook matching | ArcX-operated | Settlement is on-chain |
 | Cross-chain deposits | Multisig + refund timeout | Refund timeout as safety valve |
 | Smart contracts | On-chain | Fully (code is on-chain) |
 

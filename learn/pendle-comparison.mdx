@@ -51,7 +51,7 @@ Pendle wraps on-chain yield-bearing assets: staked ETH, lending positions, LSTs.
 
 ArcX wraps off-chain perp DEX trading strategies. The strategy executes trades on supported perp DEXes, earning both PnL and exchange points. Off-chain oracles report NAV and credit ticks to the on-chain contracts on Starknet.
 
-This means ArcX carries trust assumptions that Pendle does not: trust in the strategy operator to execute correctly, and trust in the oracle to report accurately. See [Trust Model & Security](/deep-dives/trust-model-and-security) for how these are mitigated.
+This means ArcX relies on off-chain oracles and strategy execution, while Pendle operates fully on-chain. See [Trust Model & Security](/deep-dives/trust-model-and-security) for how each component is protected.
 
 ### 3. Credit Accrual vs Yield Streaming
 
@@ -87,10 +87,6 @@ ArcX has no equivalent mechanism. If you want EPT exposure, you buy it on the EP
 
 **Price discovery.** ArcX's orderbook model means prices are set by individual limit orders, not by curve parameters. There is no implied APY metric. EPT price reflects the market's view on points value directly.
 
-**Trust assumptions.** ArcX's off-chain yield source adds trust dependencies that Pendle does not have. You are trusting strategy execution and oracle reporting, not just smart contract logic.
-
-**Capital lockup.** ArcX's epoch-based finalization means there is no continuous redemption. Capital committed to an epoch stays until finalization (though you can sell tokens on the orderbook to exit your position).
-
 **Terminal value.** ArcX EPT retaining value at finalization makes it fundamentally different from Pendle YT. Holding EPT through finalization gives you PointsTokens with TGE-dependent upside, not a token that has already paid out everything it will ever pay.
 
 ---
@@ -104,6 +100,6 @@ ArcX has no equivalent mechanism. If you want EPT exposure, you buy it on the EP
 | Get leveraged pre-TGE points exposure | Indirect (YT on point-earning assets) | Buy EPT on the orderbook |
 | Separate strategy PnL from points | Not possible | Deposit into a strategy, sell ST or EPT |
 | Buy discounted strategy exposure | Buy PT for fixed yield | Buy ST below NAV, redeem at finalization |
-| Use a fully trustless, on-chain system | Pendle (everything on-chain) | ArcX has off-chain components |
+| Use a fully on-chain system | Pendle (everything on-chain) | ArcX wraps off-chain yield sources |
 
 They serve different purposes. Pendle is built for on-chain yield optimization. ArcX is built for perp DEX strategy outcomes: PnL and pre-TGE points. A user could reasonably use both.

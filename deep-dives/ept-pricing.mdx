@@ -115,11 +115,7 @@ No early redemption is a deliberate design choice. It eliminates complex reserve
 | **ST discount** | ST price and EPT price are linked through minting parity |
 | **Points demand** | More buyers on EPT orderbook = higher price |
 
-ST price and EPT value are linked through minting parity:
-
-$$\text{EPT}_{\text{fair}} = 1 - \frac{X}{R}$$
-
-This gives the implied EPT value from a \$1 deposit. The actual EPT price on the orderbook is determined by supply and demand. Cross-matching enforces a ceiling: if EPT + ST buy prices exceed \$1, the engine mints new tokens until the gap closes.
+ST price and EPT value are linked through [minting parity](#the-minting-parity-equation). Cross-matching enforces a ceiling: if buy-side prices sum above \$1, the engine mints new supply.
 
 ---
 
