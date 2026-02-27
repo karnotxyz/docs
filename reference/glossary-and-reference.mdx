@@ -1,115 +1,7 @@
 ---
-title: "Glossary & Reference"
-description: "Every term defined, every equation referenced."
+title: "Quick Reference"
+description: "Token summary, key equations, and epoch states at a glance."
 icon: "book"
----
-
----
-
-## Glossary
-
-### A
-
-**Admin**
-Our admin address with administrative control over strategy epochs and parameters. *Example: Admin finalizes an epoch after the strategy unwind is complete, enabling redemptions.*
-
-### C
-
-**Credit**
-The unit that determines your share of points. Credits accumulate per-EPT from periodic credit updates. More EPT held, for longer, during higher-activity updates = more credits. *Example: Holding 100 EPT across 50 updates, each at 20 credits/EPT, produces 100,000 credits.*
-
-**Credits Oracle**
-Our off-chain service that periodically pushes credit updates to the EPT contract during the epoch. Each update reports a credits-per-EPT value based on strategy activity. *Example: Strategy activity increases, so the next update reports a higher credits-per-EPT value.*
-
-**Cross-chain deposit**
-A deposit originating from a non-Starknet chain (Ethereum, Arbitrum, Solana). USDC is locked on the source chain, a cross-chain message delivers the deposit instruction to Starknet, and tokens are minted at arrival-time NAV. If the message never arrives, you can cancel after a timeout and get your USDC back.
-
-**Cross-match**
-When a buy-EPT order and a buy-ST order at compatible prices are matched together, the engine mints new ST + EPT from deposited USDC and fills both sides. This is how new tokens enter circulation via the orderbooks. *Example: Alice bids \$0.10 for EPT, Bob bids \$0.90 for ST. The engine deposits \$1, mints both tokens, fills both orders.*
-
-### D
-
-**Deposit cutoff**
-How long before the epoch ends that deposits stop being accepted. Configurable per strategy. *Example: Deposits stop 1 hour before the epoch ends.*
-
-**Deposit fee**
-A fee on USDC deposits that covers operational costs. Configurable per strategy. The fee is deducted before shares are calculated.
-
-### E
-
-**Epoch**
-A fixed-duration window (typically 8-12 weeks) during which a strategy runs. Each epoch creates new ST and EPT instances. Epochs progress through three states: ACTIVE, MATURITY, FINALIZED.
-
-**EPT (Expected Points Token)**
-Your claim on exchange points earned during the epoch, weighted by holding duration and strategy activity. One EPT per epoch per exchange per strategy. Tradeable on the EPT/USDC orderbook. *Example: Alice buys 100 EPT on the orderbook and holds them through the epoch, accruing credits that convert to points at finalization.*
-
-**EPT implied cost**
-The theoretical cost of EPT derived from minting parity: EPT = 1 - X/R, where X = ST market price and R = NAV. *Example: ST trades at \$0.90, NAV = \$1.00. Implied EPT cost = 1 - 0.90 = \$0.10.*
-
-### F
-
-**Finalization**
-The event where we publish the final NAV and total points for an epoch. After finalization, ST redeems for USDC and EPT claims PointsTokens. *Example: Epoch 7 ends, positions unwind over 1-2 days, admin finalizes. Users can now redeem.*
-
-**Final Points Oracle**
-Our off-chain service that reports the total points earned by the strategy during the epoch. Called once, after maturity. *Example: The strategy earned 12,500 points during Epoch 7. The oracle reports this number to the contract.*
-
-### M
-
-**Minting parity**
-The conservation law for token creation: 1 USDC deposited = (1/R) ST + 1 EPT. The value of the parts equals the value of the whole. This relationship also governs cross-matching on the orderbooks. *Example: If NAV = \$1.00, depositing \$1 produces 1 ST share + 1 EPT.*
-
-**Multi-EPT**
-When a strategy earns points on multiple exchanges, a single deposit produces separate EPT tokens for each exchange. *Example: Depositing into a cross-exchange strategy produces 1 ST + EPT for exchange A + EPT for exchange B.*
-
-### N
-
-**NAV (Net Asset Value)**
-The per-share USDC value of the strategy vault: total vault value divided by total shares outstanding. *Example: Vault holds \$101,500, 100,000 shares outstanding. NAV = \$1.015.*
-
-**NAV Oracle**
-Our off-chain service that periodically reports strategy NAV. Computed from exchange position data (principal + unrealized PnL + fees).
-
-### O
-
-**Orderbook**
-A limit order book where users place buy and sell orders for EPT/USDC or ST/USDC. Orders are matched off-chain and settled on-chain on Starknet. *Example: Alice places a limit buy for 100 EPT at \$0.08. When a matching sell order appears, the trade executes and settles on-chain.*
-
-### P
-
-**Pause**
-Admin action that stops new deposits into an epoch. Does not affect orderbook trading, credit accrual, or redemptions.
-
-**PointsToken**
-On-chain representation of exchange points, 1:1 backed by real points in our exchange account. One PointsToken per exchange. Persists across epochs. *Example: Alice claims 450 PointsTokens from Epoch 7. She already had 320 from earlier epochs. Her total: 770.*
-
-### R
-
-**Redemption fee**
-Fee deducted when claiming PointsTokens from EPT credits. Configurable per strategy.
-
-**Refund timeout**
-If a cross-chain deposit is not acknowledged within this window, you can cancel and recover your USDC on the source chain.
-
-### S
-
-**Secondary trade**
-A trade between existing token holders on the orderbook. No new tokens are minted or burned; ownership transfers between buyer and seller. *Example: Alice sells 50 EPT to Bob on the EPT/USDC orderbook.*
-
-**ST (Strategy Token)**
-Your claim on the strategy's USDC value at finalization. One ST per epoch per strategy. Tradeable on the ST/USDC orderbook during the epoch, redeemable for USDC after finalization. *Example: Alice deposits \$100, receives ST shares. The strategy makes 2%. She redeems for approximately \$102.*
-
-**Strategy**
-An actively managed trading approach executed by us on supported perp DEXes. Each strategy has its own vault, producing unique ST and EPT tokens each epoch. *Example: A funding arb strategy goes long on one exchange and short on another to capture funding rate differentials.*
-
-### T
-
-**TGE (Token Generation Event)**
-When a perp DEX launches its token and distributes airdrops. After TGE, PointsTokens become redeemable for airdrop tokens. *Example: A perp DEX conducts TGE. PointsToken holders burn their tokens to receive airdrop tokens.*
-
-**Credit Update**
-A single oracle update, reporting the credits-per-EPT accrued since the last update. Each update reflects the strategy's activity level during that interval. *Example: An update reports 25 credits/EPT. All EPT holders accrue 25 credits per EPT they hold.*
-
 ---
 
 ## Token Reference
@@ -132,13 +24,13 @@ A single oracle update, reporting the credits-per-EPT accrued since the last upd
 
 ## Key Equations
 
-| Equation | What it means | Where it's used |
-|---|---|---|
-| 1 USDC = (1/R) ST + 1 EPT | One dollar deposited produces this fixed combination of tokens | Deposit flow, cross-matching |
-| NAV = vault value / total shares | Each ST share is worth the vault value divided by total shares | ST pricing, redemption |
-| shares = deposit amount / NAV | Shares minted depend on current per-share NAV | Deposit calculation |
-| your points = (your credits / total credits) x total points | Your fraction of credits equals your fraction of points | Points distribution |
-| EPT implied cost = 1 - X/R | The gap between \$1 and the value of ST from a \$1 deposit | EPT pricing |
+| Equation | What it means |
+|---|---|
+| 1 USDC = (1/R) ST + 1 EPT | One dollar deposited produces this fixed combination of tokens |
+| NAV = vault value / total shares | Each ST share is worth the vault value divided by total shares |
+| shares = deposit amount / NAV | Shares minted depend on current per-share NAV |
+| your points = (your credits / total credits) x total points | Your fraction of credits equals your fraction of points |
+| EPT implied cost = 1 - X/R | The gap between \$1 and the value of ST from a \$1 deposit |
 
 ---
 
@@ -149,40 +41,3 @@ A single oracle update, reporting the credits-per-EPT accrued since the last upd
 | **ACTIVE** | Yes | Yes (credit updates) | Yes | No |
 | **MATURITY** | No | Stopped | Yes | No |
 | **FINALIZED** | No | Final credits settled | No | Yes |
-
----
-
-## Trust Surface
-
-| Component | Trust Model | Verifiable? |
-|---|---|---|
-| NAV Oracle | Operated by us | Partially (exchange dashboards) |
-| Credits Oracle | Operated by us | Partially (observable activity) |
-| Final Points Oracle | Operated by us | Partially (exchange programs) |
-| PointsToken backing | Reported by us | Not currently |
-| Strategy execution | Operated by us | Not on-chain |
-| Orderbook matching | Operated by us | Settlement is on-chain |
-| Cross-chain deposits | Multisig + refund timeout | Refund timeout as safety valve |
-| Smart contracts | On-chain | Fully (code is on-chain) |
-
-Full analysis: [Trust Model & Security](/deep-dives/trust-model-and-security)
-
----
-
-## Document Index
-
-| # | Document | Level | What it covers |
-|---|---|---|---|
-| 1 | [What is ArcX?](/learn/protocol-overview) | Beginner | The protocol in one page: splitting, three tokens, two user paths |
-| 2 | [Strategy Token](/learn/strategy-token) | Intermediate | ST: share pricing, discounts, yield seeker returns |
-| 3 | [Expected Points Token](/learn/expected-points-token) | Intermediate | EPT: credit accrual, orderbook trading |
-| 4 | [PointsToken](/learn/points-token) | Intermediate | Tokenized exchange points, TGE redemption |
-| 5 | [Epoch Lifecycle](/learn/epoch-lifecycle) | Intermediate | Epoch states, deposits, finalization |
-| 6 | [User Guide](/learn/user-guide) | Beginner | Step-by-step: deposit, trade, redeem |
-| 7 | [ArcX vs Pendle](/learn/pendle-comparison) | Intermediate | Side-by-side concept mapping for Pendle users |
-| 8 | [Credit Mathematics](/deep-dives/credit-mathematics) | Advanced | Credit formulas, worked examples, fairness properties |
-| 9 | [EPT Pricing](/deep-dives/ept-pricing) | Advanced | EPT cost derivation, ST discount dynamics |
-| 10 | [Trust Model & Security](/deep-dives/trust-model-and-security) | Intermediate | Trust assumptions, protections, decentralization roadmap |
-| 11 | [Bluechip Funding Arb](/strategies/bluechip-funding-arb) | Intermediate | Delta-neutral funding rate strategy, dual-leg OI |
-| 12 | [Long Bitcoin](/strategies/long-bitcoin) | Intermediate | Directional long BTC, points-subsidized holding |
-| 13 | **You are here** | All | Every term and equation defined |
