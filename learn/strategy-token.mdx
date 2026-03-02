@@ -22,11 +22,11 @@ $$\text{NAV} = \frac{\text{Total Vault Value}}{\text{Total Shares}}$$
 
 $$\text{Your Shares} = \frac{\text{Deposit Amount}}{\text{NAV}}$$
 
-A small fee (varies by strategy) is deducted from your deposit before shares are calculated.
+A small fee (varies by strategy) is deducted from your deposit before shares are calculated. This fee covers the costs of deploying capital into the strategy: exchange fees, spreads, and bridging.
 
-**Example:** You deposit \$100 into a strategy with NAV = \$1.00. After the deposit fee, you receive slightly fewer than 100 ST shares.
+**Example:** You deposit \$100 into a strategy with NAV = 1.00. After the deposit fee, you receive slightly fewer than 100 ST shares.
 
-If NAV had already risen to \$1.03 (strategy up 3%), that same deposit nets you fewer shares. You are buying in at a higher price per share, but each share is backed by more USDC.
+If NAV had already risen to 1.03 (strategy up 3%), that same deposit nets you fewer shares. You are buying in at a higher price per share, but each share is backed by more USDC.
 
 ---
 
@@ -46,11 +46,11 @@ The discount exists because points farmers who acquire ST through minting sell i
 |---|---|
 | ST purchase price | \$0.90 (10% discount to NAV) |
 | Strategy return over epoch | +1% |
-| NAV at finalization | \$1.01 |
-| Redemption value per ST | \$1.01 |
+| NAV at finalization | 1.01 |
+| Redemption value per ST | 1.01 |
 | **Your return** | **\$0.11 per ST (12.2%)** |
 
-You paid \$0.90, redeemed for \$1.01. The return is the discount capture (\$0.10) plus the strategy's performance (\$0.01).
+You paid \$0.90, redeemed at NAV 1.01. The return is the discount capture (\$0.10) plus the strategy's performance (\$0.01).
 
 ---
 
@@ -76,7 +76,7 @@ The orderbook price reflects the market's view of the strategy's NAV, adjusted f
 
 Negative strategy PnL is not a failure mode. It's the inherent bet ST holders make. The discount you buy at is your buffer.
 
-**Example:** You buy ST on the orderbook at \$0.90 (10% discount). The strategy loses 5% over the epoch. Final NAV = \$0.95. You redeem at \$0.95, still a \$0.05 profit per ST (5.6% return) because your discount absorbed the loss.
+**Example:** You buy ST on the orderbook at \$0.90 (10% discount). The strategy loses 5% over the epoch. Final NAV = 0.95. You redeem at NAV 0.95, still a \$0.05 profit per ST (5.6% return) because your discount absorbed the loss.
 
 You only lose money if the strategy loses *more* than your discount. In this example, the strategy would need to lose more than 10% before you're underwater. That's the trade-off: the deeper the discount you demand, the larger the loss buffer you have.
 

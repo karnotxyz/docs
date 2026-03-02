@@ -13,21 +13,20 @@ icon: "scale-balanced"
 | Pendle | ArcX | Key Difference |
 |---|---|---|
 | **PT** (Principal Token) | **ST** (Strategy Token) | Both represent a claim on principal. ST also includes strategy PnL, so redemption value depends on performance. |
-| **YT** (Yield Token) | **EPT** (Expected Points Token) | YT streams yield continuously. EPT accrues credits for a points claim at epoch finalization. |
-| **SY** (Standardized Yield) | Strategy Vault | Pendle wraps on-chain yield-bearing assets. We wrap off-chain perp DEX trading strategies. |
-| Pendle AMM (logit curve) | EPT/USDC + ST/USDC Orderbooks | AMM with time-decay curve vs two separate limit order books with cross-matching. |
-| Flash swap (leveraged YT) | N/A | Pendle has atomic flash swaps for leveraged exposure. We have standard orderbook buying. |
-| YT decays to \$0 at maturity | EPT converts to PointsTokens at finalization | YT has zero terminal value. EPT retains value tied to eventual TGE. |
-| Yield streaming | Credit accrual | YT holders receive SY in real-time. EPT holders accumulate credits, claim PointsTokens after finalization. |
+| **YT** (Yield Token) | **EPT** (Expected Points Token) | Both accrue value over the epoch and decay to $0 at maturity/finalization. YT accrues yield, EPT accrues credits for a points claim. |
+| **SY** (Standardized Yield) | **ST** (Strategy Token) | Pendle wraps on-chain yield-bearing assets into SY. We wrap off-chain perp DEX trading strategies. In both cases, the "principal token" is the wrapper. |
+| Pendle AMM (PT <> SY) + orderbook | EPT/USDC + ST/USDC Orderbooks | Pendle has one AMM underlying PT <> SY. We have two separate limit order books with cross-matching. |
 | Two-way arbitrage (mint + redeem) | One-way arbitrage (mint only) | Pendle has tighter pricing corridors because both directions are enforceable. We have no early redemption. |
 
 ---
 
-## The Big Difference: Terminal Value
+## The Big Difference: Market Structure
 
-Pendle YT goes to \$0 at maturity — all yield has already been streamed. ArcX EPT converts to PointsTokens at finalization, which represent a claim on actual exchange points with TGE-dependent upside. EPT does not decay to zero.
+Pendle routes everything through a single AMM between PT and SY. ArcX runs two separate orderbooks (EPT/USDC and ST/USDC) connected by a cross-matching engine that mints new tokens when buy-side prices align.
 
-Everything else — token splitting, minting parity, two-sided markets — is structurally the same. Pendle: PT + YT = Underlying. ArcX: (1/R) ST + 1 EPT = \$1 deposited.
+Both systems split deposits into a principal claim and a yield/points claim. Both have the same minting parity. Pendle: PT + YT = Underlying. ArcX: (1/R) ST + 1 EPT = $1 deposited.
+
+The other key difference: Pendle wraps on-chain yield-bearing assets. We run our own off-chain perp DEX trading strategies. Pendle doesn't execute strategies — it tokenizes existing yield sources. We execute the strategies ourselves and tokenize the outputs.
 
 ---
 
@@ -35,11 +34,9 @@ Everything else — token splitting, minting parity, two-sided markets — is st
 
 | If you want to... | Pendle | ArcX |
 |---|---|---|
-| Earn fixed yield on a yield-bearing asset | Buy PT at a discount | Not the primary use case |
-| Get leveraged yield exposure | Buy YT | Not applicable |
+| Earn fixed yield on a yield-bearing asset | Buy PT at a discount | Buy ST at a discount |
+| Get leveraged yield/points exposure | Buy YT | Buy EPT on the orderbook |
 | Get leveraged pre-TGE points exposure | Indirect (YT on point-earning assets) | Buy EPT on the orderbook |
-| Separate strategy PnL from points | Not possible | Deposit, sell ST or EPT |
-| Buy discounted strategy exposure | Buy PT for fixed yield | Buy ST below NAV |
-| Use a fully on-chain system | Pendle | We wrap off-chain strategies |
+| Separate strategy PnL from points | Not possible | Buy ST or EPT independently |
 
 Pendle is built for on-chain yield optimization. We are built for perp DEX strategy outcomes: PnL and pre-TGE points. You could reasonably use both.

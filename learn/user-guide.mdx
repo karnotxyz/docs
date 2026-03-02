@@ -40,7 +40,7 @@ We have two orderbooks, **EPT/USDC** and **ST/USDC**, one for each token. Everyt
         Navigate to the ST/USDC orderbook for the strategy you want. Check the current NAV on the strategy dashboard.
       </Step>
       <Step title="Place a buy order for ST at a discount">
-        Buy ST below the current NAV. For example, if NAV is \$1.00, place a buy at \$0.90, a 10% discount. Your \$100 buys about 111 ST.
+        Buy ST below the current NAV. For example, if NAV is 1.00, place a buy at \$0.90, a 10% discount. Your \$100 buys about 111 ST.
       </Step>
       <Step title="Order is matched">
         Your order fills through one of two paths:
@@ -50,7 +50,7 @@ We have two orderbooks, **EPT/USDC** and **ST/USDC**, one for each token. Everyt
         ST lands in your wallet.
       </Step>
       <Step title="Hold ST during the epoch">
-        Your ST tracks the strategy's NAV. If the strategy earns 1% over the epoch, NAV rises to approximately \$1.01. Monitor performance on the ArcX dashboard.
+        Your ST tracks the strategy's NAV. If the strategy earns 1% over the epoch, NAV rises to approximately 1.01. Monitor performance on the ArcX dashboard.
       </Step>
       <Step title="Redeem ST after finalization">
         Once the epoch is finalized, go to the redemption page and redeem your ST for USDC at the final NAV. Your return is the gap between your purchase price and the redemption value. See [Strategy Token](/learn/strategy-token#yield-seekers-buy-the-discount) for worked examples.
@@ -95,24 +95,9 @@ Direct minting is useful when orderbook spreads are wide, or when you want expos
 
 ---
 
-## Cross-Chain Deposits
+## Getting Started
 
-You can deposit USDC from Ethereum, Arbitrum, Solana, and other supported chains without bridging manually.
-
-<Steps>
-  <Step title="Connect your source chain wallet">
-    Connect your EVM or Solana wallet on the ArcX cross-chain deposit page.
-  </Step>
-  <Step title="Enter your Starknet address and deposit amount">
-    Specify the Starknet wallet that should receive the tokens, and enter your USDC amount.
-  </Step>
-  <Step title="Confirm the transaction">
-    Your USDC is held in escrow on the source chain. A cross-chain message delivers the deposit to Starknet.
-  </Step>
-  <Step title="Tokens arrive on Starknet">
-    Your tokens are minted on Starknet and delivered to your wallet. If the message never arrives, you can cancel after the timeout period and get your USDC refunded on the source chain.
-  </Step>
-</Steps>
+ArcX uses an embedded wallet. Fund your wallet with USDC and you are ready to trade on the orderbooks or deposit into strategies.
 
 ---
 
@@ -123,13 +108,13 @@ When an epoch reaches the **FINALIZED** state, final NAV and total points are lo
 ### ST Holders: Redeem for USDC
 
 <Steps>
-  <Step title="Go to the redemption page">
+  <Step title="Go to your portfolio page">
     Select the finalized epoch.
   </Step>
-  <Step title="Enter the amount of ST to redeem">
-    You can redeem all or part of your ST balance.
+  <Step title="Redeem your ST">
+    Your full ST balance is redeemed.
   </Step>
-  <Step title="Confirm and receive USDC">
+  <Step title="Receive USDC">
     Your ST is burned and you receive USDC at the final NAV.
   </Step>
 </Steps>
@@ -147,16 +132,16 @@ When an epoch reaches the **FINALIZED** state, final NAV and total points are lo
 
 ### What to Do with PointsTokens
 
-PointsTokens represent actual exchange points. Hold them until the exchange conducts its TGE, then burn your PointsTokens to receive airdrop tokens. Airdrops may arrive in multiple tranches. You can redeem incrementally as each tranche is distributed.
+PointsTokens represent actual exchange points. Hold them until the exchange conducts its TGE, then burn your PointsTokens to receive airdrop tokens.
 
 ---
 
 ## Quick Reference
 
-| Action | <Badge color="green">ACTIVE</Badge> | <Badge color="orange">MATURITY</Badge> | <Badge color="red">FINALIZED</Badge> |
+| Action | <Badge color="green">ACTIVE</Badge> | <Badge color="orange">SETTLING</Badge> | <Badge color="red">FINALIZED</Badge> |
 |---|---|---|---|
-| Buy/sell EPT on orderbook | Yes | Yes | No |
-| Buy/sell ST on orderbook | Yes | Yes | No |
+| Buy/sell EPT on orderbook | Yes | Secondary only | No |
+| Buy/sell ST on orderbook | Yes | Secondary only | No |
 | Direct mint (deposit USDC) | Yes | No | No |
 | Credits accruing on EPT | Yes | No | No |
 | Redeem ST for USDC | No | No | **Yes** |

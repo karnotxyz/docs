@@ -27,7 +27,7 @@ We split the output of a perp trading strategy into two tokens, **ST** (claim on
   <Card title="Yield Seeker" icon="vault">
     You want predictable USDC returns with no points risk.
 
-    Points farmers are buying EPT, which pushes ST prices down. You buy ST on the ST/USDC orderbook at \$0.90, a 10% discount to NAV. The strategy earns 1% over the epoch, so NAV rises to \$1.01. You redeem at \$1.01.
+    Points farmers are buying EPT, which pushes ST prices down. You buy ST on the ST/USDC orderbook at \$0.90, a 10% discount to NAV. The strategy earns 1% over the epoch, so NAV rises to 1.01. You redeem at NAV 1.01.
 
     $$\text{Return} = \frac{1.01 - 0.90}{0.90} \approx 12.2\%\text{ per epoch}$$
 
@@ -79,7 +79,7 @@ The fair value of EPT is derived from the ST price:
 
 $$\text{EPT}_{\text{fair}} = 1 - \frac{X}{R}$$
 
-where $X$ is the ST market price and $R$ is the current NAV. As the epoch progresses, EPT price tends to decay. EPT is an expiring claim on remaining points, and the market prices it accordingly.
+where $X$ is the ST market price and $R$ is the current NAV. This is the fair price from minting parity. The actual market price is set by supply and demand — arbitrageurs bring it close to fair, but the market has the final say. As the epoch progresses, EPT price tends to decay because fewer credits remain to be earned.
 
 ### Credits and Points
 
@@ -93,7 +93,7 @@ $$\text{your points} = \frac{\text{your credits}}{\text{total credits}} \times \
 
 ## Direct Minting
 
-Instead of buying on the orderbook, you can deposit USDC directly into a strategy. You receive both $\frac{1}{R}$ ST and 1 EPT per USDC deposited, minus a small fee (varies by strategy). This is useful if you want exposure to both tokens, but most users will prefer buying the specific token they want on the orderbook.
+Instead of buying on the orderbook, you can deposit USDC directly into a strategy. You receive both $\frac{1}{R}$ ST and 1 EPT per USDC deposited, minus a small fee (varies by strategy) that covers deployment costs (exchange fees, spreads, bridging). This is useful if you want exposure to both tokens, but most users will prefer buying the specific token they want on the orderbook.
 
 ---
 
@@ -107,10 +107,10 @@ Each strategy runs in fixed epochs (typically 8-12 weeks) that progress through 
 
     Orderbooks are open. Credits accrue. The strategy is running.
   </Step>
-  <Step title="Maturity">
-    <Badge color="orange">MATURITY</Badge>
+  <Step title="Settling">
+    <Badge color="orange">SETTLING</Badge>
 
-    Strategy unwinds. No new deposits. Orderbooks remain open.
+    Strategy unwinds. No new deposits. Orderbooks open for secondary trades only (no new minting).
   </Step>
   <Step title="Finalized">
     <Badge color="red">FINALIZED</Badge>
@@ -119,7 +119,7 @@ Each strategy runs in fixed epochs (typically 8-12 weeks) that progress through 
   </Step>
 </Steps>
 
-Epochs are independent. There is no automatic rollover. See [Epoch Lifecycle](/learn/epoch-lifecycle) for details.
+Epochs are independent. There is no automatic rollover. It is up to the protocol to decide whether to start a new epoch for a strategy. See [Epoch Lifecycle](/learn/epoch-lifecycle) for details.
 
 ---
 

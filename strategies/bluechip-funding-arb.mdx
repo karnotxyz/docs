@@ -8,7 +8,7 @@ icon: "scale-balanced"
 
 Bluechip Funding Arb captures funding rate spreads between supported perp DEXes. The strategy goes long on one exchange and short on the same asset on another exchange, collecting the difference in funding payments. The net position is delta-neutral: the strategy has no directional exposure to the underlying asset.
 
-When funding rates diverge across exchanges, one side pays and the other receives. The strategy sits on the receiving side of both legs by choosing which exchange to be long and which to be short. As rates shift, the strategy rebalances to stay on the profitable side of each spread.
+When funding rates diverge across exchanges, one side pays and the other receives. The strategy aims to be on the net-receiving side by choosing which exchange to be long and which to be short. As rates shift, the strategy rebalances to capture the spread. In most conditions the strategy collects more in funding than it pays, though this is not guaranteed at every interval.
 
 **Example.** BTC-PERP funding is +0.01% on Exchange A and -0.005% on Exchange B. The strategy shorts on A (collects 0.01%) and longs on B (collects 0.005%). The spread: 0.015% per funding interval, earned on the full notional. No BTC price risk.
 
@@ -18,9 +18,9 @@ When funding rates diverge across exchanges, one side pays and the other receive
 
 Each supported perp DEX awards points based on <Tooltip tip="The total notional value of outstanding perpetual contract positions. More OI means more exchange points earned.">open interest</Tooltip>. Because this strategy holds positions on multiple exchanges simultaneously, it generates points on every exchange where it has OI.
 
-A funding arb position requires two legs, long and short, on two different exchanges. Both legs carry open interest. Both legs earn points. This means funding arb earns roughly twice the points per dollar of vault capital compared to a single-leg directional strategy.
+A funding arb position requires two legs, long and short, on two different exchanges. Both legs carry open interest. Both legs earn points. The vault's total capital is split across the two exchanges, so each leg carries roughly half the vault's notional in OI.
 
-The strategy's credit update amounts reflect aggregate OI across all exchanges. More capital in the vault means larger positions, more OI, and faster credit accrual for EPT holders.
+The strategy's credit update amounts are reported per EPT and reflect the strategy's aggregate activity across all exchanges.
 
 ---
 
@@ -41,7 +41,7 @@ EPT holders are buying a claim on the points this strategy generates. The key va
 
 ## What ST Holders Care About
 
-ST holders own a claim on the strategy's USDC value at maturity. For a funding arb strategy, the key variables:
+ST holders own a claim on the strategy's USDC value at finalization. For a funding arb strategy, the key variables:
 
 | Factor | Why It Matters |
 |---|---|
@@ -50,7 +50,7 @@ ST holders own a claim on the strategy's USDC value at maturity. For a funding a
 | **NAV trajectory** | A steadily rising NAV means consistent funding income. Flat or declining NAV signals unfavorable conditions. |
 | **ST discount** | Buying ST below NAV on the ST/USDC orderbook locks in a discount that becomes yield at redemption. |
 
-**Example.** You buy ST at \$0.92 on the orderbook. NAV is \$1.00. The strategy earns 2% over the epoch, so final NAV is \$1.02. You redeem at \$1.02. Your return: (\$1.02 - \$0.92) / \$0.92 = 10.9% for the epoch.
+**Example.** You buy ST at \$0.92 on the orderbook. NAV is 1.00. The strategy earns 2% over the epoch, so final NAV is 1.02. You redeem at NAV 1.02. Your return: (1.02 - 0.92) / 0.92 = 10.9% for the epoch.
 
 ---
 
@@ -62,7 +62,7 @@ Bluechip Funding Arb is a low-risk, delta-neutral strategy. The main risks:
 |---|---|
 | **Funding rate reversal** | The spread between exchanges compresses or inverts. The strategy may earn less than expected, or briefly pay net funding. This is the primary risk. |
 | **Exchange risk** | Positions are held on third-party perp DEXes. Smart contract risk, downtime, or liquidity issues on any exchange affect the strategy. |
-| **Settlement risk** | Cross-exchange settlement during epoch maturity may be delayed. Capital is returned during the 1-2 day unwind period. |
+| **Settlement risk** | Cross-exchange settlement during epoch finalization may be delayed. Redemption is typically available within a few hours after finalization, but may extend to 1-2 days depending on exchange settlement. |
 | **Rebalancing friction** | When the strategy rotates legs between exchanges, there may be brief periods of imperfect hedging or slippage costs. |
 
 The strategy does not have directional price exposure. BTC moving up or down does not directly affect PnL, because the long and short legs offset.

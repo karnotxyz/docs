@@ -1,6 +1,6 @@
 ---
 title: "Long Bitcoin"
-description: "Directional long BTC through perpetual contracts. Points subsidize holding costs, making this the cheapest place to go long."
+description: "Directional 1x long BTC through perpetual contracts. Sell the EPT to subsidize your holding cost."
 icon: "bitcoin-sign"
 ---
 
@@ -14,34 +14,30 @@ This is a directional strategy. No hedging, no second leg, no delta-neutral stru
 
 ## How It Earns Points
 
-The long BTC position carries <Tooltip tip="The total notional value of outstanding perpetual contract positions. More OI means more exchange points earned.">open interest</Tooltip> on the exchange where it is held. That open interest generates exchange points over time. Because this is a single-leg strategy (long only, on one exchange), it earns fewer points per dollar of vault capital compared to a two-leg strategy like funding arb.
+The long BTC position carries <Tooltip tip="The total notional value of outstanding perpetual contract positions. More OI means more exchange points earned.">open interest</Tooltip> on the exchange where it is held. That open interest generates exchange points over time. This is a single-leg strategy (long only, on one exchange).
 
-The credits-per-update amount reflects the strategy's OI on the exchange. Larger vault size means a larger position, more OI, and faster credit accrual.
+The credits-per-update amount is reported per EPT and reflects the strategy's OI on the exchange.
 
 ---
 
-## The Pitch: Cheapest Place to Long BTC
+## The Pitch: Subsidized BTC Exposure
 
-If you are going to hold a long BTC position anyway, doing it through ArcX means you also earn exchange points. Those points have value. The net effect: your cost of holding a long BTC position is subsidized by points earnings.
+When you deposit into the Long Bitcoin vault, the protocol mints both ST and EPT. You can sell the EPT on the orderbook and recoup part of your deposit. The net effect: your cost of holding a long BTC position is subsidized by the EPT sale.
 
-**Example.** You deposit \$100 into the Long Bitcoin vault. The strategy opens a long BTC-PERP position. Over the epoch, BTC rises 5%, so your ST is worth \$105 at redemption. You also earned EPT that accrued credits throughout the epoch. If you sold that EPT on the EPT/USDC orderbook at deposit time for \$0.03, your effective entry was \$97 instead of \$100, a 3% subsidy on your long position.
-
-Alternatively, you keep both ST and EPT. You get the BTC upside through ST and the points exposure through EPT. The points are a bonus on top of your directional trade.
+**Example.** You deposit \$100 into the Long Bitcoin vault. You sell the 100 EPT on the EPT/USDC orderbook for \$0.03 each, recovering \$3. Your effective cost for the BTC exposure is \$97 instead of \$100 — a 3% subsidy on your long position. Over the epoch, BTC rises 5%, so your ST is worth \$105 at redemption.
 
 ---
 
 ## What EPT Holders Care About
 
-EPT on the Long Bitcoin strategy earns fewer credits per dollar than funding arb EPT, because there is only one position leg generating OI instead of two.
-
 | Factor | Why It Matters |
 |---|---|
-| **Open interest** | Single-leg OI means lower credits per update than a dual-leg strategy. |
-| **Points value at TGE** | If the exchange's points end up being highly valued, even lower-rate EPT can be worthwhile. |
-| **EPT price on orderbook** | Lower credits per update should mean lower EPT price. If the market prices this correctly, the return per dollar can still be attractive. |
-| **Epoch duration** | Same as any strategy: longer epochs and earlier entry mean more credits. |
+| **Open interest** | OI on the exchange drives credits per update. |
+| **Points value at TGE** | The eventual value of exchange points at TGE determines what your EPT is ultimately worth. |
+| **EPT price on orderbook** | The market prices EPT based on expected points value. The return depends on what you pay versus what you receive at TGE. |
+| **Epoch duration** | Longer epochs and earlier entry mean more credits. |
 
-EPT holders on this strategy are making a bet that the points from a single exchange's OI are worth more than what they paid for the EPT.
+EPT holders on this strategy are making a bet that the points from the exchange's OI are worth more than what they paid for the EPT.
 
 ---
 
@@ -56,24 +52,27 @@ ST on the Long Bitcoin strategy is a directional bet on BTC. This is different f
 | **Epoch duration** | Longer epochs mean more time for BTC to move. This cuts both ways. |
 | **Funding costs** | Holding a long perp position may cost funding if funding rates are positive. This drags on NAV over time. |
 
-**Example.** You buy ST at \$0.90 on the orderbook. BTC rises 8% over the epoch. Final NAV is approximately \$1.08. You redeem at \$1.08. Return: (\$1.08 - \$0.90) / \$0.90 = 20%. The 10% discount amplified your BTC exposure.
+**Example.** You buy ST at \$0.90 on the orderbook. BTC rises 8% over the epoch. Final NAV is approximately 1.08. You redeem at NAV 1.08. Return: (1.08 - 0.90) / 0.90 = 20%. The 10% discount amplified your BTC exposure.
 
-If BTC falls 8%, final NAV is approximately \$0.92. You redeem at \$0.92. Return: (\$0.92 - \$0.90) / \$0.90 = 2.2%. The discount saved you from a loss.
+If BTC falls 8%, final NAV is approximately 0.92. You redeem at NAV 0.92. Return: (0.92 - 0.90) / 0.90 = 2.2%. The discount saved you from a loss.
+
+We are exploring an option for ST holders to redeem for spot BTC at finalization instead of USDC, making this strategy function like a Bitcoin bond: buy discounted exposure now, receive BTC later.
 
 ---
 
 ## Risk Profile
 
-This is a directional strategy. The risk profile is different from delta-neutral strategies.
+This is a directional strategy with 1x leverage. The risk profile is different from delta-neutral strategies.
 
 | Risk | Description |
 |---|---|
-| **BTC price decline** | NAV falls when BTC falls. ST holders have full downside exposure, floored at \$0. |
+| **BTC price decline** | NAV falls when BTC falls. ST holders have full downside exposure. |
 | **Funding drag** | If funding rates are persistently positive, the strategy pays funding on its long position, reducing NAV over time even if BTC price is flat. |
-| **Exchange risk** | The position is held on a third-party perp DEX. Smart contract risk, downtime, or liquidation engine failures on the exchange affect the strategy. |
-| **Liquidation risk** | In extreme drawdowns, the position could approach liquidation. The strategy manages margin to prevent this, but tail risk exists. |
+| **Exchange risk** | The position is held on a third-party perp DEX. Smart contract risk, downtime, or exchange-level issues affect the strategy. |
 
-ST holders should treat this as leveraged BTC exposure with a known cost basis (their ST purchase price) and a fixed time horizon (the epoch duration).
+Because the strategy runs at 1x leverage (fully collateralized), there is no liquidation risk.
+
+ST holders should treat this as 1x BTC exposure with a known cost basis (their ST purchase price) and a fixed time horizon (the epoch duration).
 
 EPT holders are not exposed to BTC price risk. EPT value depends on points accrual, not strategy PnL.
 
