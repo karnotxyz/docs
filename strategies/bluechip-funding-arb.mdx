@@ -31,11 +31,11 @@ EPT holders are buying a claim on the points this strategy generates. The key va
 | Factor | Why It Matters |
 |---|---|
 | **Open interest levels** | More OI across exchanges means more points generated per unit of time. OI drives the credits-per-update amount. |
-| **Number of exchanges** | Each exchange where the strategy holds OI produces its own points stream. More exchanges, more EPT instances. |
+| **Number of exchanges** | More exchanges with OI means more points flowing into the single EPT. Dual-leg strategies earn from both sides. |
 | **Epoch duration** | Longer epochs (8-12 weeks) give more time to accumulate credits. Depositing early maximizes your credit share. |
 | **Expected points value** | The eventual value of exchange points at TGE determines what your EPT is ultimately worth. |
 
-**Example.** You spend \$100 buying EPT on the EPT/USDC orderbook at \$0.05. You receive 2,000 EPT. If a direct deposit costs \$1 per EPT, you have 20x leverage on points exposure. The strategy maintains OI on two exchanges, so credits accrue from both simultaneously.
+**Example.** You spend \$100 buying EPT on the EPT/USDC orderbook at \$0.05. You receive 2,000 EPT — 20x more than a direct deposit at this price. The implied APR depends on time remaining: the same price means higher APR later in the epoch. The strategy maintains OI on two exchanges, so points flow in from both simultaneously.
 
 ---
 
@@ -71,4 +71,4 @@ The strategy does not have directional price exposure. BTC moving up or down doe
 
 ## Exchanges
 
-This strategy operates across supported perp DEXes including Paradex, Hyperliquid, and Pacifica. Each exchange where the strategy holds open interest produces its own EPT instance and its own points stream.
+This strategy operates across supported perp DEXes including Paradex, Hyperliquid, and Pacifica. Points earned on all exchanges flow into a single EPT. At finalization, you claim separate PointsTokens for each exchange.

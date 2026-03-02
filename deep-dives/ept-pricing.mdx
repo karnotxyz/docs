@@ -58,6 +58,12 @@ EPT accrues credits while you hold it. As the epoch progresses, fewer credits re
 
 This is not mechanical decay imposed by a curve. It is the market correctly pricing a shrinking stream of future credits.
 
+### Leverage Is Not a Fixed Number
+
+When you buy EPT at \$0.05 instead of minting at \$1.00, you get 20x more EPT per dollar. But that "20x" means very different things depending on when you buy it. Early in the epoch, those 20x EPT accrue credits for weeks. Late in the epoch, the same 20x EPT accrue credits for days. The leverage ratio is the same, but the implied return (APR) is vastly different.
+
+This is why the UI shows both **APR** and **leverage** side by side. Changing one auto-updates the other. You can think in whichever frame is more intuitive, but APR captures the time dimension that a raw leverage number does not. Limit orders are placed in APR terms — the price adjusts automatically based on time remaining.
+
 ---
 
 ## Orderbook Price Dynamics
@@ -161,7 +167,7 @@ A points farmer places a buy order at \$0.08 per EPT.
 
 $$\frac{\$100}{\$0.08} = 1{,}250\text{ EPT}$$
 
-Compare this to a direct deposit: \$100 into the vault mints 100 ST and 100 EPT. Buying on the orderbook yields **12.5x more EPT** for the same capital. The leverage comes entirely from the price. No looping, no compounding, just buying EPT at its market price.
+Compare this to a direct deposit: \$100 into the vault mints 100 ST and 100 EPT. Buying on the orderbook yields **12.5x more EPT** for the same capital at this price. The leverage comes entirely from the price — no looping, no compounding. But remember: [leverage is not a fixed number](#leverage-is-not-a-fixed-number). The same 12.5x means different APR depending on time remaining.
 
 ### Yield Seeker: Buying ST on the Orderbook
 

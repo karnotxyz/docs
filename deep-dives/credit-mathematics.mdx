@@ -36,9 +36,9 @@ where $c_k$ is the credits-per-EPT published at update $k$, and $\text{balance}_
 
 ### What drives the credit amount per update?
 
-The credits per update reflect the strategy's actual activity on the underlying perp DEX during that interval. More open interest means the strategy is generating more exchange points, so a higher credit amount is published. When activity drops, credit amounts decrease accordingly.
+The credits per update reflect the strategy's actual activity on the underlying perp DEX during that interval. More open interest means the strategy is generating more exchange points, so a higher credit amount is published.
 
-This means credits are not just time-weighted. They are **time-and-activity-weighted**. Holding EPT during a period of high strategy activity earns more credits than holding during a quiet period.
+If the strategy is idle (market crash, technical issue, no open orders), credits continue to accrue for all holders. The reduced points from the idle period are socialized across everyone rather than penalizing holders who happened to hold during that window.
 
 ---
 

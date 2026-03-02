@@ -8,11 +8,11 @@ Want leveraged exposure to exchange points without running a trading strategy yo
 
 ## What Is EPT
 
-EPT is your claim on exchange points earned by a strategy during the epoch. Each epoch creates a new EPT per exchange per strategy. When you deposit USDC, you receive both ST and EPT. When the epoch finalizes, your EPT entitles you to a share of the total points earned, proportional to the credits you accrued. You then claim your points as <Tooltip tip="1:1 on-chain representation of exchange points. Persists across epochs. Burn for airdrop tokens after TGE." href="/learn/points-token">PointsTokens</Tooltip>.
+EPT is your claim on exchange points earned by a strategy during the epoch. Each epoch creates one EPT per strategy. When you deposit USDC, you receive both ST and EPT. When the epoch finalizes, your EPT entitles you to a share of the total points earned, proportional to the credits you accrued. You then claim your points as <Tooltip tip="1:1 on-chain representation of exchange points. Persists across epochs. Burn for airdrop tokens after TGE." href="/learn/points-token">PointsTokens</Tooltip>.
 
 EPT trades on the **EPT/USDC orderbook**. You can buy more EPT to increase your points exposure, or sell EPT if you only want the USDC yield from ST.
 
-If a strategy earns points on multiple exchanges, you receive a separate EPT for each.
+If a strategy earns points on multiple exchanges, your single EPT covers all of them. At finalization, you claim separate PointsTokens for each exchange.
 
 ---
 
@@ -49,7 +49,7 @@ Alice and Bob each hold 100 EPT in an epoch with 100 credit updates at a constan
 | Alice | Full epoch (100 updates) | 100,000 | 71.4% | 3,571 |
 | Bob | 40 updates (update 61 onward) | 40,000 | 28.6% | 1,429 |
 
-Alice earns more points because she held for 2.5x as long. The credit system weights **amount held times time held**. There is no bonus or multiplier for early entry. Accrual is linear.
+Alice earns more points because she held for 2.5x as long. The credit system weights **amount held times time held**.
 
 ---
 
@@ -62,7 +62,7 @@ Credits per EPT are not fixed. They adjust based on real strategy activity:
 | Funding arbitrage | Current open interest |
 | Market making | Trading volume throughput |
 
-If a strategy is idle for 3 weeks then active for 5 weeks, credit amounts are low during the idle period and high during the active period. This concentrates credit accrual during the windows when points are actually being generated on the exchange.
+If a strategy is idle for a period (market crash, technical issue), credits continue to accrue for all EPT holders. The reduced points from the idle period are shared across everyone rather than penalizing holders who happened to hold during that window. This means you will never get zero points for a period where you held EPT, even if the strategy had no open orders.
 
 For the full mathematical treatment, see [Credit Mathematics](/deep-dives/credit-mathematics).
 

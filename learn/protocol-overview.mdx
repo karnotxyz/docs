@@ -20,7 +20,7 @@ We split the output of a perp trading strategy into two tokens, **ST** (claim on
   <Card title="Points Farmer" icon="chart-line">
     You want points exposure without running a strategy yourself.
 
-    You place a buy order for EPT on the EPT/USDC orderbook at \$0.05. Your \$100 buys **2,000 EPT**. A direct deposit into the strategy would cost \$1 per EPT, so you've effectively gotten **20x leverage** on points exposure. You never touch ST. You never run a strategy. You just hold EPT, accrue credits, and claim PointsTokens after the epoch finalizes.
+    You place a buy order for EPT on the EPT/USDC orderbook at \$0.05. Your \$100 buys **2,000 EPT** — 20x more than a direct deposit. The effective leverage changes with time remaining in the epoch: the same price means higher APR later. You never touch ST. You never run a strategy. You just hold EPT, accrue credits, and claim PointsTokens after the epoch finalizes.
 
     **Exit:** Sell your EPT on the orderbook at any time.
   </Card>
@@ -130,4 +130,4 @@ We launch with strategies on supported perp DEXes (Paradex, Hyperliquid, Pacific
 - **Bluechip Funding Arbitrage**: captures funding rate spreads across major pairs
 - **Long Bitcoin**: directional BTC exposure through perpetual contracts
 
-Each strategy has its own vault, its own ST, and mints EPT for each exchange where it earns points.
+Each strategy has its own vault, its own ST, and one EPT that covers all exchanges where it earns points.

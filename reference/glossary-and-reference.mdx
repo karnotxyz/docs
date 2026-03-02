@@ -9,7 +9,7 @@ icon: "book"
 | Token | Scope | Tradeable | Redeemable for | Expiry |
 |---|---|---|---|---|
 | **ST** | Per epoch, per strategy | Yes (ST/USDC orderbook) | USDC (after finalization) | End of epoch |
-| **EPT** | Per epoch, per exchange, per strategy | Yes (EPT/USDC orderbook) | PointsTokens (after finalization) | End of epoch |
+| **EPT** | Per epoch, per strategy | Yes (EPT/USDC orderbook) | PointsTokens (after finalization) | End of epoch |
 | **PointsToken** | Per exchange (persists across epochs) | Yes | Airdrop tokens (after TGE) | None |
 
 ### Naming Convention
@@ -17,7 +17,7 @@ icon: "book"
 | Token | Pattern | Example |
 |---|---|---|
 | ST | ST-{Strategy}-E{epoch} | ST-FundingArb-E007 |
-| EPT | EPT-{Exchange}-E{epoch} | EPT-Paradex-E007 |
+| EPT | EPT-{Strategy}-E{epoch} | EPT-FundingArb-E007 |
 | PointsToken | x{Exchange} | xPX, xHL, xPC |
 
 ---
