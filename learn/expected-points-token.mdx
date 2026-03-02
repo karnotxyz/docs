@@ -30,30 +30,30 @@ The key rules:
 - **Fresh start on acquisition.** Whether you mint new EPT or buy it on the orderbook, your credit counter for those tokens starts from the current credit index. The seller's accumulated credits stay with the seller.
 - **No transfer of credits.** When EPT changes hands, the seller keeps all credits earned up to that point. The buyer begins accruing from their moment of acquisition.
 
-This means earlier holders accumulate more credits per EPT than later holders, all else being equal.
+Because points are distributed weekly, earlier holders benefit from weeks when fewer people hold EPT and the credit pool is smaller. Those early weeks are locked in — later entrants cannot dilute them.
 
 ---
 
 ## How Credits Determine Your Points
 
-At finalization, the total points earned by the strategy are reported. Your share is:
+Points are distributed **weekly**, not as a single lump sum at epoch end. Each week's points are split among that week's credit holders:
 
-$$\text{your\_points} = \frac{\text{your\_credits}}{\text{total\_credits}} \times \text{total\_points}$$
+$$\text{your\_points} = \sum_{w} \frac{\text{your\_credits}_w}{\text{total\_credits}_w} \times \text{points}_w$$
 
-Everyone's credits are summed into the denominator. Your fraction of that sum determines your fraction of the points.
+This means early holders benefit. In early weeks when fewer people hold EPT, the denominator is smaller and each holder gets a larger share of that week's points. Once those early weeks are locked in, later entrants cannot dilute them.
 
 ---
 
 ## Worked Example
 
-Alice and Bob each hold 100 EPT in an epoch with 100 credit updates at a constant rate of 10 credits per EPT per update. Alice holds from the start. Bob buys on the orderbook at update 61 (his credits start from zero at purchase). Total points for the epoch: 5,000.
+10-week epoch. Strategy earns 500 points per week (5,000 total). Alice holds 100 EPT from week 1. Bob buys 100 EPT at week 7.
 
-| | Holding period | Credits accrued | Share of total | Points (of 5,000) |
+| | Weeks held | Early weeks (1-6) | Late weeks (7-10) | Total points |
 |---|---|---|---|---|
-| Alice | Full epoch (100 updates) | 100,000 | 71.4% | 3,571 |
-| Bob | 40 updates (update 61 onward) | 40,000 | 28.6% | 1,429 |
+| Alice | All 10 | 3,000 (sole holder) | 1,000 (50% share) | **4,000 (80%)** |
+| Bob | 4 | 0 | 1,000 (50% share) | **1,000 (20%)** |
 
-Alice earns more points because she held for 2.5x as long. The credit system weights **amount held times time held**.
+Alice earns 80% of total points — more than the 71.4% she would get under a single epoch-end distribution. The weekly structure rewards her for being early: she was the sole credit holder in weeks 1-6, so she captured 100% of those weeks' points.
 
 ---
 

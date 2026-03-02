@@ -4,7 +4,7 @@ description: "How the credit system distributes points fairly across EPT holders
 icon: "calculator"
 ---
 
-Credits determine your share of points at the end of an epoch. This page explains exactly how they accumulate.
+Credits determine your share of points. Points are distributed weekly, not as a single lump sum at epoch end. This page explains exactly how credits accumulate and how weekly distribution rewards early holders.
 
 **Prerequisites:** [Protocol Overview](/learn/protocol-overview), [Expected Points Token](/learn/expected-points-token)
 
@@ -54,107 +54,90 @@ This is essential for fairness. Without the fresh-start rule, an attacker could 
 
 ---
 
-## Points Distribution at Finalization
+## Weekly Points Distribution
 
-At epoch finalization, the **total points** earned by the strategy during the epoch are reported on-chain. Each holder's share is a simple pro-rata calculation:
+Points are not distributed as a single lump sum at epoch end. Instead, each week's points are distributed separately among that week's credit holders:
 
 $$
-\text{yourPoints} = \frac{\text{yourCredits}}{\text{totalCredits}} \times \text{totalPoints}
+\text{yourPoints} = \sum_{w=1}^{W} \frac{\text{yourCredits}_w}{\text{totalCredits}_w} \times \text{points}_w
 $$
 
-Your credit fraction of the total equals your point fraction of the total.
+where $W$ is the number of weeks in the epoch, $\text{yourCredits}_w$ is your credits accrued during week $w$, $\text{totalCredits}_w$ is the sum of all holders' credits for that week, and $\text{points}_w$ is the points earned by the strategy during that week.
+
+### Why Weekly Matters
+
+Weekly distribution rewards early holders. When the platform is new and few people hold EPT, the denominator ($\text{totalCredits}_w$) is small. Early holders get a larger share of those early weeks' points. As more holders join in later weeks, the denominator grows and each holder's share of that week's points shrinks — but the early weeks are already locked in.
+
+This is the core early-mover advantage. If you wait until the platform is "hyped" and everyone holds EPT, you only participate in weeks with a large denominator. The early weeks — when points were split among fewer holders — are gone.
 
 ---
 
 ## Worked Examples
 
 <Tabs>
-  <Tab title="Two Holders, Different Entry" icon="users">
-    **Setup:** 100 updates at 10 credits/EPT/update. Total points: 5,000.
-    - Alice holds 100 EPT from the start (present for all 100 updates)
-    - Bob buys 100 EPT at update 61 (present for 40 updates)
+  <Tab title="Early-Holder Advantage" icon="users">
+    **Setup:** 10-week epoch. Strategy earns 500 points per week (5,000 total).
+    - Alice holds 100 EPT from week 1
+    - Bob buys 100 EPT at week 7
 
-    **Credits:**
+    **Weekly distribution:**
 
-    $$
-    \text{Alice} = 100 \times 10 \times 100 = 100{,}000
-    $$
-
-    $$
-    \text{Bob} = 100 \times 10 \times 40 = 40{,}000
-    $$
-
-    $$
-    \text{Total} = 140{,}000
-    $$
+    | Week | Alice credits | Bob credits | Total credits | Alice's share | Bob's share |
+    |------|-------------|------------|--------------|--------------|------------|
+    | 1-6  | 100 each week | 0 | 100 | 100% | 0% |
+    | 7-10 | 100 each week | 100 each week | 200 | 50% | 50% |
 
     **Points:**
 
-    | Holder | Credits | Share | Points |
-    |--------|---------|-------|--------|
-    | Alice  | 100,000 | 71.4% | 3,571  |
-    | Bob    | 40,000  | 28.6% | 1,429  |
+    | Holder | Weeks 1-6 | Weeks 7-10 | Total | Share |
+    |--------|-----------|------------|-------|-------|
+    | Alice  | 3,000 (100%) | 1,000 (50%) | **4,000** | **80%** |
+    | Bob    | 0 | 1,000 (50%) | **1,000** | **20%** |
 
-    Alice held the same amount of EPT as Bob, but for 2.5x as long. She gets 2.5x the credits and 2.5x the points.
+    Alice gets 80% of total points even though Bob held the same amount of EPT for 40% of the epoch. Without weekly distribution (single epoch-end calculation), Alice would get only 71.4%. The early weeks — when Alice was the sole holder — are locked in at 100%.
   </Tab>
 
-  <Tab title="Variable Credit Amounts" icon="chart-mixed">
-    **Setup:** 100 updates total. Total points: 5,000.
-    - First 50 updates: 20 credits/EPT/update (high activity period)
-    - Last 50 updates: 5 credits/EPT/update (low activity period)
-    - Alice holds 100 EPT from the start (full epoch)
-    - Bob buys 100 EPT at update 51 (second half only)
+  <Tab title="Underhyped Platform" icon="chart-mixed">
+    **Setup:** 10-week epoch. Strategy earns 500 points per week (5,000 total).
+    - Alice holds 100 EPT from week 1
+    - 9 other holders each buy 100 EPT at week 6 (platform gets popular)
 
-    **Credits:**
+    **Weekly distribution:**
 
-    $$
-    \text{Alice} = (100 \times 20 \times 50) + (100 \times 5 \times 50) = 100{,}000 + 25{,}000 = 125{,}000
-    $$
-
-    $$
-    \text{Bob} = 100 \times 5 \times 50 = 25{,}000
-    $$
-
-    $$
-    \text{Total} = 150{,}000
-    $$
+    | Period | Alice credits | Others (total) | Alice's share of that period |
+    |--------|-------------|---------------|---------------------------|
+    | Weeks 1-5 | 100 | 0 | 100% |
+    | Weeks 6-10 | 100 | 900 | 10% |
 
     **Points:**
 
-    | Holder | Credits | Share | Points |
-    |--------|---------|-------|--------|
-    | Alice  | 125,000 | 83.3% | 4,167  |
-    | Bob    | 25,000  | 16.7% | 833    |
+    | Holder | Points |
+    |--------|--------|
+    | Alice  | 2,500 (weeks 1-5 at 100%) + 250 (weeks 6-10 at 10%) = **2,750** |
+    | Each of 9 others | 250 each |
 
-    Compare to constant credit amounts (previous tab): Alice got 71.4% there vs 83.3% here. With variable credit amounts, Alice is rewarded more because she held EPT during the high-activity period when the strategy was generating most of its points. Bob only held during the quiet period.
+    Alice earns **55%** of all points despite holding only 10% of total EPT from week 6 onward. She captured the "underhyped" weeks when the platform had low participation. The 9 latecomers split the remaining 45% among themselves.
   </Tab>
 
   <Tab title="Last-Second Attack" icon="clock">
-    **Setup:** 100 updates at 10 credits/EPT/update. Total points: 5,000.
-    - Alice holds 100 EPT for all 100 updates
-    - Eve buys 100 EPT at update 100 (the final update)
+    **Setup:** 10-week epoch. Strategy earns 500 points per week (5,000 total).
+    - Alice holds 100 EPT for all 10 weeks
+    - Eve buys 100 EPT in the final week
 
-    **Credits:**
+    **Weekly distribution:**
 
-    $$
-    \text{Alice} = 100 \times 10 \times 100 = 100{,}000
-    $$
-
-    $$
-    \text{Eve} = 100 \times 10 \times 1 = 1{,}000
-    $$
-
-    $$
-    \text{Total} = 101{,}000
-    $$
+    | Period | Alice | Eve | Alice's share |
+    |--------|-------|-----|--------------|
+    | Weeks 1-9 | 100 credits | 0 | 100% |
+    | Week 10 | 100 credits | 100 credits | 50% |
 
     **Points:**
 
-    | Holder | Credits | Share | Points |
-    |--------|---------|-------|--------|
-    | Alice  | 100,000 | 99.0% | 4,950  |
-    | Eve    | 1,000   | 1.0%  | 50     |
+    | Holder | Points | Share |
+    |--------|--------|-------|
+    | Alice  | 4,500 + 250 = **4,750** | **95%** |
+    | Eve    | 250 | **5%** |
 
-    Eve deposited the same dollar amount as Alice but accumulated credits for only 1 out of 100 updates. She receives 1% of points. The attack is economically neutralized.
+    Eve deposited the same dollar amount as Alice but only participates in 1 out of 10 weekly distributions. The attack is economically neutralized.
   </Tab>
 </Tabs>

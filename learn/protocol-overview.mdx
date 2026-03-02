@@ -85,9 +85,11 @@ where $X$ is the ST market price and $R$ is the current NAV. This is the fair pr
 
 EPT accrues **credits** over time. Credit amounts are based on the strategy's activity on the exchange. Credits start fresh on acquisition. A buyer starts from zero regardless of the token's history.
 
-At finalization:
+Points are distributed **weekly**. Each week's points are split among that week's credit holders:
 
-$$\text{your points} = \frac{\text{your credits}}{\text{total credits}} \times \text{total points}$$
+$$\text{your points} = \sum_{w} \frac{\text{your credits}_w}{\text{total credits}_w} \times \text{points}_w$$
+
+Early holders benefit: in weeks when fewer people hold EPT, each holder gets a larger share of that week's points.
 
 ---
 
