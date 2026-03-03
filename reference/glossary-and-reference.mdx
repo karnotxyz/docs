@@ -8,8 +8,8 @@ icon: "book"
 
 | Token | Scope | Tradeable | Redeemable for | Expiry |
 |---|---|---|---|---|
-| **ST** | Per epoch, per strategy | Yes (ST/USDC orderbook) | USDC (after finalization) | End of epoch |
-| **EPT** | Per epoch, per exchange, per strategy | Yes (EPT/USDC orderbook) | PointsTokens (after finalization) | End of epoch |
+| **ST** | Per epoch, per strategy | Yes (ST/USDC orderbook) | USDC (after maturity) | End of epoch |
+| **EPT** | Per epoch, per strategy | Yes (EPT/USDC orderbook) | PointsTokens (after maturity) | End of epoch |
 | **PointsToken** | Per exchange (persists across epochs) | Yes | Airdrop tokens (after TGE) | None |
 
 ### Naming Convention
@@ -17,7 +17,7 @@ icon: "book"
 | Token | Pattern | Example |
 |---|---|---|
 | ST | ST-{Strategy}-E{epoch} | ST-FundingArb-E007 |
-| EPT | EPT-{Exchange}-E{epoch} | EPT-Paradex-E007 |
+| EPT | EPT-{Strategy}-E{epoch} | EPT-FundingArb-E007 |
 | PointsToken | x{Exchange} | xPX, xHL, xPC |
 
 ---
@@ -29,7 +29,7 @@ icon: "book"
 | 1 USDC = (1/R) ST + 1 EPT | One dollar deposited produces this fixed combination of tokens |
 | NAV = vault value / total shares | Each ST share is worth the vault value divided by total shares |
 | shares = deposit amount / NAV | Shares minted depend on current per-share NAV |
-| your points = (your credits / total credits) x total points | Your fraction of credits equals your fraction of points |
+| your points = Σ (your credits_w / total credits_w) x points_w | Points distributed weekly — your share of each week's credits determines your share of that week's points |
 | EPT implied cost = 1 - X/R | The gap between \$1 and the value of ST from a \$1 deposit |
 
 ---
@@ -39,5 +39,5 @@ icon: "book"
 | State | Deposits | Credit Accrual | Orderbook Trading | Redemption |
 |---|---|---|---|---|
 | **ACTIVE** | Yes | Yes (credit updates) | Yes | No |
-| **MATURITY** | No | Stopped | Yes | No |
-| **FINALIZED** | No | Final credits settled | No | Yes |
+| **SETTLING** | No | Stopped | Secondary only | No |
+| **MATURED** | No | Final credits settled | No | Yes |

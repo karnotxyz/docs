@@ -1,6 +1,6 @@
 ---
 title: "Expected Points Token (EPT)"
-description: "Your claim on exchange points earned during the epoch. Trade on the EPT/USDC orderbook, accrue credits, claim PointsTokens after finalization."
+description: "Your claim on exchange points earned during the epoch. Trade on the EPT/USDC orderbook, accrue credits, claim PointsTokens after maturity."
 icon: "star"
 ---
 
@@ -8,11 +8,11 @@ Want leveraged exposure to exchange points without running a trading strategy yo
 
 ## What Is EPT
 
-EPT is your claim on exchange points earned by a strategy during the epoch. Each epoch creates a new EPT per exchange per strategy. When you deposit USDC, you receive both ST and EPT. When the epoch finalizes, your EPT entitles you to a share of the total points earned, proportional to the credits you accrued. You then claim your points as <Tooltip tip="1:1 on-chain representation of exchange points. Persists across epochs. Burn for airdrop tokens after TGE." href="/learn/points-token">PointsTokens</Tooltip>.
+EPT is your claim on exchange points earned by a strategy during the epoch. Each epoch creates one EPT per strategy. When you deposit USDC, you receive both ST and EPT. When the epoch matures, your EPT entitles you to a share of the total points earned, proportional to the credits you accrued. You then claim your points as <Tooltip tip="1:1 on-chain representation of exchange points. Persists across epochs. Burn for airdrop tokens after TGE." href="/learn/points-token">PointsTokens</Tooltip>.
 
 EPT trades on the **EPT/USDC orderbook**. You can buy more EPT to increase your points exposure, or sell EPT if you only want the USDC yield from ST.
 
-If a strategy earns points on multiple exchanges, you receive a separate EPT for each.
+If a strategy earns points on multiple exchanges, your single EPT covers all of them. At maturity, you claim separate PointsTokens for each exchange.
 
 ---
 
@@ -20,49 +20,57 @@ If a strategy earns points on multiple exchanges, you receive a separate EPT for
 
 Credits determine your share of points. The system periodically updates the **credits per EPT** based on the strategy's open interest and activity on the exchange.
 
-While you hold EPT, your credits accumulate based on these periodic updates. The key rules:
+While you hold EPT, your credits accumulate based on these periodic updates:
+
+$$\text{your credits} = \text{EPT balance} \times \text{credits per EPT per update} \times \text{number of updates held}$$
+
+The key rules:
 
 - **Credits are personal.** They belong to the holder, not the token.
-- **Fresh start on acquisition.** Whether you mint new EPT or buy it on the orderbook, your credit counter for those tokens starts from zero. The seller's accumulated credits stay with the seller.
+- **Fresh start on acquisition.** Whether you mint new EPT or buy it on the orderbook, your credit counter for those tokens starts from the current credit index. The seller's accumulated credits stay with the seller.
 - **No transfer of credits.** When EPT changes hands, the seller keeps all credits earned up to that point. The buyer begins accruing from their moment of acquisition.
 
-This means earlier holders accumulate more credits per EPT than later holders, all else being equal.
+Because points are distributed weekly, earlier holders benefit from weeks when fewer people hold EPT and the credit pool is smaller. Those early weeks are locked in — later entrants cannot dilute them.
 
 ---
 
 ## How Credits Determine Your Points
 
-At finalization, the total points earned by the strategy are reported. Your share is:
+Points are distributed **weekly**, not as a single lump sum at epoch end. Each week's points are split among that week's credit holders:
 
-$$\text{your\_points} = \frac{\text{your\_credits}}{\text{total\_credits}} \times \text{total\_points}$$
+$$\text{your\_points} = \sum_{w} \frac{\text{your\_credits}_w}{\text{total\_credits}_w} \times \text{points}_w$$
 
-Everyone's credits are summed into the denominator. Your fraction of that sum determines your fraction of the points.
+This means early holders benefit. In early weeks when fewer people hold EPT, the denominator is smaller and each holder gets a larger share of that week's points. Once those early weeks are locked in, later entrants cannot dilute them.
 
 ---
 
 ## Worked Example
 
-Alice and Bob each hold 100 EPT in an epoch with 100 credit updates at a constant rate of 10 credits per EPT per update. Alice holds from the start. Bob buys on the orderbook at update 61 (his credits start from zero at purchase). Total points for the epoch: 5,000.
+10-week epoch. Strategy earns 500 points per week (5,000 total). Alice holds 100 EPT from week 1. Bob buys 100 EPT at week 7.
 
-| | Holding period | Credits accrued | Share of total | Points (of 5,000) |
+| | Weeks held | Early weeks (1-6) | Late weeks (7-10) | Total points |
 |---|---|---|---|---|
-| Alice | Full epoch (100 updates) | 100,000 | 71.4% | 3,571 |
-| Bob | 40 updates (update 61 onward) | 40,000 | 28.6% | 1,429 |
+| Alice | All 10 | 3,000 (sole holder) | 1,000 (50% share) | **4,000 (80%)** |
+| Bob | 4 | 0 | 1,000 (50% share) | **1,000 (20%)** |
 
-Alice earns more points because she held for 2.5x as long. The credit system weights **amount held times time held**. There is no bonus or multiplier for early entry. Accrual is linear.
+Alice earns 80% of total points. The weekly structure rewards her for being early: she was the sole credit holder in weeks 1-6, so she captured 100% of those weeks' points.
+
+If points were distributed only once at epoch end, using total credits accumulated over the full epoch, Alice would get less.
+
+Assume a simplified model where each EPT earns exactly 1 credit per week:
+
+| | EPT held | Weeks held | End-of-epoch credits | Credit share | Points from 5,000 total |
+|---|---|---|---|---|---|
+| Alice | 100 | 10 | 1,000 | 1,000 / 1,400 = **71.4%** | **3,571.4** |
+| Bob | 100 | 4 | 400 | 400 / 1,400 = **28.6%** | **1,428.6** |
+
+Under this epoch-end method, Alice gets 71.4% instead of 80%. Weekly settlement preserves the advantage of holding earlier in the epoch.
 
 ---
 
 ## Why Credit Amounts Vary
 
-Credits per EPT are not fixed. They adjust based on real strategy activity:
-
-| Strategy type | Credit amount reflects |
-|---|---|
-| Funding arbitrage | Current open interest |
-| Market making | Trading volume throughput |
-
-If a strategy is idle for 3 weeks then active for 5 weeks, credit amounts are low during the idle period and high during the active period. This concentrates credit accrual during the windows when points are actually being generated on the exchange.
+Credits per EPT are not fixed. Amounts vary as we track strategy performance off-chain.
 
 For the full mathematical treatment, see [Credit Mathematics](/deep-dives/credit-mathematics).
 
@@ -78,11 +86,11 @@ Where:
 - **X** = ST market price on the ST/USDC orderbook
 - **R** = <Tooltip tip="Net Asset Value. The per-share USDC value of the strategy vault.">NAV</Tooltip> (net asset value per share)
 
-**Intuition:** A \$1 deposit creates both ST and EPT. If ST trades at \$0.92 and NAV is \$1.00, the implied EPT value from minting parity is \$0.08. On the orderbook, actual EPT prices are set by supply and demand between points farmers and sellers.
+**Intuition:** A \$1 deposit creates both ST and EPT. If ST trades at \$0.92 and NAV is 1.00, the implied EPT value from minting parity is \$0.08. On the orderbook, actual EPT prices are set by supply and demand — arbitrageurs bring them close to fair, but the market has the final say.
 
-### The Interest Rate Frame
+### The Returns Frame
 
-Rather than asking "is \$0.10 too much for an EPT?", think about the **implied return rate**. EPT decays in value over the epoch as time remaining decreases (fewer credits left to earn). The EPT price at any moment reflects the market's view of the remaining points value. Early in the epoch, the same EPT costs more because there are more credits left to accrue.
+Rather than asking "is \$0.10 too much for an EPT?", think about the **implied return**. EPT decays in value over the epoch as time remaining decreases (fewer credits left to earn). The EPT price at any moment reflects the market's view of the remaining points value. Early in the epoch, the same EPT costs more because there are more credits left to accrue.
 
 Full pricing analysis and decay mechanics are covered in [EPT Pricing](/deep-dives/ept-pricing).
 
@@ -90,6 +98,6 @@ Full pricing analysis and decay mechanics are covered in [EPT Pricing](/deep-div
 
 ## Claiming Points
 
-After the epoch finalizes, claim your share as [PointsTokens](/learn/points-token). Your allocation is based on your [credit share](#how-credits-determine-your-points). A small fee (varies by strategy) is deducted, and PointsTokens are minted to your wallet.
+After the epoch matures, claim your share as [PointsTokens](/learn/points-token). Your allocation is based on your [credit share](#how-credits-determine-your-points). PointsTokens are minted to your wallet.
 
 Each epoch produces a separate EPT. You claim from each epoch independently. Credits do not carry over between epochs.

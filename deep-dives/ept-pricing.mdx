@@ -1,6 +1,6 @@
 ---
 title: "EPT Pricing"
-description: "How EPT gets its value from minting parity, why the interest rate frame matters, and what drives prices on the EPT/USDC orderbook."
+description: "How EPT gets its value from minting parity, why the returns frame matters, and what drives prices on the EPT/USDC orderbook."
 icon: "chart-line"
 ---
 
@@ -18,15 +18,15 @@ Since the two tokens are co-minted, their prices are linked. If ST trades at pri
 
 $$\text{EPT}_{\text{fair}} = 1 - \frac{X}{R}$$
 
-**Intuition:** a \$1 deposit creates ST worth $X/R$ and 1 EPT. The EPT accounts for whatever value the ST does not. If ST trades at \$0.92 with NAV at \$1.00, then EPT fair value is \$0.08.
+**Intuition:** a \$1 deposit creates ST worth $X/R$ and 1 EPT. The EPT accounts for whatever value the ST does not. If ST trades at \$0.92 with NAV at 1.00, then EPT fair value is \$0.08.
 
 This isn't just a formula — cross-matching enforces it. Whenever an EPT buy and an ST buy appear at prices that sum to \$1 or more, the engine mints new tokens and fills both orders. That keeps the combined price from ever drifting above the minting cost.
 
 ---
 
-## Interest Rate Framing
+## Returns Framing
 
-The natural question when looking at EPT prices is "is \$0.08 too expensive?" The better question is: **what is the implied return rate?**
+The natural question when looking at EPT prices is "is \$0.08 too expensive?" The better question is: **what is the implied return?**
 
 EPT is a claim on future points. Its value depends on how many points you earn and what those points are worth at TGE. Instead of evaluating the absolute price, trace the full return.
 
@@ -38,25 +38,27 @@ You buy 100 EPT at \$0.05 each (\$5 total) during an 8-week epoch. Here's how th
 |---|---|
 | **Buy** | 100 EPT × \$0.05 = \$5 spent |
 | **Hold** | You accrue credits over the epoch. Your credit share works out to 50 points. |
-| **Claim** | Epoch finalizes. You claim 50 PointsTokens. |
+| **Claim** | Epoch matures. You claim 50 PointsTokens. |
 | **TGE** | Each point is worth \$0.20 at TGE. You burn 50 PointsTokens for \$10. |
 | **Return** | \$10 out on \$5 in = **100% return over 8 weeks** |
 
-That's the implied interest rate. It eliminates time decay as a concept and replaces it with one question: **what return am I getting on my EPT investment?**
+That's the implied return. It replaces guessing about time decay with one question: **what return am I getting on my EPT investment?**
 
-Now compare the same \$0.05 price at different points in the epoch:
+Now compare: if EPT is priced at \$0.05 with 8 weeks left, you earn credits for all 8 weeks. If EPT is still \$0.05 with only 2 weeks left, you earn credits for just 2 weeks. Same price, but 8 weeks gives you far more credits and therefore more points. The returns framing makes this obvious: \$0.05 with 8 weeks left is a better deal than \$0.05 with 2 weeks left.
 
-$$\text{Annualized (8 weeks left)} \approx \frac{100\%}{8} \times 52 = 650\%$$
-
-$$\text{Annualized (2 weeks left)} \approx \frac{100\%}{2} \times 52 = 2{,}600\%$$
-
-Same price, same expected payout, vastly different annualized rates. The interest rate frame makes this obvious. \$0.05 with 2 weeks left is a much better deal than \$0.05 with 8 weeks left.
+In practice, EPT price decays as the epoch progresses precisely because fewer credits remain. At 2 weeks left, the market prices EPT lower to reflect the reduced earning window.
 
 ### Why EPT Price Falls Over the Epoch
 
 EPT accrues credits while you hold it. As the epoch progresses, fewer credits remain to be earned. An EPT purchased at Week 1 accrues credits for 7 more weeks. An EPT purchased at Week 6 accrues credits for 2 weeks. The market prices this in: EPT gets cheaper as the epoch advances, because each token has less earning potential left.
 
 This is not mechanical decay imposed by a curve. It is the market correctly pricing a shrinking stream of future credits.
+
+### Leverage Is Not a Fixed Number
+
+When you buy EPT at \$0.05 instead of minting at \$1.00, you get 20x more EPT per dollar. But that "20x" means very different things depending on when you buy it. Early in the epoch, those 20x EPT accrue credits for weeks. Late in the epoch, the same 20x EPT accrue credits for days. The leverage ratio is the same, but the implied return (APR) is vastly different.
+
+This is why the UI shows both **APR** and **leverage** side by side. Changing one auto-updates the other. You can think in whichever frame is more intuitive, but APR captures the time dimension that a raw leverage number does not. Limit orders are placed in APR terms — the price adjusts automatically based on time remaining.
 
 ---
 
@@ -84,6 +86,17 @@ flowchart LR
     D --> E["EPT → Buyer A"]
     D --> F["ST → Buyer B"]
 ```
+
+### UI View: APR-Based Orders
+
+In the UI, users do not set raw token prices for these limit orders. They set APR constraints:
+
+- **ST buyers** set the **minimum APR** they require.
+- **EPT buyers** set the **maximum APR** they are willing to give up.
+
+The engine translates those APR limits into executable prices based on time remaining in the epoch. We use APR because it is time-invariant for user intent: "I need at least X%" or "I can pay up to Y%."
+
+If limits were placed as raw prices, users would need to keep updating orders as time passes, because the same price implies a different APR later in the epoch.
 
 ---
 
@@ -126,7 +139,7 @@ The ST discount is the other side of EPT pricing. The two are mechanically linke
 | Factor | Mechanism |
 |---|---|
 | **Strong EPT demand** | More EPT buying triggers more cross-match mints, increasing ST supply |
-| **Early in epoch** | Maximum time risk for ST holders before finalization |
+| **Early in epoch** | Maximum time risk for ST holders before maturity |
 | **High uncertainty** | Market demands larger compensation for unknown strategy PnL |
 
 ### Factors That Narrow the Discount
@@ -135,7 +148,7 @@ The ST discount is the other side of EPT pricing. The two are mechanically linke
 |---|---|
 | **Yield seeker demand** | Buyers seeking fixed returns absorb ST supply |
 | **Approaching maturity** | Less time risk remaining |
-| **Strong strategy performance** | Higher expected NAV at finalization makes ST more attractive |
+| **Strong strategy performance** | Higher expected NAV at maturity makes ST more attractive |
 
 ### Equilibrium
 
@@ -149,7 +162,7 @@ Points farmers want cheap EPT, which requires a wide ST discount. Yield seekers 
 
 ## Worked Example (\$100)
 
-**Setup:** NAV = \$1.00, ST trading at \$0.92 (8% discount to NAV).
+**Setup:** NAV = 1.00, ST trading at \$0.92 (8% discount to NAV).
 
 ### Fair EPT Price
 
@@ -161,11 +174,11 @@ A points farmer places a buy order at \$0.08 per EPT.
 
 $$\frac{\$100}{\$0.08} = 1{,}250\text{ EPT}$$
 
-Compare this to a direct deposit: \$100 into the vault mints 100 ST and 100 EPT. Buying on the orderbook yields **12.5x more EPT** for the same capital. The leverage comes entirely from the price. No looping, no compounding, just buying EPT at its market price.
+Compare this to a direct deposit: \$100 into the vault mints 100 ST and 100 EPT. Buying on the orderbook yields **12.5x more EPT** for the same capital at this price. The leverage comes entirely from the price — no looping, no compounding. But remember: [leverage is not a fixed number](#leverage-is-not-a-fixed-number). The same 12.5x means different APR depending on time remaining.
 
 ### Yield Seeker: Buying ST on the Orderbook
 
-A yield seeker buys ST at \$0.92. If the strategy earns 1% over the epoch (final NAV = \$1.01):
+A yield seeker buys ST at \$0.92. If the strategy earns 1% over the epoch (final NAV = 1.01):
 
 $$\text{Return} = \frac{1.01 - 0.92}{0.92} \approx 9.8\%\text{ per epoch}$$
 
@@ -181,4 +194,4 @@ The 8% discount provides a buffer against strategy losses. The strategy can lose
 
 The same \$100 buys radically different exposure depending on which token you choose. We do not create value. We separate it. The points farmer concentrates into points. The yield seeker concentrates into USDC returns. The direct depositor gets the unseparated bundle.
 
-For the full treatment of credit mathematics and how credits translate to points at finalization, see [Credit Mathematics](/deep-dives/credit-mathematics).
+For the full treatment of credit mathematics and how credits translate to points at maturity, see [Credit Mathematics](/deep-dives/credit-mathematics).

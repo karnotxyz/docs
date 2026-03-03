@@ -1,6 +1,6 @@
 ---
 title: "Strategy Token (ST)"
-description: "Your claim on the strategy's USDC value. Buy at a discount, redeem at NAV after finalization."
+description: "Your claim on the strategy's USDC value. Buy at a discount, redeem at NAV after maturity."
 icon: "vault"
 ---
 
@@ -8,9 +8,9 @@ Want the USDC returns from a perp DEX strategy without caring about points? ST i
 
 ## What Is ST
 
-Each epoch creates a new ST for each strategy, representing your share of the vault's USDC value. When the epoch finalizes, you redeem ST for USDC based on the strategy's final NAV.
+Each epoch creates a new ST for each strategy, representing your share of the vault's USDC value. When the epoch matures, you redeem ST for USDC based on the strategy's final NAV.
 
-ST trades on the **ST/USDC orderbook**. Yield seekers buy ST at a discount to NAV during the epoch, then redeem at full NAV after finalization, capturing the spread as profit.
+ST trades on the **ST/USDC orderbook**. Yield seekers buy ST at a discount to NAV during the epoch, then redeem at full NAV after maturity, capturing the spread as profit.
 
 ---
 
@@ -22,11 +22,11 @@ $$\text{NAV} = \frac{\text{Total Vault Value}}{\text{Total Shares}}$$
 
 $$\text{Your Shares} = \frac{\text{Deposit Amount}}{\text{NAV}}$$
 
-A small fee (varies by strategy) is deducted from your deposit before shares are calculated.
+A small fee (varies by strategy) is deducted from your deposit before shares are calculated. This fee covers the costs of deploying capital into the strategy: exchange fees, spreads, and bridging.
 
-**Example:** You deposit \$100 into a strategy with NAV = \$1.00. After the deposit fee, you receive slightly fewer than 100 ST shares.
+**Example:** You deposit \$100 into a strategy with NAV = 1.00. After the deposit fee, you receive slightly fewer than 100 ST shares.
 
-If NAV had already risen to \$1.03 (strategy up 3%), that same deposit nets you fewer shares. You are buying in at a higher price per share, but each share is backed by more USDC.
+If NAV had already risen to 1.03 (strategy up 3%), that same deposit nets you fewer shares. You are buying in at a higher price per share, but each share is backed by more USDC.
 
 ---
 
@@ -35,7 +35,7 @@ If NAV had already risen to \$1.03 (strategy up 3%), that same deposit nets you 
 ST typically trades below NAV on the orderbook. This discount is the yield seeker's opportunity. The playbook:
 
 1. Buy ST on the ST/USDC orderbook at a discount to NAV
-2. Hold through finalization
+2. Hold through maturity
 3. Redeem at NAV
 
 The discount exists because points farmers who acquire ST through minting sell it on the orderbook to recoup capital. Yield seekers absorb that supply.
@@ -46,17 +46,17 @@ The discount exists because points farmers who acquire ST through minting sell i
 |---|---|
 | ST purchase price | \$0.90 (10% discount to NAV) |
 | Strategy return over epoch | +1% |
-| NAV at finalization | \$1.01 |
-| Redemption value per ST | \$1.01 |
+| NAV at maturity | 1.01 |
+| Redemption value per ST | 1.01 |
 | **Your return** | **\$0.11 per ST (12.2%)** |
 
-You paid \$0.90, redeemed for \$1.01. The return is the discount capture (\$0.10) plus the strategy's performance (\$0.01).
+You paid \$0.90, redeemed at NAV 1.01. The return is the discount capture (\$0.10) plus the strategy's performance (\$0.01).
 
 ---
 
 ## Redemption
 
-After the epoch finalizes, you redeem ST for USDC:
+After the epoch matures, you redeem ST for USDC:
 
 $$\text{USDC Received} = \text{Your Shares} \times \text{Final NAV}$$
 
@@ -64,11 +64,11 @@ Redemption burns your ST and transfers USDC to your wallet. There is no fee on r
 
 ---
 
-## Selling Before Finalization
+## Selling Before Maturity
 
-You do not have to wait for finalization. You can sell ST on the ST/USDC orderbook at any time during the epoch. This is not redemption. Another participant buys your position at the current market price.
+You do not have to wait for maturity. You can sell ST on the ST/USDC orderbook at any time during the epoch. This is not redemption. Another participant buys your position at the current market price.
 
-The orderbook price reflects the market's view of the strategy's NAV, adjusted for time remaining and demand. As the epoch approaches finalization, the orderbook price tends to converge toward NAV.
+The orderbook price reflects the market's view of the strategy's NAV, adjusted for time remaining and demand. As the epoch approaches maturity, the orderbook price tends to converge toward NAV.
 
 ---
 
@@ -76,7 +76,7 @@ The orderbook price reflects the market's view of the strategy's NAV, adjusted f
 
 Negative strategy PnL is not a failure mode. It's the inherent bet ST holders make. The discount you buy at is your buffer.
 
-**Example:** You buy ST on the orderbook at \$0.90 (10% discount). The strategy loses 5% over the epoch. Final NAV = \$0.95. You redeem at \$0.95, still a \$0.05 profit per ST (5.6% return) because your discount absorbed the loss.
+**Example:** You buy ST on the orderbook at \$0.90 (10% discount). The strategy loses 5% over the epoch. Final NAV = 0.95. You redeem at NAV 0.95, still a \$0.05 profit per ST (5.6% return) because your discount absorbed the loss.
 
 You only lose money if the strategy loses *more* than your discount. In this example, the strategy would need to lose more than 10% before you're underwater. That's the trade-off: the deeper the discount you demand, the larger the loss buffer you have.
 
@@ -89,6 +89,6 @@ You only lose money if the strategy loses *more* than your discount. In this exa
 | Strategy performance | Positive PnL raises NAV; negative PnL lowers it |
 | Points farmer selling | Creates supply on the orderbook, widening the discount |
 | Yield seeker demand | Absorbs supply, narrowing the discount |
-| Time to finalization | As the epoch nears its end, price converges toward NAV |
+| Time to maturity | As the epoch nears its end, price converges toward NAV |
 
 The ST discount reflects the cost of points. When points are in high demand, farmers sell ST more aggressively, the discount widens, and yield seekers earn a higher return. The two sides of the market, points farmers and yield seekers, set the price.
