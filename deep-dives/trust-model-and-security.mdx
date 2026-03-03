@@ -10,7 +10,7 @@ icon: "shield"
 
 **Prerequisites:** [What is ArcX?](/learn/protocol-overview), [Epoch Lifecycle](/learn/epoch-lifecycle)
 
-**Summary:** Five things live on-chain (tokens, settlement, credit balances). Five things run off-chain (matching engine, strategy execution, NAV oracle, credits oracle, points oracle). Each off-chain component is off-chain for a practical reason. Strategy losses are market risk, not security incidents.
+**Summary:** Five components live on-chain (ST token, EPT token, PointsToken, settlement, and credit balances). Five components run off-chain (matching engine, strategy execution, NAV oracle, credits oracle, points oracle). Each off-chain component is off-chain for a practical reason.
 
 ---
 
@@ -23,7 +23,7 @@ These components live on Starknet. You can verify them directly with a block exp
 | **ST token** | Balances, transfers, total supply per epoch |
 | **EPT token** | Balances, transfers, accumulated credit balances |
 | **PointsToken** | Total supply, burns, per-address balances |
-| **Settlement** | Every deposit and redemption executes as an on-chain transaction |
+| **Settlement** | Every deposit, order match settlement, and redemption executes as an on-chain transaction |
 | **Credit balances** | Per-user credit accrual tracked on-chain |
 
 On-chain components are the foundation. Token mechanics (minting, burning, credit accrual, redemption) are verifiable on-chain. If it lives on Starknet, you can check it yourself.
@@ -44,7 +44,7 @@ We run five components off-chain. Each one is off-chain for a specific practical
 
     **Why it's off-chain:** Orderbook matching requires iterating over all open orders and booking loops that are not feasible in smart contracts. On-chain orderbooks on Starknet would be too expensive for active trading. Settlement of matched orders happens on-chain. The matching itself is the off-chain step.
 
-    **The pattern:** Off-chain matching, on-chain settlement. This is the same architecture used by dYdX, Paradex, and other performant DEXes.
+    **The pattern:** Off-chain matching, on-chain settlement. This is the same architecture used by Extended, Paradex, and other performant DEXes.
   </Tab>
   <Tab title="Strategy Execution" icon="chart-mixed">
     **What it does:** Trades on perp DEXes (Hyperliquid, Paradex, etc.) using deposited capital. Generates PnL and earns exchange points.
@@ -64,7 +64,7 @@ We run five components off-chain. Each one is off-chain for a specific practical
     **Why it's off-chain:** Credit update values derive from the strategy's trading activity on exchange accounts. OI and volume data come from the exchanges, not from on-chain sources. Until exchanges expose verifiable activity feeds, this data must be reported by us.
   </Tab>
   <Tab title="Points Oracle" icon="star">
-    **What it does:** Reports total points earned by the strategy at epoch finalization. This single number determines the points-per-credit conversion ratio for all EPT holders.
+    **What it does:** Reports total points earned by the strategy at epoch maturity. This single number determines the points-per-credit conversion ratio for all EPT holders.
 
     **Why it's off-chain:** Exchange points are tracked per-account on the exchange platform. They are not public on-chain data. We read our own account's points balance and report it to the contract.
   </Tab>
@@ -87,7 +87,7 @@ Every off-chain component has specific safeguards that bound its risk. For each 
   <Tab title="Strategy Execution" icon="chart-mixed">
     **Protection:** Strategy PnL depends on market conditions. We have safeguards in place to manage unexpected drawdowns and stop trading under high volatility. EPT accrues credits regardless of strategy PnL, so points exposure is unaffected by strategy performance.
 
-    **Verification:** NAV updates reflect strategy performance in near-real-time. You can track the NAV trajectory throughout the epoch. Unusual drawdowns or erratic movements are observable. You can sell your ST on the ST/USDC orderbook to exit at any time during the epoch.
+    **Verification:** NAV updates reflect strategy performance. You can track the NAV trajectory throughout the epoch. Unusual drawdowns or erratic movements are observable. You can sell your ST on the ST/USDC orderbook to exit at any time during the epoch.
 
     **Bounding:** Epoch isolation prevents compounding. A bad epoch does not automatically roll your capital into the next one. You make a fresh decision each epoch.
 
@@ -100,17 +100,17 @@ Every off-chain component has specific safeguards that bound its risk. For each 
 
     **Verification:** NAV is derived from positions on perp DEXes that have public dashboards. While you cannot see our exact account, the strategy's expected exposure is checkable against exchange data. NAV trajectory over an epoch should be consistent with observable market conditions.
 
-    **Bounding:** Each epoch is independent. Even if NAV is slightly off for a few updates, the final NAV at finalization determines actual redemptions. A single stale update does not compound across epochs.
+    **Bounding:** Each epoch is independent. Even if NAV is slightly off for a few updates, the final NAV at maturity determines actual redemptions. A single stale update does not compound across epochs.
   </Tab>
   <Tab title="Credits Oracle" icon="calculator">
     **Protection:** You trust us for oracle updates. We have off-chain safeguards to ensure credit update values accurately reflect strategy activity (OI, volume) on the exchanges.
 
-    **Verification:** Credit update values derive from observable strategy activity metrics on exchange dashboards. If we push high credit updates but the strategy has minimal visible OI, the discrepancy is detectable.
+    **Verification:** Users cannot directly see our strategy OI. Instead, you can use visible on-chain signals like total token supply and deployed capital as a reasonableness check. If reported credit updates look consistent with the scale of capital deployed, that is a good sign.
   </Tab>
   <Tab title="Points Oracle" icon="star">
-    **Protection:** You trust us for oracle updates. Points reporting is a one-time event per epoch at finalization. We have off-chain safeguards to ensure reported points match what the strategy actually earned.
+    **Protection:** You trust us for oracle updates, and we have off-chain safeguards to ensure reported points match what the strategy actually earned.
 
-    **Verification:** Most exchanges publish points program rules (e.g., X points per dollar of OI per day). If we run a strategy with known capital for a known duration, the expected points are roughly estimable.
+    **Verification:** Exact points formulas are not fully transparent. You can still use heuristics and compare reported points against broader market standards, including what other users report for similar capital and activity profiles.
   </Tab>
 </Tabs>
 
@@ -118,11 +118,4 @@ Every off-chain component has specific safeguards that bound its risk. For each 
 
 ## Decentralization Roadmap
 
-Each off-chain component has a planned path toward reduced trust.
-
-| Component | Current | Next Step | End State |
-|---|---|---|---|
-| **NAV** | Our oracle | Community monitoring dashboards | Third-party attestation or ZK proofs |
-| **Credits** | Our oracle | On-chain staleness checks | Verifiable activity feeds from exchanges |
-| **Points** | Our oracle | Public attestation | Exchange-native on-chain verification |
-| **Strategy** | Trust our execution | On-chain constraints (max leverage, drawdown triggers) | Isolated vaults with insurance |
+As the protocol matures, we will continue making this layer more robust and more transparent over time, including better transparency dashboards, stronger third-party checks, and custodial/operational safeguards where appropriate.

@@ -1,6 +1,6 @@
 ---
 title: "Epoch Lifecycle"
-description: "Every strategy runs in fixed-duration epochs that progress through three states: Active, Settling, and Finalized."
+description: "Every strategy runs in fixed-duration epochs that progress through three states: Active, Settling, and Matured."
 icon: "clock"
 ---
 
@@ -12,12 +12,12 @@ Every epoch moves through exactly three states:
 stateDiagram-v2
     [*] --> ACTIVE
     ACTIVE --> SETTLING : Epoch end reached
-    SETTLING --> FINALIZED : Settlement complete
-    FINALIZED --> [*]
+    SETTLING --> MATURED : Settlement complete
+    MATURED --> [*]
 ```
 
 **Active** — The strategy is executing and orderbooks are open. Users can deposit (minting ST and EPT), or trade ST and EPT on their respective orderbooks. Credits accrue on EPT balances throughout this phase.
 
 **Settling** — The strategy unwinds its positions and capital is returned to the vault. No new deposits are accepted. Orderbooks remain open for secondary trades only — no new minting (Buy + Buy cross-matching is disabled). Credit accrual is frozen.
 
-**Finalized** — Settlement is complete. Trading stops. ST holders redeem for USDC at the final NAV. EPT holders claim PointsTokens based on their accumulated credit share. There is no deadline on redemption — tokens remain valid indefinitely. To participate in the next epoch, you redeem and deposit again.
+**Matured** — Settlement is complete. Trading stops. ST holders redeem for USDC at the final NAV. EPT holders claim PointsTokens based on their accumulated credit share. There is no deadline on redemption — tokens remain valid indefinitely. To participate in the next epoch, you redeem and deposit again.

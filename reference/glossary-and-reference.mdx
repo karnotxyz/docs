@@ -8,8 +8,8 @@ icon: "book"
 
 | Token | Scope | Tradeable | Redeemable for | Expiry |
 |---|---|---|---|---|
-| **ST** | Per epoch, per strategy | Yes (ST/USDC orderbook) | USDC (after finalization) | End of epoch |
-| **EPT** | Per epoch, per strategy | Yes (EPT/USDC orderbook) | PointsTokens (after finalization) | End of epoch |
+| **ST** | Per epoch, per strategy | Yes (ST/USDC orderbook) | USDC (after maturity) | End of epoch |
+| **EPT** | Per epoch, per strategy | Yes (EPT/USDC orderbook) | PointsTokens (after maturity) | End of epoch |
 | **PointsToken** | Per exchange (persists across epochs) | Yes | Airdrop tokens (after TGE) | None |
 
 ### Naming Convention
@@ -40,4 +40,4 @@ icon: "book"
 |---|---|---|---|---|
 | **ACTIVE** | Yes | Yes (credit updates) | Yes | No |
 | **SETTLING** | No | Stopped | Secondary only | No |
-| **FINALIZED** | No | Final credits settled | No | Yes |
+| **MATURED** | No | Final credits settled | No | Yes |

@@ -13,10 +13,10 @@ icon: "scale-balanced"
 | Pendle | ArcX | Key Difference |
 |---|---|---|
 | **PT** (Principal Token) | **ST** (Strategy Token) | Both represent a claim on principal. ST also includes strategy PnL, so redemption value depends on performance. |
-| **YT** (Yield Token) | **EPT** (Expected Points Token) | Both accrue value over the epoch and decay to $0 at maturity/finalization. YT accrues yield, EPT accrues credits for a points claim. |
-| **SY** (Standardized Yield) | **ST** (Strategy Token) | Pendle wraps on-chain yield-bearing assets into SY. We wrap off-chain perp DEX trading strategies. In both cases, the "principal token" is the wrapper. |
-| Pendle AMM (PT <> SY) + orderbook | EPT/USDC + ST/USDC Orderbooks | Pendle has one AMM underlying PT <> SY. We have two separate limit order books with cross-matching. |
-| Two-way arbitrage (mint + redeem) | One-way arbitrage (mint only) | Pendle has tighter pricing corridors because both directions are enforceable. We have no early redemption. |
+| **YT** (Yield Token) | **EPT** (Expected Points Token) | Both accrue value over the epoch and decay to \$0 at maturity. YT accrues yield, EPT accrues credits for a points claim. |
+| **SY** (Standardized Yield) | **ST** (Strategy Token) | Pendle wraps yield-bearing assets into SY. ArcX has no extra wrapper layer: ST is the yield-bearing strategy token used directly. |
+| Pendle AMM (PT &lt;&gt; SY) + orderbook | EPT/USDC + ST/USDC Orderbooks | Pendle has one AMM underlying PT &lt;&gt; SY. We have two separate limit order books with cross-matching. |
+| Two-way arbitrage (mint + redeem) | One-way arbitrage (mint only) | Pendle has tighter pricing corridors because both directions are enforceable. We have no early redemption yet; it is planned for a later version. |
 
 ---
 
@@ -24,7 +24,7 @@ icon: "scale-balanced"
 
 Pendle routes everything through a single AMM between PT and SY. ArcX runs two separate orderbooks (EPT/USDC and ST/USDC) connected by a cross-matching engine that mints new tokens when buy-side prices align.
 
-Both systems split deposits into a principal claim and a yield/points claim. Both have the same minting parity. Pendle: PT + YT = Underlying. ArcX: (1/R) ST + 1 EPT = $1 deposited.
+Both systems split deposits into a principal claim and a yield/points claim. Both have the same minting parity. Pendle: PT + YT = Underlying. ArcX: (1/R) ST + 1 EPT = \$1 deposited.
 
 The other key difference: Pendle wraps on-chain yield-bearing assets. We run our own off-chain perp DEX trading strategies. Pendle doesn't execute strategies — it tokenizes existing yield sources. We execute the strategies ourselves and tokenize the outputs.
 

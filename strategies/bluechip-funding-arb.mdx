@@ -41,7 +41,7 @@ EPT holders are buying a claim on the points this strategy generates. The key va
 
 ## What ST Holders Care About
 
-ST holders own a claim on the strategy's USDC value at finalization. For a funding arb strategy, the key variables:
+ST holders own a claim on the strategy's USDC value at maturity. For a funding arb strategy, the key variables:
 
 | Factor | Why It Matters |
 |---|---|
@@ -62,7 +62,7 @@ Bluechip Funding Arb is a low-risk, delta-neutral strategy. The main risks:
 |---|---|
 | **Funding rate reversal** | The spread between exchanges compresses or inverts. The strategy may earn less than expected, or briefly pay net funding. This is the primary risk. |
 | **Exchange risk** | Positions are held on third-party perp DEXes. Smart contract risk, downtime, or liquidity issues on any exchange affect the strategy. |
-| **Settlement risk** | Cross-exchange settlement during epoch finalization may be delayed. Redemption is typically available within a few hours after finalization, but may extend to 1-2 days depending on exchange settlement. |
+| **Settlement risk** | Cross-exchange settlement during epoch maturity may be delayed. Redemption is typically available within a few hours after maturity, but may extend to 1-2 days depending on exchange settlement. |
 | **Rebalancing friction** | When the strategy rotates legs between exchanges, there may be brief periods of imperfect hedging or slippage costs. |
 
 The strategy does not have directional price exposure. BTC moving up or down does not directly affect PnL, because the long and short legs offset.
@@ -71,4 +71,4 @@ The strategy does not have directional price exposure. BTC moving up or down doe
 
 ## Exchanges
 
-This strategy operates across supported perp DEXes including Paradex, Hyperliquid, and Pacifica. Points earned on all exchanges flow into a single EPT. At finalization, you claim separate PointsTokens for each exchange.
+This strategy operates across supported perp DEXes including Paradex, Hyperliquid, and Pacifica. Points earned on all exchanges flow into a single EPT. At maturity, you claim separate PointsTokens for each exchange.

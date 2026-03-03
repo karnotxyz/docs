@@ -1,6 +1,6 @@
 ---
 title: "Expected Points Token (EPT)"
-description: "Your claim on exchange points earned during the epoch. Trade on the EPT/USDC orderbook, accrue credits, claim PointsTokens after finalization."
+description: "Your claim on exchange points earned during the epoch. Trade on the EPT/USDC orderbook, accrue credits, claim PointsTokens after maturity."
 icon: "star"
 ---
 
@@ -8,11 +8,11 @@ Want leveraged exposure to exchange points without running a trading strategy yo
 
 ## What Is EPT
 
-EPT is your claim on exchange points earned by a strategy during the epoch. Each epoch creates one EPT per strategy. When you deposit USDC, you receive both ST and EPT. When the epoch finalizes, your EPT entitles you to a share of the total points earned, proportional to the credits you accrued. You then claim your points as <Tooltip tip="1:1 on-chain representation of exchange points. Persists across epochs. Burn for airdrop tokens after TGE." href="/learn/points-token">PointsTokens</Tooltip>.
+EPT is your claim on exchange points earned by a strategy during the epoch. Each epoch creates one EPT per strategy. When you deposit USDC, you receive both ST and EPT. When the epoch matures, your EPT entitles you to a share of the total points earned, proportional to the credits you accrued. You then claim your points as <Tooltip tip="1:1 on-chain representation of exchange points. Persists across epochs. Burn for airdrop tokens after TGE." href="/learn/points-token">PointsTokens</Tooltip>.
 
 EPT trades on the **EPT/USDC orderbook**. You can buy more EPT to increase your points exposure, or sell EPT if you only want the USDC yield from ST.
 
-If a strategy earns points on multiple exchanges, your single EPT covers all of them. At finalization, you claim separate PointsTokens for each exchange.
+If a strategy earns points on multiple exchanges, your single EPT covers all of them. At maturity, you claim separate PointsTokens for each exchange.
 
 ---
 
@@ -53,20 +53,24 @@ This means early holders benefit. In early weeks when fewer people hold EPT, the
 | Alice | All 10 | 3,000 (sole holder) | 1,000 (50% share) | **4,000 (80%)** |
 | Bob | 4 | 0 | 1,000 (50% share) | **1,000 (20%)** |
 
-Alice earns 80% of total points — more than the 71.4% she would get under a single epoch-end distribution. The weekly structure rewards her for being early: she was the sole credit holder in weeks 1-6, so she captured 100% of those weeks' points.
+Alice earns 80% of total points. The weekly structure rewards her for being early: she was the sole credit holder in weeks 1-6, so she captured 100% of those weeks' points.
+
+If points were distributed only once at epoch end, using total credits accumulated over the full epoch, Alice would get less.
+
+Assume a simplified model where each EPT earns exactly 1 credit per week:
+
+| | EPT held | Weeks held | End-of-epoch credits | Credit share | Points from 5,000 total |
+|---|---|---|---|---|---|
+| Alice | 100 | 10 | 1,000 | 1,000 / 1,400 = **71.4%** | **3,571.4** |
+| Bob | 100 | 4 | 400 | 400 / 1,400 = **28.6%** | **1,428.6** |
+
+Under this epoch-end method, Alice gets 71.4% instead of 80%. Weekly settlement preserves the advantage of holding earlier in the epoch.
 
 ---
 
 ## Why Credit Amounts Vary
 
-Credits per EPT are not fixed. They adjust based on real strategy activity:
-
-| Strategy type | Credit amount reflects |
-|---|---|
-| Funding arbitrage | Current open interest |
-| Market making | Trading volume throughput |
-
-If a strategy is idle for a period (market crash, technical issue), credits continue to accrue for all EPT holders. The reduced points from the idle period are shared across everyone rather than penalizing holders who happened to hold during that window. This means you will never get zero points for a period where you held EPT, even if the strategy had no open orders.
+Credits per EPT are not fixed. Amounts vary as we track strategy performance off-chain.
 
 For the full mathematical treatment, see [Credit Mathematics](/deep-dives/credit-mathematics).
 
@@ -94,6 +98,6 @@ Full pricing analysis and decay mechanics are covered in [EPT Pricing](/deep-div
 
 ## Claiming Points
 
-After the epoch finalizes, claim your share as [PointsTokens](/learn/points-token). Your allocation is based on your [credit share](#how-credits-determine-your-points). PointsTokens are minted to your wallet.
+After the epoch matures, claim your share as [PointsTokens](/learn/points-token). Your allocation is based on your [credit share](#how-credits-determine-your-points). PointsTokens are minted to your wallet.
 
 Each epoch produces a separate EPT. You claim from each epoch independently. Credits do not carry over between epochs.

@@ -1,6 +1,6 @@
 ---
 title: "User Guide"
-description: "Step-by-step instructions for buying EPT, buying discounted ST, exiting positions, and redeeming after finalization."
+description: "Step-by-step instructions for buying EPT, buying discounted ST, exiting positions, and redeeming after maturity."
 icon: "compass"
 ---
 
@@ -27,8 +27,8 @@ We have two orderbooks, **EPT/USDC** and **ST/USDC**, one for each token. Everyt
       <Step title="Hold EPT during the epoch">
         Credits accrue automatically while you hold EPT. You do not need to take any action. Credits start fresh from the moment you acquire the EPT.
       </Step>
-      <Step title="Claim PointsTokens after finalization">
-        Once the epoch is finalized, go to the claims page and claim your PointsTokens. Your share is proportional to your [credits](/learn/expected-points-token#the-credit-system).
+      <Step title="Claim PointsTokens after maturity">
+        Once the epoch has matured, go to the claims page and claim your PointsTokens. Your share is proportional to your [credits](/learn/expected-points-token#the-credit-system).
       </Step>
     </Steps>
   </Tab>
@@ -52,8 +52,8 @@ We have two orderbooks, **EPT/USDC** and **ST/USDC**, one for each token. Everyt
       <Step title="Hold ST during the epoch">
         Your ST tracks the strategy's NAV. If the strategy earns 1% over the epoch, NAV rises to approximately 1.01. Monitor performance on the ArcX dashboard.
       </Step>
-      <Step title="Redeem ST after finalization">
-        Once the epoch is finalized, go to the redemption page and redeem your ST for USDC at the final NAV. Your return is the gap between your purchase price and the redemption value. See [Strategy Token](/learn/strategy-token#yield-seekers-buy-the-discount) for worked examples.
+      <Step title="Redeem ST after maturity">
+        Once the epoch has matured, go to the redemption page and redeem your ST for USDC at the final NAV. Your return is the gap between your purchase price and the redemption value. See [Strategy Token](/learn/strategy-token#yield-seekers-buy-the-discount) for worked examples.
       </Step>
     </Steps>
   </Tab>
@@ -63,12 +63,12 @@ We have two orderbooks, **EPT/USDC** and **ST/USDC**, one for each token. Everyt
 
 ## Exiting Early
 
-You do not have to wait for finalization to exit. Sell your tokens on the orderbook at any time during the active epoch.
+You do not have to wait for maturity to exit. Sell your tokens on the orderbook at any time during the active epoch.
 
 - **Sell EPT** on the EPT/USDC orderbook to another buyer at market price
 - **Sell ST** on the ST/USDC orderbook to another buyer at market price
 
-This is a secondary trade, not a redemption. Redemption (ST for USDC at NAV, EPT for PointsTokens) only happens after the epoch is finalized. Early exits are at whatever price the market offers.
+This is a secondary trade, not a redemption. Redemption (ST for USDC at NAV, EPT for PointsTokens) only happens after the epoch has matured. Early exits are at whatever price the market offers.
 
 ---
 
@@ -101,15 +101,15 @@ ArcX uses an embedded wallet. Fund your wallet with USDC and you are ready to tr
 
 ---
 
-## After Finalization
+## After Maturity
 
-When an epoch reaches the **FINALIZED** state, final NAV and total points are locked in. There is no deadline to redeem or claim. Do it whenever you are ready.
+When an epoch reaches the **MATURED** state, final NAV and total points are locked in. There is no deadline to redeem or claim. Do it whenever you are ready.
 
 ### ST Holders: Redeem for USDC
 
 <Steps>
   <Step title="Go to your portfolio page">
-    Select the finalized epoch.
+    Select the matured epoch.
   </Step>
   <Step title="Redeem your ST">
     Your full ST balance is redeemed.
@@ -122,8 +122,8 @@ When an epoch reaches the **FINALIZED** state, final NAV and total points are lo
 ### EPT Holders: Claim PointsTokens
 
 <Steps>
-  <Step title="Go to the claims page">
-    Select the finalized epoch and the EPT you want to claim.
+  <Step title="Go to your portfolio page">
+    Select the matured epoch and the EPT you want to claim.
   </Step>
   <Step title="Confirm and receive PointsTokens">
     Your credits are settled, PointsTokens are minted to your wallet based on your credit share.
@@ -138,7 +138,7 @@ PointsTokens represent actual exchange points. Hold them until the exchange cond
 
 ## Quick Reference
 
-| Action | <Badge color="green">ACTIVE</Badge> | <Badge color="orange">SETTLING</Badge> | <Badge color="red">FINALIZED</Badge> |
+| Action | <Badge color="green">ACTIVE</Badge> | <Badge color="orange">SETTLING</Badge> | <Badge color="red">MATURED</Badge> |
 |---|---|---|---|
 | Buy/sell EPT on orderbook | Yes | Secondary only | No |
 | Buy/sell ST on orderbook | Yes | Secondary only | No |

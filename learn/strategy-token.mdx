@@ -1,6 +1,6 @@
 ---
 title: "Strategy Token (ST)"
-description: "Your claim on the strategy's USDC value. Buy at a discount, redeem at NAV after finalization."
+description: "Your claim on the strategy's USDC value. Buy at a discount, redeem at NAV after maturity."
 icon: "vault"
 ---
 
@@ -8,9 +8,9 @@ Want the USDC returns from a perp DEX strategy without caring about points? ST i
 
 ## What Is ST
 
-Each epoch creates a new ST for each strategy, representing your share of the vault's USDC value. When the epoch finalizes, you redeem ST for USDC based on the strategy's final NAV.
+Each epoch creates a new ST for each strategy, representing your share of the vault's USDC value. When the epoch matures, you redeem ST for USDC based on the strategy's final NAV.
 
-ST trades on the **ST/USDC orderbook**. Yield seekers buy ST at a discount to NAV during the epoch, then redeem at full NAV after finalization, capturing the spread as profit.
+ST trades on the **ST/USDC orderbook**. Yield seekers buy ST at a discount to NAV during the epoch, then redeem at full NAV after maturity, capturing the spread as profit.
 
 ---
 
@@ -35,7 +35,7 @@ If NAV had already risen to 1.03 (strategy up 3%), that same deposit nets you fe
 ST typically trades below NAV on the orderbook. This discount is the yield seeker's opportunity. The playbook:
 
 1. Buy ST on the ST/USDC orderbook at a discount to NAV
-2. Hold through finalization
+2. Hold through maturity
 3. Redeem at NAV
 
 The discount exists because points farmers who acquire ST through minting sell it on the orderbook to recoup capital. Yield seekers absorb that supply.
@@ -46,7 +46,7 @@ The discount exists because points farmers who acquire ST through minting sell i
 |---|---|
 | ST purchase price | \$0.90 (10% discount to NAV) |
 | Strategy return over epoch | +1% |
-| NAV at finalization | 1.01 |
+| NAV at maturity | 1.01 |
 | Redemption value per ST | 1.01 |
 | **Your return** | **\$0.11 per ST (12.2%)** |
 
@@ -56,7 +56,7 @@ You paid \$0.90, redeemed at NAV 1.01. The return is the discount capture (\$0.1
 
 ## Redemption
 
-After the epoch finalizes, you redeem ST for USDC:
+After the epoch matures, you redeem ST for USDC:
 
 $$\text{USDC Received} = \text{Your Shares} \times \text{Final NAV}$$
 
@@ -64,11 +64,11 @@ Redemption burns your ST and transfers USDC to your wallet. There is no fee on r
 
 ---
 
-## Selling Before Finalization
+## Selling Before Maturity
 
-You do not have to wait for finalization. You can sell ST on the ST/USDC orderbook at any time during the epoch. This is not redemption. Another participant buys your position at the current market price.
+You do not have to wait for maturity. You can sell ST on the ST/USDC orderbook at any time during the epoch. This is not redemption. Another participant buys your position at the current market price.
 
-The orderbook price reflects the market's view of the strategy's NAV, adjusted for time remaining and demand. As the epoch approaches finalization, the orderbook price tends to converge toward NAV.
+The orderbook price reflects the market's view of the strategy's NAV, adjusted for time remaining and demand. As the epoch approaches maturity, the orderbook price tends to converge toward NAV.
 
 ---
 
@@ -89,6 +89,6 @@ You only lose money if the strategy loses *more* than your discount. In this exa
 | Strategy performance | Positive PnL raises NAV; negative PnL lowers it |
 | Points farmer selling | Creates supply on the orderbook, widening the discount |
 | Yield seeker demand | Absorbs supply, narrowing the discount |
-| Time to finalization | As the epoch nears its end, price converges toward NAV |
+| Time to maturity | As the epoch nears its end, price converges toward NAV |
 
 The ST discount reflects the cost of points. When points are in high demand, farmers sell ST more aggressively, the discount widens, and yield seekers earn a higher return. The two sides of the market, points farmers and yield seekers, set the price.

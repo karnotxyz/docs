@@ -38,7 +38,7 @@ You buy 100 EPT at \$0.05 each (\$5 total) during an 8-week epoch. Here's how th
 |---|---|
 | **Buy** | 100 EPT × \$0.05 = \$5 spent |
 | **Hold** | You accrue credits over the epoch. Your credit share works out to 50 points. |
-| **Claim** | Epoch finalizes. You claim 50 PointsTokens. |
+| **Claim** | Epoch matures. You claim 50 PointsTokens. |
 | **TGE** | Each point is worth \$0.20 at TGE. You burn 50 PointsTokens for \$10. |
 | **Return** | \$10 out on \$5 in = **100% return over 8 weeks** |
 
@@ -87,6 +87,17 @@ flowchart LR
     D --> F["ST → Buyer B"]
 ```
 
+### UI View: APR-Based Orders
+
+In the UI, users do not set raw token prices for these limit orders. They set APR constraints:
+
+- **ST buyers** set the **minimum APR** they require.
+- **EPT buyers** set the **maximum APR** they are willing to give up.
+
+The engine translates those APR limits into executable prices based on time remaining in the epoch. We use APR because it is time-invariant for user intent: "I need at least X%" or "I can pay up to Y%."
+
+If limits were placed as raw prices, users would need to keep updating orders as time passes, because the same price implies a different APR later in the epoch.
+
 ---
 
 ## One-Way Arbitrage
@@ -128,7 +139,7 @@ The ST discount is the other side of EPT pricing. The two are mechanically linke
 | Factor | Mechanism |
 |---|---|
 | **Strong EPT demand** | More EPT buying triggers more cross-match mints, increasing ST supply |
-| **Early in epoch** | Maximum time risk for ST holders before finalization |
+| **Early in epoch** | Maximum time risk for ST holders before maturity |
 | **High uncertainty** | Market demands larger compensation for unknown strategy PnL |
 
 ### Factors That Narrow the Discount
@@ -136,8 +147,8 @@ The ST discount is the other side of EPT pricing. The two are mechanically linke
 | Factor | Mechanism |
 |---|---|
 | **Yield seeker demand** | Buyers seeking fixed returns absorb ST supply |
-| **Approaching finalization** | Less time risk remaining |
-| **Strong strategy performance** | Higher expected NAV at finalization makes ST more attractive |
+| **Approaching maturity** | Less time risk remaining |
+| **Strong strategy performance** | Higher expected NAV at maturity makes ST more attractive |
 
 ### Equilibrium
 
@@ -183,4 +194,4 @@ The 8% discount provides a buffer against strategy losses. The strategy can lose
 
 The same \$100 buys radically different exposure depending on which token you choose. We do not create value. We separate it. The points farmer concentrates into points. The yield seeker concentrates into USDC returns. The direct depositor gets the unseparated bundle.
 
-For the full treatment of credit mathematics and how credits translate to points at finalization, see [Credit Mathematics](/deep-dives/credit-mathematics).
+For the full treatment of credit mathematics and how credits translate to points at maturity, see [Credit Mathematics](/deep-dives/credit-mathematics).

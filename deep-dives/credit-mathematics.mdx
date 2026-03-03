@@ -12,7 +12,7 @@ Credits determine your share of points. Points are distributed weekly, not as a 
 
 ## Why Credits Exist
 
-Without credits, points distribution would be trivially gameable. A naive design that distributes points proportional to EPT balance at epoch end lets anyone deposit one second before finalization and claim the same share as a day-one holder.
+Without credits, points distribution would be trivially gameable. A naive design that distributes points proportional to EPT balance at epoch end lets anyone deposit one second before maturity and claim the same share as a day-one holder.
 
 Credits prevent this by tracking **how much EPT you held** and **for how long** during the epoch. Your share of points is proportional to your cumulative credit balance, not a single end-of-epoch snapshot. A last-second depositor accumulates nearly zero credits and receives a negligible share of points, making the attack economically worthless.
 
@@ -50,7 +50,7 @@ When EPT changes hands, whether through a secondary trade on the EPT/USDC orderb
 - **Minting:** You deposit USDC and receive freshly minted EPT. The new EPT starts at zero credits.
 - **No credit inheritance:** Credits are non-transferable. The buyer never receives the seller's accumulated credits.
 
-This is essential for fairness. Without the fresh-start rule, an attacker could buy EPT right before finalization and inherit the seller's entire credit history, defeating the purpose of the credit system.
+This is essential for fairness. Without the fresh-start rule, an attacker could buy EPT right before maturity and inherit the seller's entire credit history, defeating the purpose of the credit system.
 
 ---
 
