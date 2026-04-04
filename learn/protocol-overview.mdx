@@ -1,135 +1,132 @@
 ---
 title: "What is ArcX?"
-description: "ArcX splits perp DEX strategies into two tradeable tokens: one for USDC yield, one for exchange points. Buy exactly the exposure you want."
+description: "ArcX wraps perp DEX strategies into a vault token that splits into separately tradeable yield and points exposure."
 icon: "book-open"
 ---
 
 ## The Problem
 
-Points farming on perp DEXes is capital-inefficient. You deposit capital, lock it in a strategy, earn points alongside PnL, and hope for an airdrop. You can't sell the points pre-TGE, you can't separate the yield from the points, and you can't get leveraged exposure to either one independently.
+Points farming on perp DEXes is capital-inefficient. You deposit capital, lock it in a strategy, earn points alongside yield, and hope for an airdrop. You can't sell the points pre-TGE, you can't separate the yield from the points, and you can't get leveraged exposure to either one independently.
 
 ## The Solution
 
-We split the output of a perp trading strategy into two tokens, **ST** (claim on USDC returns) and **EPT** (claim on exchange points), and run a separate orderbook for each. Points farmers buy EPT. Yield seekers buy discounted ST. Each user gets exactly the exposure they want, at a price set by the market.
+We wrap perp DEX strategies into a **vToken** — a vault share that earns both fixed yield and exchange points. Hold it for the combined return, or split it into **ST** (yield claim) and **EPT** (points claim) and trade the side you don't want.
+
+Points farmers sell their ST, buy more EPT. Yield seekers sell their EPT, keep cheap ST. Each user gets exactly the exposure they want, at a price set by the market.
 
 ---
 
 ## Who is ArcX For?
 
-<Columns cols={2}>
+<CardGroup cols={3}>
   <Card title="Points Farmer" icon="chart-line">
-    You want points exposure without running a strategy yourself.
-
-    You place a buy order for EPT on the EPT/USDC orderbook at \$0.05. Your \$100 buys **2,000 EPT** — 20x more than a direct deposit. The effective leverage changes with time remaining in the epoch: the same price means higher APR later. You never touch ST. You never run a strategy. You just hold EPT, accrue credits, and claim PointsTokens after the epoch matures.
-
-    **Exit:** Sell your EPT on the orderbook at any time.
+    Deposit, split your vToken, and sell the ST side to load up on EPT. At \$0.02 per EPT, \$100 of capital ends up holding **5,000 EPT** — 50x points leverage.
   </Card>
   <Card title="Yield Seeker" icon="vault">
-    You want predictable USDC returns with no points risk.
-
-    Points farmers are buying EPT, which pushes ST prices down. You buy ST on the ST/USDC orderbook at \$0.90, a 10% discount to NAV. The strategy earns 1% over the epoch, so NAV rises to 1.01. You redeem at NAV 1.01.
-
-    $$\text{Return} = \frac{1.01 - 0.90}{0.90} \approx 12.2\%\text{ per epoch}$$
-
-    You never hold EPT. You have zero points exposure.
-
-    **Exit:** Sell your ST on the orderbook at any time.
+    Points farmers sell ST cheap. You pick it up below NAV. The vault pays **12% net APR** (15% gross, 20% performance fee). You earn the yield plus whatever discount you bought at.
   </Card>
-</Columns>
-
----
-
-## The Three Tokens
-
-<CardGroup cols={3}>
-  <Card title="Strategy Token (ST)" icon="vault" href="/learn/strategy-token">
-    Claim on the strategy's USDC value. Priced by NAV. Redeemable after maturity.
-  </Card>
-  <Card title="Expected Points Token (EPT)" icon="star" href="/learn/expected-points-token">
-    Claim on exchange points earned during the epoch. Accrues credits over time.
-  </Card>
-  <Card title="PointsToken" icon="coins" href="/learn/points-token">
-    1:1 representation of actual exchange points. EPT holders claim these after maturity.
+  <Card title="Just Hold vToken" icon="wallet">
+    Earn yield and accrue points credits without splitting anything. The simplest way to use ArcX.
   </Card>
 </CardGroup>
 
-**ST** tracks the per-share USDC value of the underlying strategy. **EPT** accrues credits while you hold it. Your share of points at maturity equals your credits divided by total credits. **PointsToken** is the final output: one token per point, redeemable at TGE.
+**Exit:** Sell your ST or EPT on the orderbook to receive vTokens. Withdraw vTokens for USDC (takes up to 3 days).
+
+---
+
+## The Tokens
+
+<CardGroup cols={2}>
+  <Card title="vToken" icon="circle-dollar-to-slot" href="/learn/vtoken">
+    The base. Vault share that earns yield + points. Splittable into ST and EPT.
+  </Card>
+  <Card title="Strategy Token (ST)" icon="vault" href="/learn/strategy-token">
+    Yield claim. Redeems for USDC at NAV after maturity.
+  </Card>
+  <Card title="Expected Points Token (EPT)" icon="star" href="/learn/expected-points-token">
+    Points claim. Accrues credits. Claims PointsTokens after maturity.
+  </Card>
+  <Card title="PointsToken" icon="coins" href="/learn/points-token">
+    1:1 representation of exchange points. Burns for airdrop tokens at TGE.
+  </Card>
+</CardGroup>
 
 ---
 
 ## How It Works
 
-### The Minting Equation
+<Steps>
+  <Step title="Deposit USDC">
+    Deposit USDC into a strategy vault. You receive **vToken** shares at the current NAV. Your vToken earns fixed yield and accrues credits for points. You can stop here — no splitting required.
+  </Step>
+  <Step title="Split (optional)">
+    Split your vTokens into their two components: **1 vToken = 1 ST + 1 EPT**. This is bidirectional — recombine anytime. Splitting lets you sell one side and concentrate into the other.
+  </Step>
+  <Step title="Trade">
+    ST and EPT each have an orderbook. Sell your ST to buy more EPT (points leverage), or sell your EPT for cheap ST (yield play). Orders are denominated in vTokens.
+  </Step>
+  <Step title="Earn">
+    **Yield:** The market maker borrows vault capital and pays a fixed interest rate (e.g. 15% APR gross, 12% net after performance fee). NAV grows linearly.
 
-$$1 \text{ USDC} = \frac{1}{R} \text{ ST} + 1 \text{ EPT}$$
+    **Points:** Both vToken and EPT holders accrue credits — a time-weighted measure of your position. Each week, exchange points are distributed proportional to your credit share. Earlier holders earn more. [Credit Mathematics →](/deep-dives/credit-mathematics)
+  </Step>
+  <Step title="Redeem">
+    At epoch maturity: ST redeems for USDC at final NAV. EPT claims PointsTokens. vToken holders can do either.
 
-where $R$ is the current <Tooltip tip="Net Asset Value. The per-share USDC value of the strategy vault.">NAV</Tooltip> per share. Depositing 1 USDC into a strategy mints both tokens together.
-
-### Two Orderbooks, One Matching Engine
-
-We run two separate orderbooks: **EPT/USDC** and **ST/USDC**. Orders are matched off-chain and settled on-chain (Starknet).
-
-**Cross-matching for mints.** When a buy order on the EPT book and a buy order on the ST book have prices that sum to at least the minting cost, the engine cross-matches them. The protocol takes the combined USDC, deposits it into the vault, and delivers EPT to one buyer and ST to the other. Neither buyer had to deposit into the strategy directly.
-
-**Secondary trades.** Within each orderbook, buyers and sellers trade existing tokens. No minting or burning occurs.
-
-### EPT Pricing
-
-The fair value of EPT is derived from the ST price:
-
-$$\text{EPT}_{\text{fair}} = 1 - \frac{X}{R}$$
-
-where $X$ is the ST market price and $R$ is the current NAV. This is the fair price from minting parity. The actual market price is set by supply and demand — arbitrageurs bring it close to fair, but the market has the final say. As the epoch progresses, EPT price tends to decay because fewer credits remain to be earned.
-
-### Credits and Points
-
-EPT accrues **credits** over time. Credit amounts are based on the strategy's activity on the exchange. Credits start fresh on acquisition. A buyer starts from zero regardless of the token's history.
-
-Points are distributed **weekly**. Each week's points are split among that week's credit holders:
-
-$$\text{your points} = \sum_{w} \frac{\text{your credits}_w}{\text{total credits}_w} \times \text{points}_w$$
-
-Early holders benefit: in weeks when fewer people hold EPT, each holder gets a larger share of that week's points.
+    To withdraw before maturity: sell on the orderbook, recombine to vToken if needed, then request withdrawal. Finalization takes up to 3 days.
+  </Step>
+</Steps>
 
 ---
 
-## Direct Minting
+## Pricing
 
-Instead of buying on the orderbook, you can deposit USDC directly into a strategy. You receive both $\frac{1}{R}$ ST and 1 EPT per USDC deposited, minus a small fee (varies by strategy) that covers deployment costs (exchange fees, spreads, bridging). This is useful if you want exposure to both tokens, but most users will prefer buying the specific token they want on the orderbook.
+Since 1 vToken = 1 ST + 1 EPT, their prices are locked together:
+
+$$\text{ST price} + \text{EPT price} = \text{vToken price}$$
+
+If prices drift, anyone can split or recombine to capture the gap. Both directions work, so pricing stays tight. [EPT Pricing →](/deep-dives/ept-pricing)
+
+---
+
+## Fees
+
+| Fee | Rate | Applied |
+|---|---|---|
+| Performance fee | 20% of returns generated | On yield |
+| EPT mint fee | 25% of EPT mint value | On orderbook match |
+| EPT redemption fee | 0% | — |
 
 ---
 
 ## Epochs
 
-Each strategy runs in fixed epochs (typically 8-12 weeks) that progress through three stages:
+Each strategy runs in epochs that progress through three stages:
 
 <Steps>
   <Step title="Active">
     <Badge color="green">ACTIVE</Badge>
 
-    Orderbooks are open. Credits accrue. The strategy is running.
+    Deposits open. Credits accruing. Orderbooks open. Splitting and recombining available.
   </Step>
   <Step title="Settling">
     <Badge color="orange">SETTLING</Badge>
 
-    Strategy unwinds. No new deposits. Orderbooks open for secondary trades only (no new minting).
+    Strategy unwinds. No new deposits. Orderbooks open for secondary trades only.
   </Step>
   <Step title="Matured">
     <Badge color="red">MATURED</Badge>
 
-    Final NAV and points are published. ST redeems for USDC. EPT claims <Tooltip tip="1:1 on-chain representation of exchange points. Persists across epochs. Burn for airdrop tokens after TGE.">PointsTokens</Tooltip>.
+    Final NAV and points published. ST redeems for USDC. EPT claims PointsTokens.
   </Step>
 </Steps>
 
-Epochs are independent. There is no automatic rollover. It is up to the protocol to decide whether to start a new epoch for a strategy. See [Epoch Lifecycle](/learn/epoch-lifecycle) for details.
+Epochs are independent. No automatic rollover. See [Epoch Lifecycle](/learn/epoch-lifecycle) for details.
 
 ---
 
-## Strategies at Launch
+## Vaults at Launch
 
-We launch with strategies on supported perp DEXes (Paradex, Hyperliquid, Pacifica, and others):
+Each vault pairs a professional market maker with one or more perp DEXes. The market maker borrows vault capital, runs their own strategies (market making, arbitrage, etc.), and pays back a fixed interest rate. ArcX does not dictate or operate the trading — each market maker runs their own book.
 
-- **Bluechip Funding Arbitrage**: captures funding rate spreads across major pairs
-- **Long Bitcoin**: directional BTC exposure through perpetual contracts
-
-Each strategy has its own vault, its own ST, and one EPT that covers all exchanges where it earns points.
+Each vault has its own vToken. Splitting produces ST and EPT specific to that vault and epoch.
