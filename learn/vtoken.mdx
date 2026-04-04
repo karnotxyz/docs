@@ -1,0 +1,127 @@
+---
+title: "vToken"
+description: "The base vault share. Deposit USDC, earn fixed yield and exchange points. Split into ST and EPT if you want isolated exposure."
+icon: "circle-dollar-to-slot"
+---
+
+## What Is a vToken
+
+A vToken is a vault share. Each vault pairs a market maker with one or more perp DEXes. You deposit USDC, receive vToken shares, and earn two things:
+
+1. **Fixed yield** — the market maker borrows your capital and pays a fixed interest rate
+2. **Exchange points** — the strategy's open interest generates points, distributed to you based on how much you held and for how long
+
+One vToken per vault. Different vaults have different market makers, exchanges, and rates.
+
+<Info>
+vToken is the simplest way to use ArcX. You earn yield and points without splitting, trading, or managing anything. Just deposit and hold.
+</Info>
+
+---
+
+## Deposit
+
+Deposit USDC into a vault. You receive vToken shares at the current <Tooltip tip="Net Asset Value. Per-share USDC value of the vault.">NAV</Tooltip>:
+
+$$\text{shares} = \frac{\text{deposit amount}}{\text{NAV}}$$
+
+First deposit into an empty vault mints shares 1:1 with USDC. After that, shares are priced by NAV.
+
+---
+
+## Yield
+
+Yield comes from a **fixed-rate loan**. The market maker borrows vault capital and pays back a fixed annual rate. NAV grows linearly at that rate.
+
+| Term | Example |
+|---|---|
+| Gross APR | 15% |
+| Performance fee | 20% of returns |
+| Net APR | 12% |
+
+NAV only reflects hard assets (USDC value). It does not price in points — points are tracked separately through credits.
+
+---
+
+## Credits and Points
+
+Your vToken accrues **credits** while you hold it. Credits measure how much capital you held and for how long, accounting for NAV growth.
+
+Credits are computed on-chain from the vault's NAV using the **Global Credit Index (GCI)**:
+
+$$\text{GCI increment} = \frac{\text{NAV}_{start} + \text{NAV}_{end}}{2} \times \text{days}$$
+
+Your credits for any interval:
+
+$$\text{your credits} = \text{your shares} \times \text{GCI increment}$$
+
+No oracle. Fully deterministic from NAV.
+
+**Points distribution:** Each week, the exchange delivers points. Those points are split among all credit holders of that week, proportional to their credit share. Hold earlier, earn more — early weeks are locked in and can't be diluted by later depositors. See [Credit Mathematics](/deep-dives/credit-mathematics) for the full treatment.
+
+**Fresh start on transfer.** If you buy vTokens on secondary or receive them via transfer, your credit counter starts from zero. The previous holder keeps their credits.
+
+---
+
+## The Split
+
+You can split your vTokens into their two components at any time:
+
+$$1 \text{ vToken} = 1 \text{ ST} + 1 \text{ EPT}$$
+
+- **ST (Strategy Token)** — the yield claim. Redeems for USDC at NAV after maturity.
+- **EPT (Expected Points Token)** — the points claim. Accrues credits. Claims PointsTokens after maturity.
+
+This is **bidirectional**. Recombine 1 ST + 1 EPT back into 1 vToken at any time. No fee on splitting or recombining — fees only apply on orderbook matches.
+
+### Why Split?
+
+Splitting lets you concentrate into the side you want:
+
+| Goal | Action |
+|---|---|
+| More points leverage | Split → sell ST → buy more EPT |
+| Cheaper yield | Split → sell EPT → keep ST at a discount |
+
+If you don't have a preference, don't split. Holding vToken gives you both.
+
+---
+
+## Withdrawal
+
+Withdrawals are two-phase:
+
+<Steps>
+  <Step title="Request">
+    Your shares are burned immediately. You stop earning yield and credits. The USDC you're owed is locked at the NAV at the time of your request.
+  </Step>
+  <Step title="Finalize">
+    After a short delay (up to 3 days), the USDC is released to your wallet.
+  </Step>
+</Steps>
+
+**Why the delay?** On-chain deposits take time to reach the exchange. Your credits were earned slightly ahead of when the capital was actually deployed. The withdrawal delay compensates for this timing mismatch.
+
+If you hold ST and EPT instead of vToken, recombine them first, then withdraw.
+
+---
+
+## At Maturity
+
+When the epoch matures, vToken holders can claim directly — no splitting required:
+
+- **USDC** at the final NAV (the yield you earned)
+- **PointsTokens** based on your accumulated credit share (the points you earned)
+
+There is no deadline on redemption.
+
+If you want to claim only one side (just the USDC, or just the points), split your vToken into ST and EPT first, then redeem each independently.
+
+---
+
+## What a vToken Is Not
+
+- **Not a governance token.** No voting rights.
+- **Not transferable across vaults.** Each vault's vToken is separate.
+- **Not a claim on trading profits.** The market maker's PnL is their business. You earn a fixed rate.
+- **NAV does not reflect points.** Points are tracked separately through credits.

@@ -76,6 +76,7 @@
           {
             "group": "Tokens",
             "pages": [
+              "learn/vtoken",
               "learn/strategy-token",
               "learn/expected-points-token",
               "learn/points-token"
