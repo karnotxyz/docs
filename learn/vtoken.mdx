@@ -45,21 +45,13 @@ NAV only reflects hard assets (USDC value). It does not price in points — poin
 
 ## Credits and Points
 
-Your vToken accrues **credits** while you hold it. Credits measure how much capital you held and for how long, accounting for NAV growth.
+Your vToken accrues **credits** while you hold it — the longer you hold and the more you hold, the bigger your share of points. Credits are tracked automatically on-chain from the vault's NAV. No oracle, nothing to claim manually.
 
-Credits are computed on-chain from the vault's NAV using the **Global Credit Index (GCI)**:
+Each week, the exchange delivers points. Those points are split among credit holders proportional to their share. Hold earlier, earn more — early weeks are locked in and can't be diluted by later depositors.
 
-$$\text{GCI increment} = \frac{\text{NAV}_{start} + \text{NAV}_{end}}{2} \times \text{days}$$
+If you buy vTokens on secondary or receive them via transfer, your credit counter starts from zero. The previous holder keeps their credits.
 
-Your credits for any interval:
-
-$$\text{your credits} = \text{your shares} \times \text{GCI increment}$$
-
-No oracle. Fully deterministic from NAV.
-
-**Points distribution:** Each week, the exchange delivers points. Those points are split among all credit holders of that week, proportional to their credit share. Hold earlier, earn more — early weeks are locked in and can't be diluted by later depositors. See [Credit Mathematics](/deep-dives/credit-mathematics) for the full treatment.
-
-**Fresh start on transfer.** If you buy vTokens on secondary or receive them via transfer, your credit counter starts from zero. The previous holder keeps their credits.
+See [Credit Mathematics](/deep-dives/credit-mathematics) for the formula.
 
 ---
 
@@ -76,12 +68,11 @@ This is **bidirectional**. Recombine 1 ST + 1 EPT back into 1 vToken at any time
 
 ### Why Split?
 
-Splitting lets you concentrate into the side you want:
+Splitting lets you concentrate into the side you want.
 
-| Goal | Action |
-|---|---|
-| More points leverage | Split → sell ST → buy more EPT |
-| Cheaper yield | Split → sell EPT → keep ST at a discount |
+**Points leverage:** Split 100 vTokens into 100 ST + 100 EPT. Sell the 100 ST for \~\$98 worth of vTokens. Buy EPT at \$0.02 each — that's 4,900 more EPT. You now hold **5,000 EPT** from a \$100 deposit. 50x points exposure.
+
+**Cheaper yield:** Split and sell your EPT. The proceeds effectively lower your cost basis on the ST you kept. Points farmers buying EPT push ST prices down — you pick up ST at a discount and earn the full fixed-rate yield on top.
 
 If you don't have a preference, don't split. Holding vToken gives you both.
 
@@ -93,14 +84,12 @@ Withdrawals are two-phase:
 
 <Steps>
   <Step title="Request">
-    Your shares are burned immediately. You stop earning yield and credits. The USDC you're owed is locked at the NAV at the time of your request.
+    Your shares are burned immediately. You stop earning yield and credits. The USDC you're owed is locked at current NAV.
   </Step>
   <Step title="Finalize">
-    After a short delay (up to 3 days), the USDC is released to your wallet.
+    After a short delay (up to 3 days), your USDC is released.
   </Step>
 </Steps>
-
-**Why the delay?** On-chain deposits take time to reach the exchange. Your credits were earned slightly ahead of when the capital was actually deployed. The withdrawal delay compensates for this timing mismatch.
 
 If you hold ST and EPT instead of vToken, recombine them first, then withdraw.
 
@@ -117,11 +106,3 @@ There is no deadline on redemption.
 
 If you want to claim only one side (just the USDC, or just the points), split your vToken into ST and EPT first, then redeem each independently.
 
----
-
-## What a vToken Is Not
-
-- **Not a governance token.** No voting rights.
-- **Not transferable across vaults.** Each vault's vToken is separate.
-- **Not a claim on trading profits.** The market maker's PnL is their business. You earn a fixed rate.
-- **NAV does not reflect points.** Points are tracked separately through credits.
