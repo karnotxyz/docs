@@ -82,7 +82,7 @@ Since 1 vToken = 1 ST + 1 EPT, their prices are locked together:
 
 $$\text{ST price} + \text{EPT price} = \text{vToken price}$$
 
-If prices drift, anyone can split or recombine to capture the gap. Both directions work, so pricing stays tight. [EPT Pricing →](/deep-dives/ept-pricing)
+If prices drift, arbitrageurs can trade to capture the gap, keeping pricing tight. [EPT Pricing →](/deep-dives/ept-pricing)
 
 ---
 
@@ -90,9 +90,8 @@ If prices drift, anyone can split or recombine to capture the gap. Both directio
 
 | Fee | Rate | Applied |
 |---|---|---|
-| Performance fee | 20% of returns generated | On yield |
-| EPT mint fee | 25% of EPT mint value | On orderbook match |
-| EPT redemption fee | 0% | — |
+| Performance fee (yield) | 20% of interest earned | On yield |
+| PointsToken claim fee | 25% of PointsTokens claimed | On claiming |
 
 ---
 
