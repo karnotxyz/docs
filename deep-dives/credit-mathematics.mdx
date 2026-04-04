@@ -1,74 +1,74 @@
 ---
 title: "Credit Mathematics"
-description: "How the credit system distributes points fairly across EPT holders, weighted by time and activity."
+description: "How the credit system distributes points fairly across holders, weighted by capital and time."
 icon: "calculator"
 ---
 
-Credits determine your share of points. Points are distributed weekly, not as a single lump sum at epoch end. This page explains exactly how credits accumulate and how weekly distribution rewards early holders.
+Credits determine your share of points. Points are distributed weekly, not as a single lump sum at epoch end. This page explains how credits accumulate and how weekly distribution rewards early holders.
 
-**Prerequisites:** [Protocol Overview](/learn/protocol-overview), [Expected Points Token](/learn/expected-points-token)
+**Prerequisites:** [What is ArcX?](/learn/protocol-overview), [vToken](/learn/vtoken)
 
 ---
 
 ## Why Credits Exist
 
-Without credits, points distribution would be trivially gameable. A naive design that distributes points proportional to EPT balance at epoch end lets anyone deposit one second before maturity and claim the same share as a day-one holder.
+Without credits, points distribution would be trivially gameable. A naive design that distributes points proportional to token balance at epoch end lets anyone deposit one second before maturity and claim the same share as a day-one holder.
 
-Credits prevent this by tracking **how much EPT you held** and **for how long** during the epoch. Your share of points is proportional to your cumulative credit balance, not a single end-of-epoch snapshot. A last-second depositor accumulates nearly zero credits and receives a negligible share of points, making the attack economically worthless.
+Credits prevent this by tracking **how much you held** and **for how long**. Your share of points is proportional to your cumulative credit balance, not a single end-of-epoch snapshot. A last-second depositor accumulates nearly zero credits and receives a negligible share of points.
 
 ---
 
 ## How Credits Accumulate
 
-ArcX periodically publishes a **credit update** on-chain. Each update specifies a number: **credits per EPT since the last update**.
+Credits are computed on-chain from the vault's NAV using the **Global Credit Index (GCI)**. No oracle. Fully deterministic.
 
-$$
-\text{credits per update} = \text{EPT balance} \times \text{credits per EPT for that update}
-$$
+### The GCI Formula
 
-Every EPT holder's credit balance increases by this amount on each update. Over an epoch with $n$ updates, a holder's total credits are:
+The GCI tracks credits earned per share. For any time interval:
 
-$$
-\text{totalCredits}_i = \sum_{k=1}^{n} \text{balance}_i(k) \times c_k
-$$
+$$\text{GCI increment} = \frac{\text{NAV}_{start} + \text{NAV}_{end}}{2} \times \text{days}$$
 
-where $c_k$ is the credits-per-EPT published at update $k$, and $\text{balance}_i(k)$ is user $i$'s EPT balance at that update.
+This is the average NAV over the interval multiplied by the duration. Geometrically, it's the area of a trapezoid: because NAV grows linearly (fixed-rate yield), the capital curve is a straight line, and the area under it equals the credits.
 
-### What drives the credit amount per update?
+Equivalently:
 
-The credits per update reflect the strategy's actual activity on the underlying perp DEX during that interval. More open interest means the strategy is generating more exchange points, so a higher credit amount is published.
+$$\text{GCI increment} = r_1 \times \Delta t + \frac{1}{2} \times \Delta t \times (r_2 - r_1)$$
 
-If the strategy is idle (market crash, technical issue, no open orders), credits continue to accrue for all holders. The reduced points from the idle period are socialized across everyone rather than penalizing holders who happened to hold during that window.
+where $r_1$ = NAV at start, $r_2$ = NAV at end, $\Delta t$ = duration in days.
+
+### Your Credits
+
+Your credits for any interval are your share balance times the GCI increment:
+
+$$\text{your credits} = \text{your balance} \times \text{GCI increment}$$
+
+Where balance = your vToken holdings + your EPT holdings. Both earn credits at the same rate — 1 vToken = 1 EPT for credit purposes.
+
+Credits accumulate across the epoch. They are tracked per weekly period for distribution.
 
 ---
 
 ## Fresh Credits on Transfer
 
-When EPT changes hands, whether through a secondary trade on the EPT/USDC orderbook or through minting via deposit, the new holder's credit counter starts from zero at the moment of acquisition.
+When tokens change hands — whether through the orderbook or through a transfer — the new holder's credit counter starts from zero at the moment of acquisition.
 
-- **Secondary purchase:** You buy 50 EPT on the orderbook. You start with zero credits. The seller retains all credits they accrued up to the moment of the sale.
-- **Minting:** You deposit USDC and receive freshly minted EPT. The new EPT starts at zero credits.
-- **No credit inheritance:** Credits are non-transferable. The buyer never receives the seller's accumulated credits.
-
-This is essential for fairness. Without the fresh-start rule, an attacker could buy EPT right before maturity and inherit the seller's entire credit history, defeating the purpose of the credit system.
+- **Orderbook purchase:** You buy EPT. You start with zero credits. The seller retains all credits they accrued.
+- **Minting:** You deposit USDC and receive freshly minted vTokens. They start at zero credits.
+- **No credit inheritance.** Credits are non-transferable. The buyer never receives the seller's accumulated credits.
 
 ---
 
 ## Weekly Points Distribution
 
-Points are not distributed as a single lump sum at epoch end. Instead, each week's points are distributed separately among that week's credit holders:
+Points are not distributed as a single lump sum at epoch end. Each week's points are distributed separately among that week's credit holders:
 
-$$
-\text{yourPoints} = \sum_{w=1}^{W} \frac{\text{yourCredits}_w}{\text{totalCredits}_w} \times \text{points}_w
-$$
+$$\text{yourPoints} = \sum_{w=1}^{W} \frac{\text{yourCredits}_w}{\text{totalCredits}_w} \times \text{points}_w$$
 
-where $W$ is the number of weeks in the epoch, $\text{yourCredits}_w$ is your credits accrued during week $w$, $\text{totalCredits}_w$ is the sum of all holders' credits for that week, and $\text{points}_w$ is the points earned by the strategy during that week.
+where $W$ is the number of weeks, $\text{yourCredits}_w$ is your credits during week $w$, $\text{totalCredits}_w$ is the sum of all holders' credits for that week, and $\text{points}_w$ is the points earned during that week.
 
 ### Why Weekly Matters
 
-Weekly distribution rewards early holders. When the platform is new and few people hold EPT, the denominator ($\text{totalCredits}_w$) is small. Early holders get a larger share of those early weeks' points. As more holders join in later weeks, the denominator grows and each holder's share of that week's points shrinks — but the early weeks are already locked in.
-
-This is the core early-mover advantage. If you wait until the platform is "hyped" and everyone holds EPT, you only participate in weeks with a large denominator. The early weeks — when points were split among fewer holders — are gone.
+Weekly distribution rewards early holders. When the platform is new and few people hold tokens, the denominator ($\text{totalCredits}_w$) is small. Early holders get a larger share of those early weeks' points. As more holders join in later weeks, the denominator grows — but the early weeks are already locked in.
 
 ---
 
@@ -77,7 +77,7 @@ This is the core early-mover advantage. If you wait until the platform is "hyped
 <Tabs>
   <Tab title="Early-Holder Advantage" icon="users">
     **Setup:** 10-week epoch. Strategy earns 500 points per week (5,000 total).
-    - Alice holds 100 EPT from week 1
+    - Alice holds 100 vTokens from week 1
     - Bob buys 100 EPT at week 7
 
     **Weekly distribution:**
@@ -94,13 +94,13 @@ This is the core early-mover advantage. If you wait until the platform is "hyped
     | Alice  | 3,000 (100%) | 1,000 (50%) | **4,000** | **80%** |
     | Bob    | 0 | 1,000 (50%) | **1,000** | **20%** |
 
-    Alice gets 80% of total points even though Bob held the same amount of EPT for 40% of the epoch. Without weekly distribution (single epoch-end calculation), Alice would get only 71.4%. The early weeks — when Alice was the sole holder — are locked in at 100%.
+    Alice gets 80% of total points even though Bob held the same amount for 40% of the epoch. The early weeks — when Alice was the sole holder — are locked in at 100%.
   </Tab>
 
-  <Tab title="Underhyped Platform" icon="chart-mixed">
+  <Tab title="Late Entrants" icon="chart-mixed">
     **Setup:** 10-week epoch. Strategy earns 500 points per week (5,000 total).
-    - Alice holds 100 EPT from week 1
-    - 9 other holders each buy 100 EPT at week 6 (platform gets popular)
+    - Alice holds 100 vTokens from week 1
+    - 9 other holders each buy 100 EPT at week 6
 
     **Weekly distribution:**
 
@@ -116,20 +116,13 @@ This is the core early-mover advantage. If you wait until the platform is "hyped
     | Alice  | 2,500 (weeks 1-5 at 100%) + 250 (weeks 6-10 at 10%) = **2,750** |
     | Each of 9 others | 250 each |
 
-    Alice earns **55%** of all points despite holding only 10% of total EPT from week 6 onward. She captured the "underhyped" weeks when the platform had low participation. The 9 latecomers split the remaining 45% among themselves.
+    Alice earns **55%** of all points despite holding only 10% of total tokens from week 6 onward. She captured the early weeks when participation was low.
   </Tab>
 
   <Tab title="Last-Second Attack" icon="clock">
     **Setup:** 10-week epoch. Strategy earns 500 points per week (5,000 total).
-    - Alice holds 100 EPT for all 10 weeks
+    - Alice holds 100 vTokens for all 10 weeks
     - Eve buys 100 EPT in the final week
-
-    **Weekly distribution:**
-
-    | Period | Alice | Eve | Alice's share |
-    |--------|-------|-----|--------------|
-    | Weeks 1-9 | 100 credits | 0 | 100% |
-    | Week 10 | 100 credits | 100 credits | 50% |
 
     **Points:**
 
@@ -141,3 +134,7 @@ This is the core early-mover advantage. If you wait until the platform is "hyped
     Eve deposited the same dollar amount as Alice but only participates in 1 out of 10 weekly distributions. The attack is economically neutralized.
   </Tab>
 </Tabs>
+
+<Info>
+These examples use simplified credit amounts for clarity. In production, credit amounts vary with NAV growth — the GCI formula accounts for this automatically.
+</Info>

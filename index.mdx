@@ -1,10 +1,12 @@
 ---
 title: "ArcX Documentation"
-description: "ArcX splits perp DEX trading strategies into two separately tradeable tokens: one for USDC yield, one for exchange points. Each has its own orderbook."
+description: "ArcX wraps perp DEX strategies into a vault token that earns fixed yield and exchange points. Split into ST and EPT for isolated exposure."
 icon: "book-open"
 ---
 
-We tokenize perp DEX strategies into two outcomes. Deposit USDC into a strategy vault, receive a **Strategy Token (ST)** (your claim on USDC returns) and an **Expected Points Token (EPT)** (your claim on exchange points). Each token trades on its own orderbook: **EPT/USDC** and **ST/USDC**. Points farmers buy EPT. Yield seekers buy discounted ST. Each user gets exactly the exposure they want, at a price set by the market.
+Deposit USDC into a vault, receive a **vToken** — a vault share that earns fixed yield and exchange points. Hold it for the combined return, or buy **ST** (yield) or **EPT** (points) on the orderbook to concentrate into the side you want.
+
+Points farmers buy EPT for leveraged points exposure. Yield seekers buy discounted ST for fixed returns. Or just hold vToken and earn both.
 
 ---
 
@@ -13,35 +15,35 @@ We tokenize perp DEX strategies into two outcomes. Deposit USDC into a strategy 
 <CardGroup cols={2}>
 
   <Card title="How ArcX Works" icon="book-open" href="/learn/protocol-overview">
-    The two-orderbook architecture, minting equation, credit system, and how ST and EPT are priced.
+    The vToken vault, orderbook mechanics, credit system, and how yield and points work.
+  </Card>
+
+  <Card title="vToken" icon="circle-dollar-to-slot" href="/learn/vtoken">
+    The base vault share. Deposit, earn, split, withdraw. Start here.
   </Card>
 
   <Card title="Strategy Token (ST)" icon="vault" href="/learn/strategy-token">
-    Your claim on the strategy's USDC value. NAV tracking, share pricing, redemption after maturity.
+    The yield claim. Buy at a discount, redeem at NAV after maturity.
   </Card>
 
   <Card title="Expected Points Token (EPT)" icon="star" href="/learn/expected-points-token">
-    Your claim on exchange points. Credit accrual, checkpointing, and how points are distributed at maturity.
-  </Card>
-
-  <Card title="User Guide" icon="user" href="/learn/user-guide">
-    Step-by-step: deposit, trade on the orderbooks, redeem. Start here if you want to use the product.
+    The points claim. Accrues credits for weekly points distribution.
   </Card>
 
 </CardGroup>
 
 ---
 
-## Strategies
+## Using ArcX
 
 <CardGroup cols={2}>
 
-  <Card title="Bluechip Funding Arb" icon="scale-balanced" href="/strategies/bluechip-funding-arb">
-    Delta-neutral funding rate arbitrage across major perp DEXes. Dual-leg OI earns points on every exchange.
+  <Card title="User Guide" icon="user" href="/learn/user-guide">
+    Step-by-step: deposit, trade, redeem. Start here if you want to use the product.
   </Card>
 
-  <Card title="Long Bitcoin" icon="bitcoin-sign" href="/strategies/long-bitcoin">
-    Directional 1x long BTC. Sell the EPT to subsidize your holding cost.
+  <Card title="ArcX vs Pendle" icon="scale-balanced" href="/learn/pendle-comparison">
+    If you know Pendle, here's ArcX in terms you already understand.
   </Card>
 
 </CardGroup>
@@ -53,15 +55,15 @@ We tokenize perp DEX strategies into two outcomes. Deposit USDC into a strategy 
 <CardGroup cols={3}>
 
   <Card title="Credit Mathematics" icon="calculator" href="/deep-dives/credit-mathematics">
-    How the credit system distributes points fairly across time and activity.
+    How credits distribute points fairly — the GCI formula and weekly settlement.
   </Card>
 
   <Card title="EPT Pricing" icon="chart-line" href="/deep-dives/ept-pricing">
-    The pricing equation, orderbook dynamics, and market mechanics.
+    Split parity, orderbook dynamics, and what drives EPT and ST prices.
   </Card>
 
   <Card title="Trust Model" icon="shield" href="/deep-dives/trust-model-and-security">
-    What you trust us with, attack vectors, and the decentralization roadmap.
+    What's on-chain, what's off-chain, and how each component is protected.
   </Card>
 
 </CardGroup>

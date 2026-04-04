@@ -1,118 +1,84 @@
 ---
 title: "EPT Pricing"
-description: "How EPT gets its value from minting parity, why the returns frame matters, and what drives prices on the EPT/USDC orderbook."
+description: "How EPT gets its value from split parity, why the returns frame matters, and what drives prices on the orderbook."
 icon: "chart-line"
 ---
 
 EPT price depends on one equation. This page walks through that equation and what drives it.
 
-## The Minting Parity Equation
+## The Split Parity
 
-Every EPT pricing analysis starts from the deposit contract:
+ST and EPT are the two components of a vToken. Their prices are locked:
 
-$$1 \text{ USDC deposited} = \frac{1}{R} \text{ ST} + 1 \text{ EPT}$$
+$$\text{ST price} + \text{EPT price} = \text{vToken price}$$
 
-where $R$ = NAV per share. Depositing 1 USDC always mints exactly $1/R$ ST shares and exactly 1 EPT. No exceptions.
+vToken trades at or near NAV (since you can always mint or burn at NAV). So if ST trades at price $X$:
 
-Since the two tokens are co-minted, their prices are linked. If ST trades at price $X$ on the ST/USDC orderbook, the fair value of EPT is:
+$$\text{EPT}_{\text{fair}} = \text{NAV} - X$$
 
-$$\text{EPT}_{\text{fair}} = 1 - \frac{X}{R}$$
+If ST trades at \$0.98 and NAV is 1.00, EPT fair value is \$0.02.
 
-**Intuition:** a \$1 deposit creates ST worth $X/R$ and 1 EPT. The EPT accounts for whatever value the ST does not. If ST trades at \$0.92 with NAV at 1.00, then EPT fair value is \$0.08.
+**Enforcement.** This isn't just a formula — arbitrage enforces it. If ST + EPT prices drift above vToken price, anyone can split vTokens and sell the components. If they drift below, anyone can buy both and recombine. Both directions work, so pricing stays tight.
 
-This isn't just a formula — cross-matching enforces it. Whenever an EPT buy and an ST buy appear at prices that sum to \$1 or more, the engine mints new tokens and fills both orders. That keeps the combined price from ever drifting above the minting cost.
+<Warning>
+Manual splitting and recombining mechanics are under review and may be permissioned at launch. Arbitrage enforcement may initially operate through permissioned actors.
+</Warning>
 
 ---
 
 ## Returns Framing
 
-The natural question when looking at EPT prices is "is \$0.08 too expensive?" The better question is: **what is the implied return?**
+The natural question is "is \$0.02 too expensive?" The better question: **what is the implied return?**
 
-EPT is a claim on future points. Its value depends on how many points you earn and what those points are worth at TGE. Instead of evaluating the absolute price, trace the full return.
+EPT is a claim on future points. Its value depends on how many points you earn and what those points are worth at TGE.
 
 ### Worked Example
 
-You buy 100 EPT at \$0.05 each (\$5 total) during an 8-week epoch. Here's how the return plays out:
+You use 5 vTokens to buy 250 EPT at \$0.02 each during a 60-day epoch:
 
 | Step | What happens |
 |---|---|
-| **Buy** | 100 EPT × \$0.05 = \$5 spent |
+| **Buy** | 250 EPT for 5 vTokens (\$5 at NAV) |
 | **Hold** | You accrue credits over the epoch. Your credit share works out to 50 points. |
-| **Claim** | Epoch matures. You claim 50 PointsTokens. |
+| **Claim** | Epoch matures. You claim 50 PointsTokens (after 20% performance fee on points). |
 | **TGE** | Each point is worth \$0.20 at TGE. You burn 50 PointsTokens for \$10. |
-| **Return** | \$10 out on \$5 in = **100% return over 8 weeks** |
+| **Return** | \$10 out on \$5 in = **100% return over 60 days** |
 
-That's the implied return. It replaces guessing about time decay with one question: **what return am I getting on my EPT investment?**
+### Same Price, Different Return
 
-Now compare: if EPT is priced at \$0.05 with 8 weeks left, you earn credits for all 8 weeks. If EPT is still \$0.05 with only 2 weeks left, you earn credits for just 2 weeks. Same price, but 8 weeks gives you far more credits and therefore more points. The returns framing makes this obvious: \$0.05 with 8 weeks left is a better deal than \$0.05 with 2 weeks left.
+If EPT is \$0.02 with 8 weeks left, you earn credits for all 8 weeks. If EPT is still \$0.02 with 2 weeks left, you earn credits for just 2 weeks. Same price, very different return.
 
-In practice, EPT price decays as the epoch progresses precisely because fewer credits remain. At 2 weeks left, the market prices EPT lower to reflect the reduced earning window.
-
-### Why EPT Price Falls Over the Epoch
-
-EPT accrues credits while you hold it. As the epoch progresses, fewer credits remain to be earned. An EPT purchased at Week 1 accrues credits for 7 more weeks. An EPT purchased at Week 6 accrues credits for 2 weeks. The market prices this in: EPT gets cheaper as the epoch advances, because each token has less earning potential left.
-
-This is not mechanical decay imposed by a curve. It is the market correctly pricing a shrinking stream of future credits.
+In practice, EPT price decays as the epoch progresses because fewer credits remain to be earned. This is the market correctly pricing a shrinking earning window — not a mechanical decay curve.
 
 ### Leverage Is Not a Fixed Number
 
-When you buy EPT at \$0.05 instead of minting at \$1.00, you get 20x more EPT per dollar. But that "20x" means very different things depending on when you buy it. Early in the epoch, those 20x EPT accrue credits for weeks. Late in the epoch, the same 20x EPT accrue credits for days. The leverage ratio is the same, but the implied return (APR) is vastly different.
+At \$0.02 per EPT, 100 vTokens buys 5,000 EPT — 50x more than holding vTokens. But that "50x" means very different things depending on when you buy. Early in the epoch, those EPT accrue credits for weeks. Late, they accrue for days. Same leverage, vastly different APR.
 
-This is why the UI shows both **APR** and **leverage** side by side. Changing one auto-updates the other. You can think in whichever frame is more intuitive, but APR captures the time dimension that a raw leverage number does not. Limit orders are placed in APR terms — the price adjusts automatically based on time remaining.
-
----
-
-## Orderbook Price Dynamics
-
-EPT trades on the **EPT/USDC orderbook**. Price discovery happens through standard limit orders. Buyers and sellers post bids and asks, and the matching engine executes trades.
-
-### Secondary Trading
-
-When an EPT holder sells to an EPT buyer, USDC changes hands. No minting or burning occurs. The seller keeps all credits earned up to the moment of sale. The buyer begins accruing from zero.
-
-### Cross-Matching
-
-The EPT/USDC and ST/USDC orderbooks are connected through the minting parity. When a buy order on the EPT book and a buy order on the ST book have prices that satisfy:
-
-$$P_{\text{EPT}} + \frac{P_{\text{ST}}}{R} \geq 1$$
-
-the matching engine can cross-match them. The protocol takes the combined USDC, deposits it into the vault, and delivers EPT to one buyer and ST to the other. This creates a price ceiling: the sum of buy-side prices across both books cannot persistently exceed the minting cost, because cross-matching mints new supply until the gap closes.
-
-```mermaid
-flowchart LR
-    A["EPT Buy Order\n$0.08"] --> C["Matching Engine"]
-    B["ST Buy Order\n$0.93"] --> C
-    C -->|"sum ≥ $1.00"| D["Mint via Vault"]
-    D --> E["EPT → Buyer A"]
-    D --> F["ST → Buyer B"]
-```
-
-### UI View: APR-Based Orders
-
-In the UI, users do not set raw token prices for these limit orders. They set APR constraints:
-
-- **ST buyers** set the **minimum APR** they require.
-- **EPT buyers** set the **maximum APR** they are willing to give up.
-
-The engine translates those APR limits into executable prices based on time remaining in the epoch. We use APR because it is time-invariant for user intent: "I need at least X%" or "I can pay up to Y%."
-
-If limits were placed as raw prices, users would need to keep updating orders as time passes, because the same price implies a different APR later in the epoch.
+The UI shows both **APR** and **leverage** side by side. Limit orders are placed in APR terms — the price adjusts automatically as time passes.
 
 ---
 
-## One-Way Arbitrage
+## Orderbook Mechanics
 
-### Upward Arb Works
+One orderbook, two pairs: **ST/vToken** and **EPT/vToken**. All orders are denominated in vTokens.
 
-If EPT + ST buy prices exceed the minting cost, cross-matching creates new tokens and pushes prices back in line. This is a hard ceiling enforced by the protocol.
+### How Orders Match
 
-**Example:** EPT bids at \$0.12, ST bids at \$0.94 (sum = \$1.06 with R = 1.0). The engine mints, delivers tokens, and new supply pushes prices down to parity.
+| Scenario | What happens |
+|---|---|
+| EPT buyer + EPT seller | Secondary trade. vTokens ↔ EPT. Seller keeps credits. Buyer starts from zero. |
+| ST buyer + ST seller | Secondary trade. vTokens ↔ ST. |
+| EPT buyer + ST buyer | Both contribute vTokens. Engine splits them into ST + EPT. Delivers each side. |
+| EPT seller + ST seller | ST + EPT recombined into vTokens. Distributed between sellers by matched price. |
 
-### No Downward Arb (Yet)
+### APR-Based Orders
 
-If the combined prices fall below minting cost, the correcting trade would require buying both tokens and burning them for USDC. There is no early redemption mechanism today, so this arbitrage path does not exist. The ST discount can therefore persist wider than fair value. Yield seekers buying cheap ST provide a natural floor, but there is no guaranteed mechanical correction on the downside.
+Users don't set raw prices. They set APR constraints:
 
-Early redemption is on the roadmap for a future version.
+- **ST buyers** set the minimum APR they require
+- **EPT buyers** set the maximum APR they're willing to pay
+
+The engine translates APR to executable prices based on time remaining. APR is time-invariant — "I need at least X%" stays the same regardless of when in the epoch you place the order.
 
 ---
 
@@ -120,78 +86,66 @@ Early redemption is on the roadmap for a future version.
 
 | Factor | Effect on EPT Price |
 |---|---|
-| **Time remaining** | More time = more credits to earn = higher EPT price |
-| **Expected points value** | Higher expected TGE value = higher EPT price |
-| **Strategy OI** | More open interest = more credits per update = higher EPT price |
-| **ST discount** | ST price and EPT price are linked through minting parity |
+| **Time remaining** | More time = more credits to earn = higher price |
+| **Expected points value** | Higher expected TGE value = higher price |
+| **ST discount** | ST and EPT linked through split parity |
 | **Points demand** | More buyers on EPT orderbook = higher price |
-
-ST price and EPT value are linked through [minting parity](#the-minting-parity-equation). Cross-matching enforces a ceiling: if buy-side prices sum above \$1, the engine mints new supply.
+| **Vault NAV** | Higher NAV = higher vToken price = more room for EPT value |
 
 ---
 
 ## What Drives the ST Discount
 
-The ST discount is the other side of EPT pricing. The two are mechanically linked.
+The ST discount is the other side of EPT pricing.
 
 ### Factors That Widen the Discount
 
 | Factor | Mechanism |
 |---|---|
-| **Strong EPT demand** | More EPT buying triggers more cross-match mints, increasing ST supply |
-| **Early in epoch** | Maximum time risk for ST holders before maturity |
-| **High uncertainty** | Market demands larger compensation for unknown strategy PnL |
+| **Strong EPT demand** | More EPT buying → more order matching → more ST supply hitting the market |
+| **Early in epoch** | Maximum time until maturity = more uncertainty |
 
 ### Factors That Narrow the Discount
 
 | Factor | Mechanism |
 |---|---|
 | **Yield seeker demand** | Buyers seeking fixed returns absorb ST supply |
-| **Approaching maturity** | Less time risk remaining |
-| **Strong strategy performance** | Higher expected NAV at maturity makes ST more attractive |
+| **Approaching maturity** | Less time risk remaining, price converges to NAV |
 
 ### Equilibrium
 
-The discount settles where two forces balance:
-
-$$\text{EPT buying pressure (drives mints, creates ST supply)} = \text{Yield seeker buying pressure (absorbs ST supply)}$$
-
-Points farmers want cheap EPT, which requires a wide ST discount. Yield seekers want cheap ST, which the wide discount provides. The market-clearing price is where the marginal points farmer's willingness to pay for EPT meets the marginal yield seeker's willingness to hold ST risk.
+Points farmers want cheap EPT, which requires a wide ST discount. Yield seekers want cheap ST, which the wide discount provides. The market clears where the marginal points farmer's willingness to pay meets the marginal yield seeker's willingness to hold.
 
 ---
 
 ## Worked Example (\$100)
 
-**Setup:** NAV = 1.00, ST trading at \$0.92 (8% discount to NAV).
+**Setup:** NAV = 1.00, ST trading at \$0.98, EPT at \$0.02.
 
-### Fair EPT Price
+### Points Farmer
 
-$$\text{EPT}_{\text{fair}} = 1 - \frac{0.92}{1.00} = \$0.08$$
+Buy EPT with 100 vTokens at \$0.02 per EPT:
 
-### Points Farmer: Buying EPT on the Orderbook
+$$\frac{100 \text{ vTokens}}{0.02 \text{ vTokens per EPT}} = 5{,}000\text{ EPT}$$
 
-A points farmer places a buy order at \$0.08 per EPT.
+Compare: holding 100 vTokens earns credits on 100 tokens. Buying EPT earns credits on **5,000 tokens** — 50x points leverage. The leverage comes from the price. But remember: [same leverage, different APR depending on timing](#leverage-is-not-a-fixed-number).
 
-$$\frac{\$100}{\$0.08} = 1{,}250\text{ EPT}$$
+### Yield Seeker
 
-Compare this to a direct deposit: \$100 into the vault mints 100 ST and 100 EPT. Buying on the orderbook yields **12.5x more EPT** for the same capital at this price. The leverage comes entirely from the price — no looping, no compounding. But remember: [leverage is not a fixed number](#leverage-is-not-a-fixed-number). The same 12.5x means different APR depending on time remaining.
+Buy ST with 100 vTokens at \$0.98 per ST. The vault pays 12% net APR. Over a 60-day epoch:
 
-### Yield Seeker: Buying ST on the Orderbook
-
-A yield seeker buys ST at \$0.92. If the strategy earns 1% over the epoch (final NAV = 1.01):
-
-$$\text{Return} = \frac{1.01 - 0.92}{0.92} \approx 9.8\%\text{ per epoch}$$
-
-The 8% discount provides a buffer against strategy losses. The strategy can lose up to 8% of NAV before the ST buyer goes underwater.
+- Discount capture: 2%
+- Yield: 12% × 60/365 ≈ 2%
+- **Total: \~4% per epoch, or \~24% annualized**
 
 ### Where the Value Goes
 
-| Participant | Pays | Receives | Exposure |
+| Participant | Pays | Gets | Exposure |
 |---|---|---|---|
-| Points farmer | \$100 USDC | 1,250 EPT | 12.5x leveraged points |
-| Yield seeker | \$92 per ST | 1 ST (redeemable at final NAV) | Discounted USDC yield |
-| Direct depositor | \$100 USDC | 100 ST + 100 EPT | Both exposures at par |
+| Points farmer | 100 vTokens | 5,000 EPT | 50x leveraged points |
+| Yield seeker | 100 vTokens | \~102 ST | Fixed yield + discount |
+| vToken holder | 100 USDC | 100 vTokens | Both yield + points at 1x |
 
-The same \$100 buys radically different exposure depending on which token you choose. We do not create value. We separate it. The points farmer concentrates into points. The yield seeker concentrates into USDC returns. The direct depositor gets the unseparated bundle.
+We don't create value. We separate it.
 
-For the full treatment of credit mathematics and how credits translate to points at maturity, see [Credit Mathematics](/deep-dives/credit-mathematics).
+See [Credit Mathematics](/deep-dives/credit-mathematics) for how credits translate to points.
