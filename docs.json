@@ -2,7 +2,7 @@
   "$schema": "https://mintlify.com/docs.json",
   "theme": "mint",
   "name": "ArcX",
-  "description": "ArcX splits perp DEX trading strategies into separately tradeable tokens: one for USDC returns, one for exchange points.",
+  "description": "ArcX wraps perp DEX strategies into a vault token that earns fixed yield and exchange points. Split into ST and EPT for isolated exposure.",
   "favicon": "/favicon.png",
   "logo": {
     "light": "/logo/arc-logo.png",
@@ -97,8 +97,7 @@
           {
             "group": "Strategies",
             "pages": [
-              "strategies/bluechip-funding-arb",
-              "strategies/long-bitcoin"
+              "strategies/bluechip-funding-arb"
             ]
           }
         ]

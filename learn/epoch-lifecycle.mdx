@@ -1,10 +1,10 @@
 ---
 title: "Epoch Lifecycle"
-description: "Every strategy runs in fixed-duration epochs that progress through three states: Active, Settling, and Matured."
+description: "Every vault runs in epochs that progress through three states: Active, Settling, and Matured."
 icon: "clock"
 ---
 
-An **epoch** is a fixed time window during which a strategy vault operates. Each strategy defines its own epoch schedule. When one epoch ends, a new one can begin — capital does not automatically carry over.
+An **epoch** is a fixed time window during which a vault operates. Each vault defines its own epoch schedule. When one epoch ends, a new one can begin — capital does not automatically carry over.
 
 Every epoch moves through exactly three states:
 
@@ -16,8 +16,8 @@ stateDiagram-v2
     MATURED --> [*]
 ```
 
-**Active** — The strategy is executing and orderbooks are open. Users can deposit (minting ST and EPT), or trade ST and EPT on their respective orderbooks. Credits accrue on EPT balances throughout this phase.
+**Active** — Deposits open. Credits accruing on vToken and EPT balances. Orderbooks open for trading (ST/vToken and EPT/vToken). Withdrawals available (two-phase).
 
-**Settling** — The strategy unwinds its positions and capital is returned to the vault. No new deposits are accepted. Orderbooks remain open for secondary trades only — no new minting (Buy + Buy cross-matching is disabled). Credit accrual is frozen.
+**Settling** — The market maker unwinds positions and capital is returned to the vault. No new deposits. Orderbooks open for secondary trades only. Credit accrual stops.
 
-**Matured** — Settlement is complete. Trading stops. ST holders redeem for USDC at the final NAV. EPT holders claim PointsTokens based on their accumulated credit share. There is no deadline on redemption — tokens remain valid indefinitely. To participate in the next epoch, you redeem and deposit again.
+**Matured** — Final NAV and points published. ST redeems for USDC. EPT claims PointsTokens. vToken holders can claim both directly. No deadline on redemption.

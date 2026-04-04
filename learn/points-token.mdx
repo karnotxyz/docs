@@ -14,19 +14,17 @@ Each supported perp DEX has its own PointsToken on Starknet, representing the ex
 | xHL | Hyperliquid | 1 xHL = 1 Hyperliquid point |
 | xPC | Pacifica | 1 xPC = 1 Pacifica point |
 
-Additional PointsTokens are created as new exchanges are integrated. One PointsToken per exchange, shared across all strategies and all epochs on that exchange.
+Additional PointsTokens are created as new exchanges are integrated. One PointsToken per exchange, shared across all vaults and epochs on that exchange.
 
 ---
 
 ## How Claiming Works
 
-After an epoch matures, <Tooltip tip="Expected Points Token. Your claim on exchange points earned during the epoch." href="/learn/expected-points-token">EPT</Tooltip> holders claim their share of the epoch's points as PointsTokens. The number you receive is proportional to your [credit share](/learn/expected-points-token#how-credits-determine-your-points).
+After an epoch matures, holders with accumulated credits claim their share of points as PointsTokens. Both vToken and EPT holders earn credits and can claim.
 
-The claim process:
-
-1. Epoch matures, total points for the strategy are reported
-2. You claim on your EPT position
-3. Your credit share is calculated, fee deducted, PointsTokens minted to your wallet
+1. Epoch matures, total points for the vault are reported
+2. A 20% performance fee on points is deducted
+3. You claim based on your credit share — PointsTokens are minted to your wallet
 
 ---
 
@@ -34,25 +32,20 @@ The claim process:
 
 Unlike ST and EPT, which are created fresh each epoch, PointsTokens accumulate. Your xPC from Epoch 5 and your xPC from Epoch 8 are the **same token**. They stack in your wallet.
 
-This means your total PointsToken balance reflects your cumulative points exposure across every epoch you have participated in.
-
 PointsTokens are standard tokens on Starknet. You can hold, transfer, or trade them freely.
 
 ---
 
 ## Post-TGE: Burn for Airdrop Tokens
 
-When an exchange conducts its <Tooltip tip="Token Generation Event. When a perp DEX launches its token and distributes airdrops to points holders.">TGE</Tooltip> (token generation event):
+When an exchange conducts its <Tooltip tip="Token Generation Event. When a perp DEX launches its token and distributes airdrops to points holders.">TGE</Tooltip>:
 
-1. The exchange distributes airdrop tokens to us
-2. We make them available for redemption
-3. A conversion rate is set based on total airdrop tokens and total PointsToken supply
-4. You burn your PointsTokens to receive airdrop tokens at that rate
+1. The exchange distributes airdrop tokens
+2. A conversion rate is set based on total airdrop tokens and total PointsToken supply
+3. You burn your PointsTokens to receive airdrop tokens at that rate
 
 **Example:** You hold 1,000 xPC. The exchange airdrops 50,000 PDX tokens against a total xPC supply of 100,000.
 
 $$\text{conversion rate} = \frac{50{,}000 \text{ PDX}}{100{,}000 \text{ xPC}} = 0.5$$
 
 You burn 1,000 xPC and receive 500 PDX.
-
-PointsTokens are a 1:1 on-chain representation of the points/XP you have on the exchange platform. Their value is whatever the exchange's points are worth.

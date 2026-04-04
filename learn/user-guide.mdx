@@ -1,59 +1,73 @@
 ---
 title: "User Guide"
-description: "Step-by-step instructions for buying EPT, buying discounted ST, exiting positions, and redeeming after maturity."
+description: "Step-by-step: deposit for vTokens, buy EPT or ST on the orderbook, withdraw, and redeem after maturity."
 icon: "compass"
 ---
 
-We have two orderbooks, **EPT/USDC** and **ST/USDC**, one for each token. Everything starts with placing a buy order on the right book for your goal.
+Everything starts with depositing USDC for vTokens. From there, you choose your path.
+
+---
+
+## Deposit
+
+<Steps>
+  <Step title="Select a vault">
+    Each vault pairs a market maker with one or more exchanges. Different vaults have different rates and point sources.
+  </Step>
+  <Step title="Deposit USDC">
+    Enter your amount. You receive vToken shares at the current NAV.
+  </Step>
+  <Step title="Done">
+    Your vTokens earn fixed yield (NAV grows) and accrue credits for points. You can stop here — this is the simplest path.
+  </Step>
+</Steps>
+
+---
+
+## Buy EPT or ST
+
+If you want isolated exposure, use your vTokens to buy on the orderbook.
 
 <Tabs>
   <Tab title="Points Farmer" icon="chart-line">
-    You want leveraged exposure to exchange points.
+    You want leveraged points exposure.
 
     <Steps>
-      <Step title="Open the EPT/USDC orderbook">
-        Navigate to the EPT/USDC orderbook for the strategy you want (e.g., Bluechip Funding Arb). Each strategy has its own EPT.
+      <Step title="Open the EPT orderbook">
+        Navigate to the EPT orderbook for the vault you're in.
       </Step>
-      <Step title="Place a buy order for EPT">
-        Set your price and quantity. The UI shows both **APR** and **leverage** — changing one auto-updates the other. Limit orders are placed in APR terms. For example, buy 2,000 EPT at \$0.05 each for \$100 total. The same price implies different APR depending on how much time is left in the epoch.
+      <Step title="Place a buy order">
+        Set your APR and quantity. You're paying with vTokens. At \$0.02 per EPT, 100 vTokens buys 5,000 EPT — 50x points leverage. The UI shows both APR and leverage.
       </Step>
-      <Step title="Order is matched">
-        Your order fills through one of two paths:
-        - **Secondary trade**: matched against someone selling their existing EPT
-        - **Cross-match mint**: matched with a simultaneous ST buyer, and the protocol mints both tokens from the combined USDC
-
-        Either way, EPT lands in your wallet.
+      <Step title="Order fills">
+        Your order matches against an EPT seller (secondary trade) or an ST buyer (engine splits combined vTokens). Either way, EPT lands in your wallet.
       </Step>
-      <Step title="Hold EPT during the epoch">
-        Credits accrue automatically while you hold EPT. You do not need to take any action. Credits start fresh from the moment you acquire the EPT.
+      <Step title="Hold and earn">
+        Credits accrue automatically while you hold EPT. No action needed. Earlier holders earn more — your early weeks are locked in.
       </Step>
-      <Step title="Claim PointsTokens after maturity">
-        Once the epoch has matured, go to the claims page and claim your PointsTokens. Your share is proportional to your [credits](/learn/expected-points-token#the-credit-system).
+      <Step title="Claim after maturity">
+        Epoch matures. Claim your PointsTokens based on your credit share.
       </Step>
     </Steps>
   </Tab>
   <Tab title="Yield Seeker" icon="vault">
-    You want predictable USDC returns with no points exposure.
+    You want fixed USDC returns.
 
     <Steps>
-      <Step title="Open the ST/USDC orderbook">
-        Navigate to the ST/USDC orderbook for the strategy you want. Check the current NAV on the strategy dashboard.
+      <Step title="Open the ST orderbook">
+        Navigate to the ST orderbook for the vault you're in.
       </Step>
-      <Step title="Place a buy order for ST at a discount">
-        Buy ST below the current NAV. For example, if NAV is 1.00, place a buy at \$0.90, a 10% discount. Your \$100 buys about 111 ST.
+      <Step title="Place a buy order">
+        Buy ST below NAV with your vTokens. The vault pays 12% net APR. The discount on top is your bonus.
       </Step>
-      <Step title="Order is matched">
-        Your order fills through one of two paths:
-        - **Secondary trade**: matched against someone selling their existing ST
-        - **Cross-match mint**: matched with a simultaneous EPT buyer, and the protocol mints both tokens from the combined USDC
-
-        ST lands in your wallet.
+      <Step title="Order fills">
+        Your order matches against an ST seller (secondary trade) or an EPT buyer (engine splits combined vTokens). ST lands in your wallet.
       </Step>
-      <Step title="Hold ST during the epoch">
-        Your ST tracks the strategy's NAV. If the strategy earns 1% over the epoch, NAV rises to approximately 1.01. Monitor performance on the ArcX dashboard.
+      <Step title="Hold through the epoch">
+        ST tracks the vault's NAV. NAV grows at the fixed rate. Monitor on the dashboard.
       </Step>
-      <Step title="Redeem ST after maturity">
-        Once the epoch has matured, go to the redemption page and redeem your ST for USDC at the final NAV. Your return is the gap between your purchase price and the redemption value. See [Strategy Token](/learn/strategy-token#yield-seekers-buy-the-discount) for worked examples.
+      <Step title="Redeem after maturity">
+        Epoch matures. Redeem ST for USDC at the final NAV.
       </Step>
     </Steps>
   </Tab>
@@ -61,78 +75,55 @@ We have two orderbooks, **EPT/USDC** and **ST/USDC**, one for each token. Everyt
 
 ---
 
-## Exiting Early
+## Exiting Before Maturity
 
-You do not have to wait for maturity to exit. Sell your tokens on the orderbook at any time during the active epoch.
+You don't have to wait. Sell your tokens on the orderbook at any time during the active epoch.
 
-- **Sell EPT** on the EPT/USDC orderbook to another buyer at market price
-- **Sell ST** on the ST/USDC orderbook to another buyer at market price
+- **Sell EPT** → receive vTokens. Seller keeps all accrued credits. Buyer starts from zero.
+- **Sell ST** → receive vTokens.
 
-This is a secondary trade, not a redemption. Redemption (ST for USDC at NAV, EPT for PointsTokens) only happens after the epoch has matured. Early exits are at whatever price the market offers.
+To convert vTokens back to USDC, request a withdrawal (see below).
 
 ---
 
-## Direct Minting
+## Withdrawal
 
-Instead of buying on the orderbook, you can deposit USDC directly into a strategy. You receive both ST and EPT per the [minting equation](/learn/protocol-overview#the-minting-equation).
+Withdrawals convert vTokens to USDC in two steps:
 
 <Steps>
-  <Step title="Select the strategy and epoch">
-    Go to the deposit page and choose the strategy you want to enter.
+  <Step title="Request">
+    Your vToken shares are burned. You stop earning yield and credits. The USDC you're owed is locked at current NAV.
   </Step>
-  <Step title="Enter your USDC amount">
-    Enter how much USDC you want to deposit (e.g., \$100).
-  </Step>
-  <Step title="Confirm the transaction">
-    Review the breakdown (ST shares and EPT quantity) and confirm in your wallet.
-  </Step>
-  <Step title="Receive both tokens">
-    ST and EPT appear in your wallet in the same transaction.
+  <Step title="Finalize">
+    After a short delay (up to 3 days), your USDC is released. The delay covers on-chain/exchange settlement.
   </Step>
 </Steps>
 
-Direct minting is useful when orderbook spreads are wide, or when you want exposure to both tokens simultaneously. Most users will prefer buying the specific token they want on the orderbook.
-
----
-
-## Getting Started
-
-ArcX uses an embedded wallet. Fund your wallet with USDC and you are ready to trade on the orderbooks or deposit into strategies.
+**If you hold ST or EPT**, sell them on the orderbook first to receive vTokens, then withdraw. Or recombine ST + EPT into vTokens if you hold both.
 
 ---
 
 ## After Maturity
 
-When an epoch reaches the **MATURED** state, final NAV and total points are locked in. There is no deadline to redeem or claim. Do it whenever you are ready.
+When an epoch reaches **MATURED**, final NAV and total points are locked in. No deadline to redeem — do it whenever you're ready.
 
-### ST Holders: Redeem for USDC
-
-<Steps>
-  <Step title="Go to your portfolio page">
-    Select the matured epoch.
-  </Step>
-  <Step title="Redeem your ST">
-    Your full ST balance is redeemed.
-  </Step>
-  <Step title="Receive USDC">
-    Your ST is burned and you receive USDC at the final NAV.
-  </Step>
-</Steps>
-
-### EPT Holders: Claim PointsTokens
-
-<Steps>
-  <Step title="Go to your portfolio page">
-    Select the matured epoch and the EPT you want to claim.
-  </Step>
-  <Step title="Confirm and receive PointsTokens">
-    Your credits are settled, PointsTokens are minted to your wallet based on your credit share.
-  </Step>
-</Steps>
+<Tabs>
+  <Tab title="vToken Holders" icon="wallet">
+    Claim directly — no splitting required:
+    - **USDC** at the final NAV
+    - **PointsTokens** based on your credit share
+  </Tab>
+  <Tab title="ST Holders" icon="vault">
+    Redeem ST for USDC at the final NAV. Your ST is burned.
+  </Tab>
+  <Tab title="EPT Holders" icon="star">
+    Claim PointsTokens based on your accumulated credit share. A 20% performance fee on points is deducted before distribution.
+  </Tab>
+</Tabs>
 
 ### What to Do with PointsTokens
 
-PointsTokens represent actual exchange points. Hold them until the exchange conducts its TGE, then burn your PointsTokens to receive airdrop tokens.
+PointsTokens represent actual exchange points. Hold them until the exchange conducts its TGE, then burn your PointsTokens to receive airdrop tokens. See [PointsToken](/learn/points-token) for details.
 
 ---
 
@@ -140,13 +131,25 @@ PointsTokens represent actual exchange points. Hold them until the exchange cond
 
 | Action | <Badge color="green">ACTIVE</Badge> | <Badge color="orange">SETTLING</Badge> | <Badge color="red">MATURED</Badge> |
 |---|---|---|---|
+| Deposit USDC for vTokens | Yes | No | No |
 | Buy/sell EPT on orderbook | Yes | Secondary only | No |
 | Buy/sell ST on orderbook | Yes | Secondary only | No |
-| Direct mint (deposit USDC) | Yes | No | No |
-| Credits accruing on EPT | Yes | No | No |
+| Credits accruing | Yes | Stopped | Final |
+| Withdraw vTokens | Yes | Yes | Yes |
 | Redeem ST for USDC | No | No | **Yes** |
 | Claim EPT for PointsTokens | No | No | **Yes** |
-| Burn PointsTokens for airdrop | — | — | After TGE |
+| Claim vToken (both) | No | No | **Yes** |
+
+---
+
+## Fees
+
+| Fee | Rate | When |
+|---|---|---|
+| Performance fee (yield) | 20% of returns | On yield accrual |
+| Performance fee (points) | 20% of points | On distribution |
+| EPT mint fee | 25% of EPT mint value | On orderbook match |
+| EPT redemption | 0% | — |
 
 ---
 
@@ -157,6 +160,6 @@ PointsTokens represent actual exchange points. Hold them until the exchange cond
     How credits accrue and how your points share is calculated.
   </Card>
   <Card title="EPT Pricing" icon="chart-line" href="/deep-dives/ept-pricing">
-    How EPT fair value is derived from ST price and NAV.
+    How EPT fair value is derived from split parity with ST.
   </Card>
 </CardGroup>
