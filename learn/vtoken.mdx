@@ -36,8 +36,9 @@ Yield comes from a **fixed-rate loan**. The market maker borrows vault capital a
 | Term | Example |
 |---|---|
 | Gross APR | 15% |
-| Performance fee | 20% of returns |
+| Performance fee (yield) | 20% of returns |
 | Net APR | 12% |
+| Performance fee (points) | 20% of points generated |
 
 NAV only reflects hard assets (USDC value). It does not price in points — points are tracked separately through credits.
 
@@ -45,7 +46,7 @@ NAV only reflects hard assets (USDC value). It does not price in points — poin
 
 ## Credits and Points
 
-Your vToken accrues **credits** while you hold it — the longer you hold and the more you hold, the bigger your share of points. Credits are tracked automatically on-chain from the vault's NAV. No oracle, nothing to claim manually.
+Your vToken accrues **credits** while you hold it — the longer you hold and the more you hold, the bigger your share of points. 1 vToken earns credits at the same rate as 1 EPT — you don't lose points exposure by not splitting. Credits are tracked automatically on-chain from the vault's NAV. No oracle, nothing to claim manually.
 
 Each week, the exchange delivers points. Those points are split among credit holders proportional to their share. Hold earlier, earn more — early weeks are locked in and can't be diluted by later depositors.
 
@@ -87,7 +88,7 @@ Withdrawals are two-phase:
     Your shares are burned immediately. You stop earning yield and credits. The USDC you're owed is locked at current NAV.
   </Step>
   <Step title="Finalize">
-    After a short delay (up to 3 days), your USDC is released.
+    After a short delay (up to 3 days), your USDC is released. The delay covers the time it takes for on-chain capital to settle on the exchange.
   </Step>
 </Steps>
 
