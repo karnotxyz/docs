@@ -10,9 +10,9 @@ Points farming on perp DEXes is capital-inefficient. You deposit capital, lock i
 
 ## The Solution
 
-We wrap perp DEX strategies into a **vToken** — a vault share that earns both fixed yield and exchange points. Hold it for the combined return, or split it into **ST** (yield claim) and **EPT** (points claim) and trade the side you don't want.
+We wrap perp DEX strategies into a **vToken** — a vault share that earns both fixed yield and exchange points. Hold it for the combined return, or use your vTokens to buy **ST** (yield) or **EPT** (points) on the orderbook.
 
-Points farmers sell their ST, buy more EPT. Yield seekers sell their EPT, keep cheap ST. Each user gets exactly the exposure they want, at a price set by the market.
+Points farmers buy EPT for leveraged points exposure. Yield seekers buy ST at a discount for fixed returns. Each user gets exactly the exposure they want, at a price set by the market.
 
 ---
 
@@ -20,7 +20,7 @@ Points farmers sell their ST, buy more EPT. Yield seekers sell their EPT, keep c
 
 <CardGroup cols={3}>
   <Card title="Points Farmer" icon="chart-line">
-    Deposit, split your vToken, and sell the ST side to load up on EPT. At \$0.02 per EPT, \$100 of capital ends up holding **5,000 EPT** — 50x points leverage.
+    Deposit \$100 for vTokens. Buy EPT on the orderbook. At \$0.02 per EPT, you end up holding **5,000 EPT** — 50x points leverage.
   </Card>
   <Card title="Yield Seeker" icon="vault">
     Points farmers sell ST cheap. You pick it up below NAV. The vault pays **12% net APR** (15% gross, 20% performance fee). You earn the yield plus whatever discount you bought at.
@@ -57,13 +57,10 @@ Points farmers sell their ST, buy more EPT. Yield seekers sell their EPT, keep c
 
 <Steps>
   <Step title="Deposit USDC">
-    Deposit USDC into a strategy vault. You receive **vToken** shares at the current NAV. Your vToken earns fixed yield and accrues credits for points. You can stop here — no splitting required.
+    Deposit USDC into a vault. You receive **vToken** shares at the current NAV. Your vToken earns fixed yield and accrues credits for points. You can stop here.
   </Step>
-  <Step title="Split (optional)">
-    Split your vTokens into their two components: **1 vToken = 1 ST + 1 EPT**. This is bidirectional — recombine anytime. Splitting lets you sell one side and concentrate into the other.
-  </Step>
-  <Step title="Trade">
-    ST and EPT each have an orderbook. Sell your ST to buy more EPT (points leverage), or sell your EPT for cheap ST (yield play). Orders are denominated in vTokens.
+  <Step title="Trade (optional)">
+    Use your vTokens to buy **EPT** (points leverage) or **ST** (discounted yield) on the orderbook. One orderbook, two pairs: ST/vToken and EPT/vToken. The matching engine handles the rest.
   </Step>
   <Step title="Earn">
     **Yield:** The market maker borrows vault capital and pays a fixed interest rate (e.g. 15% APR gross, 12% net after performance fee). NAV grows linearly.

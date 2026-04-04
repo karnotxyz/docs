@@ -56,26 +56,30 @@ See [Credit Mathematics](/deep-dives/credit-mathematics) for the formula.
 
 ---
 
-## The Split
+## Trading ST and EPT
 
-You can split your vTokens into their two components at any time:
+Most users don't need to split. You buy ST or EPT directly on the orderbook using your vTokens.
+
+**Want points leverage?** Buy EPT with your vTokens. At \$0.02 per EPT, 100 vTokens gets you **5,000 EPT** — 50x points exposure. The matching engine splits vTokens into ST + EPT behind the scenes when your order matches.
+
+**Want discounted yield?** Buy ST with your vTokens. Points farmers push ST prices below NAV. You earn the fixed-rate yield plus the discount.
+
+One orderbook, two pairs: **ST/vToken** and **EPT/vToken**. All orders are denominated in vTokens.
+
+### The Split Equation
+
+Under the hood, ST and EPT are the two components of a vToken:
 
 $$1 \text{ vToken} = 1 \text{ ST} + 1 \text{ EPT}$$
 
 - **ST (Strategy Token)** — the yield claim. Redeems for USDC at NAV after maturity.
 - **EPT (Expected Points Token)** — the points claim. Accrues credits. Claims PointsTokens after maturity.
 
-This is **bidirectional**. Recombine 1 ST + 1 EPT back into 1 vToken at any time. No fee on splitting or recombining — fees only apply on orderbook matches.
+This relationship is bidirectional — ST + EPT can be recombined into vToken.
 
-### Why Split?
-
-Splitting lets you concentrate into the side you want.
-
-**Points leverage:** Split 100 vTokens into 100 ST + 100 EPT. Sell the 100 ST for \~\$98 worth of vTokens. Buy EPT at \$0.02 each — that's 4,900 more EPT. You now hold **5,000 EPT** from a \$100 deposit. 50x points exposure.
-
-**Cheaper yield:** Split and sell your EPT. The proceeds effectively lower your cost basis on the ST you kept. Points farmers buying EPT push ST prices down — you pick up ST at a discount and earn the full fixed-rate yield on top.
-
-If you don't have a preference, don't split. Holding vToken gives you both.
+<Warning>
+Manual splitting and recombining mechanics are under review and may be permissioned at launch.
+</Warning>
 
 ---
 
