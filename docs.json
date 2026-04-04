@@ -92,17 +92,6 @@
         ]
       },
       {
-        "tab": "Strategies",
-        "groups": [
-          {
-            "group": "Strategies",
-            "pages": [
-              "strategies/bluechip-funding-arb"
-            ]
-          }
-        ]
-      },
-      {
         "tab": "Deep Dives",
         "groups": [
           {
