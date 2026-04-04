@@ -1,43 +1,77 @@
 ---
 title: "Quick Reference"
-description: "Token summary, key equations, and epoch states at a glance."
+description: "Token summary, key equations, fees, and epoch states at a glance."
 icon: "book"
 ---
 
-## Token Reference
+## Tokens
 
-| Token | Scope | Tradeable | Redeemable for | Expiry |
+| Token | What it is | Tradeable | Redeemable for | Scope |
 |---|---|---|---|---|
-| **ST** | Per epoch, per strategy | Yes (ST/USDC orderbook) | USDC (after maturity) | End of epoch |
-| **EPT** | Per epoch, per strategy | Yes (EPT/USDC orderbook) | PointsTokens (after maturity) | End of epoch |
-| **PointsToken** | Per exchange (persists across epochs) | Yes | Airdrop tokens (after TGE) | None |
+| **vToken** | Base vault share. Earns yield + points. | Yes | USDC + PointsTokens at maturity | Per vault, per epoch |
+| **ST** | Yield claim (split from vToken) | Yes (orderbook) | USDC at final NAV | Per vault, per epoch |
+| **EPT** | Points claim (split from vToken) | Yes (orderbook) | PointsTokens at maturity | Per vault, per epoch |
+| **PointsToken** | 1:1 exchange points | Yes | Airdrop tokens after TGE | Per exchange, persists |
 
-### Naming Convention
+### Split Equation
 
-| Token | Pattern | Example |
-|---|---|---|
-| ST | ST-{Strategy}-E{epoch} | ST-FundingArb-E007 |
-| EPT | EPT-{Strategy}-E{epoch} | EPT-FundingArb-E007 |
-| PointsToken | x{Exchange} | xPX, xHL, xPC |
+$$1 \text{ vToken} = 1 \text{ ST} + 1 \text{ EPT}$$
+
+Bidirectional. Split or recombine at any time. No fee on split/recombine — fees apply on orderbook matches only.
 
 ---
 
 ## Key Equations
 
-| Equation | What it means |
+| Equation | Meaning |
 |---|---|
-| 1 USDC = (1/R) ST + 1 EPT | One dollar deposited produces this fixed combination of tokens |
-| NAV = vault value / total shares | Each ST share is worth the vault value divided by total shares |
-| shares = deposit amount / NAV | Shares minted depend on current per-share NAV |
-| your points = Σ (your credits_w / total credits_w) x points_w | Points distributed weekly — your share of each week's credits determines your share of that week's points |
-| EPT implied cost = 1 - X/R | The gap between \$1 and the value of ST from a \$1 deposit |
+| shares = deposit / NAV | vToken shares minted on deposit |
+| NAV = vault value / total shares | Per-share USDC value of the vault |
+| 1 vToken = 1 ST + 1 EPT | Split parity (bidirectional) |
+| ST price + EPT price = vToken price | Pricing parity from split |
+| your points = Σ (your credits_w / total credits_w) × points_w | Weekly points distribution by credit share |
+
+### GCI (Global Credit Index)
+
+Credits per share per interval, computed on-chain from NAV:
+
+$$\text{GCI increment} = \frac{\text{NAV}_{start} + \text{NAV}_{end}}{2} \times \text{days}$$
+
+$$\text{your credits} = \text{your shares} \times \text{GCI increment}$$
+
+Both vToken and EPT holders earn credits at the same rate. No oracle.
+
+---
+
+## Fees
+
+| Fee | Rate | Applied |
+|---|---|---|
+| Performance fee (yield) | 20% of returns generated | On yield accrual |
+| Performance fee (points) | 20% of points generated | On points distribution |
+| EPT mint fee | 25% of EPT mint value | On orderbook match |
+| EPT redemption fee | 0% | — |
+| Split / recombine | 0% | — |
 
 ---
 
 ## Epoch State Machine
 
-| State | Deposits | Credit Accrual | Orderbook Trading | Redemption |
-|---|---|---|---|---|
-| **ACTIVE** | Yes | Yes (credit updates) | Yes | No |
-| **SETTLING** | No | Stopped | Secondary only | No |
-| **MATURED** | No | Final credits settled | No | Yes |
+| State | Deposits | Credit Accrual | Orderbook Trading | Split / Recombine | Redemption |
+|---|---|---|---|---|---|
+| **ACTIVE** | Yes | Yes | Yes | Yes | No |
+| **SETTLING** | No | Stopped | Secondary only | Yes | No |
+| **MATURED** | No | Final | No | No | Yes |
+
+At maturity: ST redeems for USDC. EPT claims PointsTokens. vToken holders can claim both directly.
+
+---
+
+## Withdrawal
+
+| Step | What happens |
+|---|---|
+| **Request** | Shares burned. Yield and credit accrual stops. USDC owed locked at current NAV. |
+| **Finalize** | After up to 3 days, USDC released. Delay covers on-chain/exchange settlement. |
+
+If you hold ST + EPT, recombine to vToken first.
