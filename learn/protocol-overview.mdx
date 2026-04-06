@@ -23,7 +23,7 @@ Points farmers buy EPT for leveraged points exposure. Yield seekers buy ST at a 
     Deposit \$100 for vTokens. Buy EPT on the orderbook. At \$0.02 per EPT, you end up holding **5,000 EPT** — 50x points leverage.
   </Card>
   <Card title="Yield Seeker" icon="vault">
-    Points farmers sell ST cheap. You pick it up below NAV. The vault pays **12% net APR**. You earn the yield plus whatever discount you bought at.
+    EPT buyers pay for the points portion of a vToken, leaving ST available below NAV. You pick it up at a discount. The vault pays **12% net APR**. You earn the yield plus the discount.
   </Card>
   <Card title="Just Hold vToken" icon="wallet">
     Earn yield and accrue points credits in one token. The simplest way to use ArcX.
@@ -76,22 +76,24 @@ Points farmers buy EPT for leveraged points exposure. Yield seekers buy ST at a 
 
 ---
 
-## Pricing
+## NAV and Pricing
 
-Since 1 vToken = 1 ST + 1 EPT, their prices are locked together:
+**NAV** is the per-share USDC value of the vault. It grows linearly as the market maker pays the fixed interest rate. NAV does not respond to orderbook activity — it only reflects the vault's assets.
 
-$$\text{ST price} + \text{EPT price} = \text{vToken price}$$
+**ST** trades on the orderbook priced in vTokens. It represents the yield claim — at maturity, ST redeems for USDC at the final NAV. ST trades below NAV because EPT buyers are paying for the points portion of the vToken, leaving the yield portion available at a discount. The more someone pays for EPT, the cheaper ST gets. That discount is the yield seeker's opportunity.
 
-The matching engine enforces this — when orders match, vTokens are split internally, keeping prices locked. [EPT Pricing →](/deep-dives/ept-pricing)
+**EPT** trades on the orderbook priced in vTokens. It represents the points claim. EPT price reflects what the market thinks the points are worth. EPT decays over the epoch as fewer credits remain to earn.
+
+**Matching.** One orderbook handles both ST and EPT. When an ST buy and an EPT buy arrive together, the engine mints — splitting vTokens into ST + EPT. When an ST sell and an EPT sell arrive together, the engine burns — recombining into vTokens. This means an ST buy can be filled by either an ST seller or an EPT buyer, and vice versa. [EPT Pricing →](/deep-dives/ept-pricing)
 
 ---
 
 ## Fees
 
-| Fee | Rate | Applied |
-|---|---|---|
-| Performance fee (yield) | 20% of interest earned | On yield |
-| PointsToken claim fee | 25% of PointsTokens claimed | On claiming |
+| Fee | Rate | Who | Applied |
+|---|---|---|---|
+| Performance fee | 20% of interest earned | vToken holders (deducted from NAV growth) | On yield |
+| PointsToken claim fee | 25% of PointsTokens | EPT and vToken holders who claim points | On claiming |
 
 ---
 

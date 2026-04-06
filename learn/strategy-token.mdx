@@ -10,7 +10,7 @@ ST is the yield component of a [vToken](/learn/vtoken). Buy ST on the orderbook 
 
 ST represents your claim on the vault's USDC value. The vault pays a fixed interest rate, so NAV grows predictably. At maturity, you redeem ST for USDC at the final NAV.
 
-ST trades on the **ST/vToken** orderbook. Yield seekers buy ST at a discount to NAV. The discount exists because points farmers buying EPT create ST supply on the other side of the orderbook.
+ST trades on the **ST/vToken** orderbook. Yield seekers buy ST at a discount to NAV. The discount exists because EPT buyers are paying for the points portion of the vToken — the more they pay for EPT, the cheaper ST gets.
 
 ---
 
@@ -30,7 +30,7 @@ ST holders earn the net APR on their position. They do **not** earn credits or p
 
 ## Buy the Discount
 
-Points farmers buying EPT push ST prices below NAV. That discount is the yield seeker's opportunity.
+EPT buyers pay for the points portion of the vToken, leaving the yield portion (ST) available below NAV. That discount is the yield seeker's opportunity.
 
 **Example.** NAV is 1.00. ST trades at \$0.98. The vault pays 12% net APR. Over a 60-day epoch:
 
@@ -38,7 +38,7 @@ Points farmers buying EPT push ST prices below NAV. That discount is the yield s
 - Yield: 12% × 60/365 ≈ 2%
 - **Total: \~4% per epoch, or \~24% annualized**
 
-The deeper the discount, the higher the effective return. The discount acts as a buffer — the only way you lose money is if something goes wrong with the vault itself, not from market movements.
+The deeper the discount, the higher the effective return.
 
 ---
 
@@ -64,9 +64,9 @@ As the epoch approaches maturity, ST price tends to converge toward NAV.
 
 | Factor | Effect |
 |---|---|
-| EPT demand | More EPT buying creates more ST supply, widening the discount |
+| EPT demand | More EPT buying means more capital paying for the points portion, widening the ST discount |
 | Yield seeker demand | Absorbs ST supply, narrowing the discount |
 | Time to maturity | Price converges toward NAV as the epoch ends |
 | Vault NAV | Higher NAV means higher redemption value |
 
-The ST discount reflects the cost of points. When points are in high demand, farmers buy EPT aggressively, ST supply grows, and the discount widens. Yield seekers absorb that supply and earn a higher effective return.
+The ST discount reflects the cost of points. When points are in high demand, EPT buyers pay more for the points portion, widening the ST discount. Yield seekers buy ST at that discount and earn a higher effective return.

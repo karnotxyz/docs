@@ -1,24 +1,20 @@
 ---
 title: "EPT Pricing"
-description: "How EPT gets its value from split parity, why the returns frame matters, and what drives prices on the orderbook."
+description: "How ST and EPT are priced, why the returns frame matters, and what drives the ST discount."
 icon: "chart-line"
 ---
 
 EPT price depends on one equation. This page walks through that equation and what drives it.
 
-## The Split Parity
+## How ST and EPT Are Priced
 
-ST and EPT are the two components of a vToken. Their prices are locked:
+**NAV** is the per-share USDC value of the vault. It grows linearly as the market maker pays the fixed interest rate. NAV does not respond to orderbook activity.
 
-$$\text{ST price} + \text{EPT price} = \text{vToken price}$$
+**ST** and **EPT** are the yield and points components of a vToken. They trade on the orderbook priced in vTokens.
 
-vToken trades at or near NAV (since you can deposit at NAV and withdraw at NAV). So if ST trades at price $X$:
+EPT buyers pay for the points portion of the vToken. Whatever they pay, the remainder is what ST is worth. If ST trades at \$0.98 near a NAV of 1.00, the market is valuing EPT at roughly \$0.02. The more someone pays for EPT, the cheaper ST gets — and vice versa.
 
-$$\text{EPT}_{\text{fair}} = \text{NAV} - X$$
-
-If ST trades at \$0.98 and NAV is 1.00, EPT fair value is \$0.02.
-
-The matching engine enforces this parity. When orders match, vTokens are split into ST + EPT internally — the prices stay locked together.
+The matching engine keeps this relationship tight. When an ST buy and EPT buy arrive together, the engine mints — splitting vTokens into ST + EPT. When an ST sell and EPT sell arrive together, the engine burns — recombining into vTokens.
 
 ---
 
@@ -84,9 +80,9 @@ The engine translates APR to executable prices based on time remaining. APR is t
 |---|---|
 | **Time remaining** | More time = more credits to earn = higher price |
 | **Expected points value** | Higher expected TGE value = higher price |
-| **ST discount** | ST and EPT linked through split parity |
+| **ST discount** | More EPT buying = wider ST discount (structural link) |
 | **Points demand** | More buyers on EPT orderbook = higher price |
-| **Vault NAV** | Higher NAV = higher vToken price = more room for EPT value |
+| **Vault NAV** | Higher NAV = more total value to split between ST and EPT |
 
 ---
 
@@ -98,7 +94,7 @@ The ST discount is the other side of EPT pricing.
 
 | Factor | Mechanism |
 |---|---|
-| **Strong EPT demand** | More EPT buying → more order matching → more ST supply hitting the market |
+| **Strong EPT demand** | More capital paying for the points portion → wider ST discount |
 | **Early in epoch** | Maximum time until maturity = more uncertainty |
 
 ### Factors That Narrow the Discount
