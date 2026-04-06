@@ -38,7 +38,6 @@ Yield comes from a **fixed-rate loan**. The market maker borrows vault capital a
 | Gross APR | 15% |
 | Performance fee (yield) | 20% of interest earned |
 | Net APR | 12% |
-| PointsToken claim fee | 25% of PointsTokens claimed |
 
 NAV only reflects hard assets (USDC value). It does not price in points — points are tracked separately through credits.
 
@@ -101,7 +100,7 @@ If you hold ST and EPT instead of vToken, recombine them first, then withdraw.
 When the epoch matures, vToken holders can claim directly:
 
 - **USDC** at the final NAV (the yield you earned)
-- **PointsTokens** based on your accumulated credit share (the points you earned)
+- **PointsTokens** based on your accumulated credit share (25% claim fee deducted)
 
 There is no deadline on redemption.
 
