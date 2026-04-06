@@ -26,7 +26,7 @@ Points farmers buy EPT for leveraged points exposure. Yield seekers buy ST at a 
     Points farmers sell ST cheap. You pick it up below NAV. The vault pays **12% net APR**. You earn the yield plus whatever discount you bought at.
   </Card>
   <Card title="Just Hold vToken" icon="wallet">
-    Earn yield and accrue points credits without splitting anything. The simplest way to use ArcX.
+    Earn yield and accrue points credits in one token. The simplest way to use ArcX.
   </Card>
 </CardGroup>
 
@@ -38,7 +38,7 @@ Points farmers buy EPT for leveraged points exposure. Yield seekers buy ST at a 
 
 <CardGroup cols={2}>
   <Card title="vToken" icon="circle-dollar-to-slot" href="/learn/vtoken">
-    The base. Vault share that earns yield + points. Splittable into ST and EPT.
+    The base. Vault share that earns yield + points.
   </Card>
   <Card title="Strategy Token (ST)" icon="vault" href="/learn/strategy-token">
     Yield claim. Redeems for USDC at NAV after maturity.
@@ -82,7 +82,7 @@ Since 1 vToken = 1 ST + 1 EPT, their prices are locked together:
 
 $$\text{ST price} + \text{EPT price} = \text{vToken price}$$
 
-If prices drift, arbitrageurs can trade to capture the gap, keeping pricing tight. [EPT Pricing →](/deep-dives/ept-pricing)
+The matching engine enforces this — when orders match, vTokens are split internally, keeping prices locked. [EPT Pricing →](/deep-dives/ept-pricing)
 
 ---
 
@@ -103,7 +103,7 @@ Each strategy runs in epochs that progress through three stages:
   <Step title="Active">
     <Badge color="green">ACTIVE</Badge>
 
-    Deposits open. Credits accruing. Orderbooks open. Splitting and recombining available.
+    Deposits open. Credits accruing. Orderbooks open for trading.
   </Step>
   <Step title="Settling">
     <Badge color="orange">SETTLING</Badge>
@@ -125,4 +125,4 @@ Epochs are independent. No automatic rollover. See [Epoch Lifecycle](/learn/epoc
 
 Each vault pairs a professional market maker with one or more perp DEXes. The market maker borrows vault capital, runs their own strategies (market making, arbitrage, etc.), and pays back a fixed interest rate. ArcX does not dictate or operate the trading — each market maker runs their own book.
 
-Each vault has its own vToken. Splitting produces ST and EPT specific to that vault and epoch.
+Each vault has its own vToken. ST and EPT derived from each vault are specific to that vault and epoch.

@@ -1,6 +1,6 @@
 ---
 title: "vToken"
-description: "The base vault share. Deposit USDC, earn fixed yield and exchange points. Split into ST and EPT if you want isolated exposure."
+description: "The base vault share. Deposit USDC, earn fixed yield and exchange points. Buy ST or EPT on the orderbook for isolated exposure."
 icon: "circle-dollar-to-slot"
 ---
 
@@ -14,7 +14,7 @@ A vToken is a vault share. Each vault pairs a market maker with one or more perp
 One vToken per vault. Different vaults have different market makers, exchanges, and rates.
 
 <Info>
-vToken is the simplest way to use ArcX. You earn yield and points without splitting, trading, or managing anything. Just deposit and hold.
+vToken is the simplest way to use ArcX. You earn yield and points without trading or managing anything. Just deposit and hold.
 </Info>
 
 ---
@@ -46,7 +46,7 @@ NAV only reflects hard assets (USDC value). It does not price in points — poin
 
 ## Credits and Points
 
-Your vToken accrues **credits** while you hold it — the longer you hold and the more you hold, the bigger your share of points. 1 vToken earns credits at the same rate as 1 EPT — you don't lose points exposure by not splitting. Credits are tracked automatically on-chain from the vault's NAV. No oracle, nothing to claim manually.
+Your vToken accrues **credits** while you hold it — the longer you hold and the more you hold, the bigger your share of points. 1 vToken earns credits at the same rate as 1 EPT — you don't lose points exposure by holding vToken. Credits are tracked automatically on-chain from the vault's NAV. No oracle, nothing to claim manually.
 
 Each week, the exchange delivers points. Those points are split among credit holders proportional to their share. Hold earlier, earn more — early weeks are locked in and can't be diluted by later depositors.
 
@@ -58,28 +58,24 @@ See [Credit Mathematics](/deep-dives/credit-mathematics) for the formula.
 
 ## Trading ST and EPT
 
-Most users don't need to split. You buy ST or EPT directly on the orderbook using your vTokens.
+Buy ST or EPT directly on the orderbook using your vTokens.
 
-**Want points leverage?** Buy EPT with your vTokens. At \$0.02 per EPT, 100 vTokens gets you **5,000 EPT** — 50x points exposure. The matching engine splits vTokens into ST + EPT behind the scenes when your order matches.
+**Want points leverage?** Buy EPT with your vTokens. At \$0.02 per EPT, 100 vTokens gets you **5,000 EPT** — 50x points exposure.
 
 **Want discounted yield?** Buy ST with your vTokens. Points farmers push ST prices below NAV. You earn the fixed-rate yield plus the discount.
 
 One orderbook, two pairs: **ST/vToken** and **EPT/vToken**. All orders are denominated in vTokens.
 
-### The Split Equation
+### How It Works Under the Hood
 
-Under the hood, ST and EPT are the two components of a vToken:
+ST and EPT are the two components of a vToken:
 
 $$1 \text{ vToken} = 1 \text{ ST} + 1 \text{ EPT}$$
 
 - **ST (Strategy Token)** — the yield claim. Redeems for USDC at NAV after maturity.
 - **EPT (Expected Points Token)** — the points claim. Accrues credits. Claims PointsTokens after maturity.
 
-This relationship is bidirectional — ST + EPT can be recombined into vToken.
-
-<Warning>
-Manual splitting and recombining mechanics are under review and may be permissioned at launch.
-</Warning>
+When your buy order matches, the engine handles the splitting internally. You just buy the token you want.
 
 ---
 
@@ -102,12 +98,11 @@ If you hold ST and EPT instead of vToken, recombine them first, then withdraw.
 
 ## At Maturity
 
-When the epoch matures, vToken holders can claim directly — no splitting required:
+When the epoch matures, vToken holders can claim directly:
 
 - **USDC** at the final NAV (the yield you earned)
 - **PointsTokens** based on your accumulated credit share (the points you earned)
 
 There is no deadline on redemption.
 
-If you want to claim only one side (just the USDC, or just the points), split your vToken into ST and EPT first, then redeem each independently.
 

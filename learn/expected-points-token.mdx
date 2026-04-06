@@ -1,10 +1,10 @@
 ---
 title: "Expected Points Token (EPT)"
-description: "The points claim from a vToken split. Accrues credits for weekly points distribution. Claims PointsTokens after maturity."
+description: "The points component of a vToken. Accrues credits for weekly points distribution. Claims PointsTokens after maturity."
 icon: "star"
 ---
 
-EPT is the points side of a [vToken](/learn/vtoken). When a vToken is split, the points claim becomes EPT and the yield claim becomes [ST](/learn/strategy-token). You don't need to split yourself — buy EPT directly on the orderbook with your vTokens.
+EPT is the points component of a [vToken](/learn/vtoken). Buy EPT on the orderbook with your vTokens to isolate the points side.
 
 ## What Is EPT
 
@@ -32,7 +32,7 @@ Since 1 vToken = 1 ST + 1 EPT, EPT price is linked to ST:
 
 $$\text{EPT price} = \text{vToken price} - \text{ST price}$$
 
-If NAV is 1.00 and ST trades at \$0.98, EPT fair value is \$0.02. Arbitrage keeps pricing tight. See [EPT Pricing](/deep-dives/ept-pricing) for the full treatment.
+If NAV is 1.00 and ST trades at \$0.98, EPT fair value is \$0.02. The matching engine keeps pricing tight. See [EPT Pricing](/deep-dives/ept-pricing) for the full treatment.
 
 ### EPT Price Falls Over the Epoch
 

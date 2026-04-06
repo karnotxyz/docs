@@ -9,15 +9,15 @@ icon: "book"
 | Token | What it is | Tradeable | Redeemable for | Scope |
 |---|---|---|---|---|
 | **vToken** | Base vault share. Earns yield + points. | Yes | USDC + PointsTokens at maturity | Per vault, per epoch |
-| **ST** | Yield claim (split from vToken) | Yes (orderbook) | USDC at final NAV | Per vault, per epoch |
-| **EPT** | Points claim (split from vToken) | Yes (orderbook) | PointsTokens at maturity | Per vault, per epoch |
+| **ST** | Yield component of vToken | Yes (orderbook) | USDC at final NAV | Per vault, per epoch |
+| **EPT** | Points component of vToken | Yes (orderbook) | PointsTokens at maturity | Per vault, per epoch |
 | **PointsToken** | 1:1 exchange points | Yes | Airdrop tokens after TGE | Per exchange, persists |
 
 ### Split Equation
 
 $$1 \text{ vToken} = 1 \text{ ST} + 1 \text{ EPT}$$
 
-Bidirectional. Split or recombine at any time. No fee on split/recombine.
+The matching engine enforces this parity internally when orders match.
 
 ---
 
@@ -28,7 +28,7 @@ Bidirectional. Split or recombine at any time. No fee on split/recombine.
 | shares = deposit / NAV | vToken shares minted on deposit |
 | NAV = vault value / total shares | Per-share USDC value of the vault |
 | 1 vToken = 1 ST + 1 EPT | Split parity (bidirectional) |
-| ST price + EPT price = vToken price | Pricing parity from split |
+| ST price + EPT price = vToken price | Pricing parity |
 | your points = Σ (your credits_w / total credits_w) × points_w | Weekly points distribution by credit share |
 
 ### GCI (Global Credit Index)
@@ -47,19 +47,18 @@ Both vToken and EPT holders earn credits at the same rate. No oracle.
 
 | Fee | Rate | Applied |
 |---|---|---|
-| Performance fee (yield) | 20% of returns generated | On yield accrual |
+| Performance fee (yield) | 20% of interest earned | On yield accrual |
 | PointsToken claim fee | 25% of PointsTokens | On claiming PointsTokens |
-| Split / recombine | 0% | — |
 
 ---
 
 ## Epoch State Machine
 
-| State | Deposits | Credit Accrual | Orderbook Trading | Split / Recombine | Redemption |
-|---|---|---|---|---|---|
-| **ACTIVE** | Yes | Yes | Yes | Yes | No |
-| **SETTLING** | No | Stopped | Secondary only | Yes | No |
-| **MATURED** | No | Final | No | No | Yes |
+| State | Deposits | Credit Accrual | Orderbook Trading | Redemption |
+|---|---|---|---|---|
+| **ACTIVE** | Yes | Yes | Yes | No |
+| **SETTLING** | No | Stopped | Secondary only | No |
+| **MATURED** | No | Final | No | Yes |
 
 At maturity: ST redeems for USDC. EPT claims PointsTokens. vToken holders can claim both directly.
 

@@ -18,11 +18,7 @@ $$\text{EPT}_{\text{fair}} = \text{NAV} - X$$
 
 If ST trades at \$0.98 and NAV is 1.00, EPT fair value is \$0.02.
 
-**Enforcement.** This isn't just a formula — arbitrage enforces it. If ST + EPT prices drift above vToken price, anyone can split vTokens and sell the components. If they drift below, anyone can buy both and recombine. Both directions work, so pricing stays tight.
-
-<Warning>
-Manual splitting and recombining mechanics are under review and may be permissioned at launch. Arbitrage enforcement may initially operate through permissioned actors.
-</Warning>
+The matching engine enforces this parity. When orders match, vTokens are split into ST + EPT internally — the prices stay locked together.
 
 ---
 

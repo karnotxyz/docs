@@ -16,7 +16,7 @@ icon: "scale-balanced"
 | **PT** (Principal Token) | **ST** (Strategy Token) | Both represent a claim on principal. PT redeems at par. ST redeems at NAV (which grows with fixed-rate yield). |
 | **YT** (Yield Token) | **EPT** (Expected Points Token) | Both isolate the variable side. YT accrues yield. EPT accrues credits for a points claim. |
 | Pendle AMM (PT &lt;&gt; SY) | ST/vToken + EPT/vToken orderbook | Pendle uses one AMM. ArcX uses one orderbook with two pairs, denominated in vTokens. |
-| Two-way arbitrage (mint + redeem) | Two-way arbitrage (split + recombine) | Both have tight pricing corridors because both directions are enforceable. |
+| Pricing enforcement (mint + redeem) | Pricing enforcement (engine-level split + recombine) | Both maintain tight pricing corridors through protocol mechanics. |
 
 ---
 
@@ -38,6 +38,6 @@ The other key difference: Pendle wraps on-chain yield-bearing assets. ArcX's vTo
 | Get leveraged yield/points exposure | Buy YT | Buy EPT on the orderbook |
 | Get leveraged pre-TGE points exposure | Indirect (YT on point-earning assets) | Buy EPT on the orderbook |
 | Separate strategy PnL from points | Not possible | Buy ST or EPT independently |
-| Earn both yield and points with no splitting | Hold SY | Hold vToken |
+| Earn both yield and points in one token | Hold SY | Hold vToken |
 
 Pendle is built for on-chain yield optimization. ArcX is built for perp DEX strategy outcomes: fixed yield and pre-TGE points. You could reasonably use both.
