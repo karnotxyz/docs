@@ -1,38 +1,31 @@
 ---
 title: "PointsToken"
-description: "1:1 representation of exchange points. Persists across epochs. Burn for airdrop tokens after TGE."
+description: "1:1 representation of exchange points. Persists across series. Burn for airdrop tokens after TGE."
 icon: "gift"
 ---
 
 ## What Is a PointsToken
 
-Each supported perp DEX has its own PointsToken on Starknet, representing the exchange's loyalty points 1:1:
+Each supported perp DEX has its own PointsToken, representing that exchange's loyalty points 1:1.
 
-| PointsToken | Exchange | Meaning |
-|---|---|---|
-| xPX | Paradex | 1 xPX = 1 Paradex point |
-| xHL | Hyperliquid | 1 xHL = 1 Hyperliquid point |
-| xPC | Pacifica | 1 xPC = 1 Pacifica point |
-
-Additional PointsTokens are created as new exchanges are integrated. One PointsToken per exchange, shared across all vaults and epochs on that exchange.
+Additional PointsTokens are created as new exchanges are integrated. One PointsToken exists per exchange, shared across all vaults and series on that exchange.
 
 ---
 
 ## How Claiming Works
 
-After an epoch matures, holders with accumulated credits claim their share of points as PointsTokens. Both vToken and EPT holders earn credits and can claim.
+As points are distributed on the exchange each week, holders with accumulated credits can claim their share as PointsTokens. Both vToken and EPT holders earn credits and can claim.
 
-1. Epoch matures, total points for the vault are reported
-2. You claim based on your credit share — a **25% claim fee** is deducted from the PointsTokens minted
-3. PointsTokens are minted to your wallet
+1. Weekly points are reported for the vault
+2. You claim based on your credit share
 
 ---
 
-## PointsTokens Persist Across Epochs
+## PointsTokens Persist Across Series
 
-Unlike ST and EPT, which are created fresh each epoch, PointsTokens accumulate. Your xPC from Epoch 5 and your xPC from Epoch 8 are the **same token**. They stack in your wallet.
+Unlike ST and EPT, which are created fresh for each series, PointsTokens accumulate. Your PT from one series and your PT from another are the **same token**. They stack in your wallet.
 
-PointsTokens are standard tokens on Starknet. You can hold, transfer, or trade them freely.
+PointsTokens are standard ERC20 tokens. You can hold, transfer, or trade them freely.
 
 ---
 
@@ -44,8 +37,8 @@ When an exchange conducts its <Tooltip tip="Token Generation Event. When a perp 
 2. A conversion rate is set based on total airdrop tokens and total PointsToken supply
 3. You burn your PointsTokens to receive airdrop tokens at that rate
 
-**Example:** You hold 1,000 xPC. The exchange airdrops 50,000 PDX tokens against a total xPC supply of 100,000.
+**Example:** Assume the points token is called PT. You hold 1,000 PT. The exchange airdrops 50,000 tokens against a total PT supply of 100,000.
 
-$$\text{conversion rate} = \frac{50{,}000 \text{ PDX}}{100{,}000 \text{ xPC}} = 0.5$$
+$$\text{conversion rate} = \frac{50{,}000 \text{ airdrop tokens}}{100{,}000 \text{ PT}} = 0.5$$
 
-You burn 1,000 xPC and receive 500 PDX.
+You burn 1,000 PT and receive 500 airdrop tokens.

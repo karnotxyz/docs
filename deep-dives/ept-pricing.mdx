@@ -6,9 +6,11 @@ icon: "chart-line"
 
 EPT price depends on one equation. This page walks through that equation and what drives it.
 
+If you want the full matching math behind ST/EPT pricing, read [Orderbook Mechanics](/deep-dives/orderbook-mechanics).
+
 ## How ST and EPT Are Priced
 
-**NAV** is the per-share USDC value of the vault. It grows linearly as the market maker pays the fixed interest rate. NAV does not respond to orderbook activity.
+**NAV** is the per-share USDC value of the vault. It grows as the market maker returns value through the market's configured model, whether that is a fixed rate or a performance-fee split. NAV does not respond to orderbook activity.
 
 **ST** and **EPT** are the yield and points components of a vToken. They trade on the orderbook priced in vTokens.
 
@@ -26,51 +28,41 @@ EPT is a claim on future points. Its value depends on how many points you earn a
 
 ### Worked Example
 
-You use 5 vTokens to buy 250 EPT at \$0.02 each during a 60-day epoch:
+You use 5 vTokens to buy 250 EPT at \$0.02 each during a 60-day series:
 
 | Step | What happens |
 |---|---|
 | **Buy** | 250 EPT for 5 vTokens (\$5 at NAV) |
-| **Hold** | You accrue credits over the epoch. Your credit share earns 67 points. |
-| **Claim** | Epoch matures. 25% claim fee deducted. You receive 50 PointsTokens. |
+| **Hold** | You accrue credits over the series. Your credit share earns 55 points. |
+| **Claim** | Series matures. Let's assume a 10% EPT fee (actual value can be seen on the market page). You receive 50 PointsTokens. |
 | **TGE** | Each point is worth \$0.20 at TGE. You burn 50 PointsTokens for \$10. |
 | **Return** | \$10 out on \$5 in = **100% return over 60 days** |
 
-### Same Price, Different Return
+## Leverage and Price
+
+### EPT Price Decay
 
 If EPT is \$0.02 with 8 weeks left, you earn credits for all 8 weeks. If EPT is still \$0.02 with 2 weeks left, you earn credits for just 2 weeks. Same price, very different return.
 
-In practice, EPT price decays as the epoch progresses because fewer credits remain to be earned. This is the market correctly pricing a shrinking earning window — not a mechanical decay curve.
+In practice, EPT price decays as the series progresses because fewer credits remain to be earned. As mentioned in [Orderbook Mechanics](/deep-dives/orderbook-mechanics), this is why orders are priced in APR and not absolute price, since APR remains stable as time passes.
 
-### Leverage Is Not a Fixed Number
+### Leverage Increases with Time for Same APR
 
-At \$0.02 per EPT, 100 vTokens buys 5,000 EPT — 50x more than holding vTokens. But that "50x" means very different things depending on when you buy. Early in the epoch, those EPT accrue credits for weeks. Late, they accrue for days. Same leverage, vastly different APR.
+If APR remains the same and your size remains the same, EPT leverage increases as you get closer to maturity.
 
-The UI shows both **APR** and **leverage** side by side. Limit orders are placed in APR terms — the price adjusts automatically as time passes.
+For example, suppose you spend **100 vTokens** at **10% APR**:
 
----
+- with **1 year** left to maturity, that maps to about **1,100 EPT**
+- with **1 month** left to maturity, that maps to about **12,100 EPT**
 
-## Orderbook Mechanics
+So the same 100 vTokens at the same APR can map to much larger EPT size as time remaining gets shorter.
 
-One orderbook, two pairs: **ST/vToken** and **EPT/vToken**. All orders are denominated in vTokens.
+That is why leverage is not a fixed property of EPT price alone. It depends on both:
 
-### How Orders Match
+- APR
+- time remaining
 
-| Scenario | What happens |
-|---|---|
-| EPT buyer + EPT seller | Secondary trade. vTokens ↔ EPT. Seller keeps credits. Buyer starts from zero. |
-| ST buyer + ST seller | Secondary trade. vTokens ↔ ST. |
-| EPT buyer + ST buyer | Both contribute vTokens. Engine splits them into ST + EPT. Delivers each side. |
-| EPT seller + ST seller | ST + EPT recombined into vTokens. Distributed between sellers by matched price. |
-
-### APR-Based Orders
-
-Users don't set raw prices. They set APR constraints:
-
-- **ST buyers** set the minimum APR they require
-- **EPT buyers** set the maximum APR they're willing to pay
-
-The engine translates APR to executable prices based on time remaining. APR is time-invariant — "I need at least X%" stays the same regardless of when in the epoch you place the order.
+And this is also why quoting the orderbook in APR is important: absolute token size changes with time, but APR stays stable.
 
 ---
 
@@ -80,64 +72,12 @@ The engine translates APR to executable prices based on time remaining. APR is t
 |---|---|
 | **Time remaining** | More time = more credits to earn = higher price |
 | **Expected points value** | Higher expected TGE value = higher price |
-| **ST discount** | More EPT buying = wider ST discount (structural link) |
 | **Points demand** | More buyers on EPT orderbook = higher price |
-| **Vault NAV** | Higher NAV = more total value to split between ST and EPT |
 
 ---
 
-## What Drives the ST Discount
+## Credits
 
-The ST discount is the other side of EPT pricing.
+EPT uses a smart credit-based system to calculate point distribution over time.
 
-### Factors That Widen the Discount
-
-| Factor | Mechanism |
-|---|---|
-| **Strong EPT demand** | More capital paying for the points portion → wider ST discount |
-| **Early in epoch** | Maximum time until maturity = more uncertainty |
-
-### Factors That Narrow the Discount
-
-| Factor | Mechanism |
-|---|---|
-| **Yield seeker demand** | Buyers seeking fixed returns absorb ST supply |
-| **Approaching maturity** | Less time risk remaining, price converges to NAV |
-
-### Equilibrium
-
-Points farmers want cheap EPT, which requires a wide ST discount. Yield seekers want cheap ST, which the wide discount provides. The market clears where the marginal points farmer's willingness to pay meets the marginal yield seeker's willingness to hold.
-
----
-
-## Worked Example (\$100)
-
-**Setup:** NAV = 1.00, ST trading at \$0.98, EPT at \$0.02.
-
-### Points Farmer
-
-Buy EPT with 100 vTokens at \$0.02 per EPT:
-
-$$\frac{100 \text{ vTokens}}{0.02 \text{ vTokens per EPT}} = 5{,}000\text{ EPT}$$
-
-Compare: holding 100 vTokens earns credits on 100 tokens. Buying EPT earns credits on **5,000 tokens** — 50x points leverage. The leverage comes from the price. But remember: [same leverage, different APR depending on timing](#leverage-is-not-a-fixed-number).
-
-### Yield Seeker
-
-Buy ST with 100 vTokens at \$0.98 per ST. The vault pays 12% net APR. Over a 60-day epoch:
-
-- Discount capture: 2%
-- Yield: 12% × 60/365 ≈ 2%
-- **Total: \~4% per epoch, or \~24% annualized**
-
-### Where the Value Goes
-
-| Participant | Pays | Gets | Exposure |
-|---|---|---|---|
-| Points farmer | 100 vTokens | 5,000 EPT | 50x leveraged points |
-| Yield seeker | 100 vTokens | \~102 ST | Fixed yield + discount |
-| vToken holder | 100 USDC | 100 vTokens | Both yield + points at 1x |
-
-We don't create value. We separate it.
-
-See [Credit Mathematics](/deep-dives/credit-mathematics) for how credits translate to points.
+See [Credit Mathematics](/deep-dives/credit-mathematics) for how credits work and how points are assigned across periods.

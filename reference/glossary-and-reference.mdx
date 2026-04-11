@@ -1,6 +1,6 @@
 ---
 title: "Quick Reference"
-description: "Token summary, key equations, fees, and epoch states at a glance."
+description: "Token summary, key equations, fees, and series mechanics at a glance."
 icon: "book"
 ---
 
@@ -8,10 +8,10 @@ icon: "book"
 
 | Token | What it is | Tradeable | Redeemable for | Scope |
 |---|---|---|---|---|
-| **vToken** | Base vault share. Earns yield + points. | Yes | USDC + PointsTokens at maturity | Per vault, per epoch |
-| **ST** | Yield component of vToken | Yes (orderbook) | USDC at final NAV | Per vault, per epoch |
-| **EPT** | Points component of vToken | Yes (orderbook) | PointsTokens at maturity | Per vault, per epoch |
-| **PointsToken** | 1:1 exchange points | Yes | Airdrop tokens after TGE | Per exchange, persists |
+| **vToken** | Base vault share. Earns yield + points. | Yes, on existing AMMs like a normal ERC20 | USDC + PointsTokens | Per vault |
+| **ST** | Principal + yield side of a series | Yes (orderbook) | Redeems back into vToken at maturity | Per vault, per series |
+| **EPT** | Points component of a series | Yes (orderbook) | Claims PointsTokens based on credits | Per vault, per series |
+| **PointsToken** | 1:1 exchange points | Yes, on existing AMMs like a normal ERC20 | Airdrop tokens after TGE | Per exchange, persists |
 
 ### Split Equation
 
@@ -32,7 +32,7 @@ The matching engine enforces this parity internally when orders match.
 
 ### GCI (Global Credit Index)
 
-Credits per share per interval, computed on-chain from NAV:
+Credits per share since series inception, computed on-chain from NAV:
 
 $$\text{GCI increment} = \frac{\text{NAV}_{start} + \text{NAV}_{end}}{2} \times \text{days}$$
 
@@ -44,22 +44,30 @@ Both vToken and EPT holders earn credits at the same rate. No oracle.
 
 ## Fees
 
-| Fee | Rate | Applied |
-|---|---|---|
-| Performance fee (yield) | 20% of interest earned | On yield accrual |
-| PointsToken claim fee | 25% of PointsTokens | On claiming PointsTokens |
+- **vToken performance fee** — a cut of the yield and points distributed through the vToken
+- **EPT fee** — a fee on points received by EPT holders for the leverage ArcX provides
+
+Exact values vary by market and can be seen in the app.
 
 ---
 
-## Epoch State Machine
+## Series
 
-| State | Deposits | Credit Accrual | Orderbook Trading | Redemption |
-|---|---|---|---|---|
-| **ACTIVE** | Yes | Yes | Yes | No |
-| **SETTLING** | No | Stopped | Secondary only | No |
-| **MATURED** | No | Final | No | Yes |
+**vToken** behaves like a vault share. You can deposit and withdraw as long as you account for lock-in windows and unwinding time shown on the market page.
 
-At maturity: ST redeems for USDC. EPT claims PointsTokens. vToken holders can claim both directly.
+**ST** and **EPT** are issued as part of fixed-maturity series.
+
+Each vToken can have multiple series over time. Every series has:
+
+- its own maturity date
+- its own **ST**
+- its own **EPT**
+
+At maturity:
+
+- **ST** redeems back into vToken
+- **EPT** stops earning new exposure for that series and can be used to claim PointsTokens
+- **vToken** continues as the base vault share
 
 ---
 
@@ -67,7 +75,8 @@ At maturity: ST redeems for USDC. EPT claims PointsTokens. vToken holders can cl
 
 | Step | What happens |
 |---|---|
-| **Request** | Shares burned. Yield and credit accrual stops. USDC owed locked at current NAV. |
-| **Finalize** | After up to 3 days, USDC released. Delay covers on-chain/exchange settlement. |
+| **Lock-in** | New deposits stay in the vault for the lock-in window. During this time, vTokens are not burned and continue earning yield and points. |
+| **Unwinding** | Once withdrawable, capital still needs time to unwind from exchange positions and return to the vault. vTokens are burned during this period. |
+| **Withdraw** | After unwinding completes, the USDC is available to withdraw from the vault. Points must be claimed separately from the Portfolio section in the app. |
 
-If you hold ST + EPT, recombine to vToken first.
+Current lock-in and unwinding times are shown on the market page.

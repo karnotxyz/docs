@@ -1,42 +1,46 @@
 ---
 title: "Strategy Token (ST)"
-description: "The yield component of a vToken. Buy at a discount, earn fixed-rate yield, redeem at NAV after maturity."
+description: "The principal + yield side of a series. Sell points, lock in fixed yield, and redeem back into vToken at maturity."
 icon: "vault"
 ---
 
-ST is the yield component of a [vToken](/learn/vtoken). Buy ST on the orderbook with your vTokens to isolate the yield side.
+Each **vToken** can be part of a [series](/learn/series-lifecycle). A **series** is a fixed period of time with a maturity date where two vToken holders can exchange points for money.
+
+**ST** is the component you hold when you want to sell points in exchange for fixed yield until maturity.
 
 ## What Is ST
 
-ST represents your claim on the vault's USDC value. The vault pays a fixed interest rate, so NAV grows predictably. At maturity, you redeem ST for USDC at the final NAV.
+Every **vToken** in a series splits into:
 
-ST trades on the **ST/vToken** orderbook. Yield seekers buy ST at a discount to NAV. The discount exists because EPT buyers are paying for the points portion of the vToken — the more they pay for EPT, the cheaper ST gets.
+$$1 \text{ vToken} = 1 \text{ ST} + 1 \text{ EPT}$$
 
----
+One side wants points and pays upfront for them. The other side sells those points and locks in the **principal + yield** side through **ST**.
 
-## The Yield
+```mermaid
+flowchart LR
+    A["You give 50 vTokens"] --> C["Series trade"]
+    B["Points buyer gives 5 vTokens"] --> C
+    C --> D["You receive 55 ST"]
+    D --> E["At maturity, redeem for 55 vTokens"]
+```
 
-Yield comes from a fixed-rate loan. The market maker borrows vault capital and pays back a fixed annual rate.
+ST represents your claim on the vault's principal + yield side. The vault returns value through either a fixed rate or a performance-fee split, and that value flows into NAV over time. At maturity, ST redeems back into vToken.
 
-| Term | Example |
-|---|---|
-| Gross APR | 15% |
-| Performance fee | 20% of interest earned |
-| Net APR | 12% |
+ST trades on the **ST/vToken** orderbook. You buy ST at a discount, so the price of ST is below 1 vToken. In dollar terms, that means ST trades below NAV. The discount exists because EPT buyers are paying for the points portion of the vToken — the more they pay for EPT, the cheaper ST gets.
 
-ST holders earn the net APR on their position. They do **not** earn credits or points — that exposure stays with vToken and [EPT](/learn/expected-points-token) holders.
+See [Orderbook Guide](/learn/orderbook-guide) for how to reason about APR and place ST orders in the app.
 
 ---
 
 ## Buy the Discount
 
-EPT buyers pay for the points portion of the vToken, leaving the yield portion (ST) available below NAV. That discount is the yield seeker's opportunity.
+EPT buyers pay for the points portion of the vToken, leaving ST available below **1 vToken**. In dollar terms, ST trades below NAV. That discount is the yield seeker's opportunity.
 
-**Example.** NAV is 1.00. ST trades at \$0.98. The vault pays 12% net APR. Over a 60-day epoch:
+**Example.** NAV is 1.00. ST trades at \$0.98. The vault pays 12% net APR. Over a 60-day series:
 
-- Discount capture: 2%
-- Yield: 12% × 60/365 ≈ 2%
-- **Total: \~4% per epoch, or \~24% annualized**
+- Discount per vToken: \$0.02
+- 1 vToken yield in 60 days: 12% × 60/365 = \$0.02
+- **Total Yield = 0.04 / 0.98 = 4% per series, or \~24% annualized**
 
 The deeper the discount, the higher the effective return.
 
@@ -44,9 +48,9 @@ The deeper the discount, the higher the effective return.
 
 ## Redemption
 
-After the epoch matures:
+At maturity, **1 ST = 1 vToken**.
 
-$$\text{USDC received} = \text{your ST} \times \text{final NAV}$$
+Your ST redeems back into vToken.
 
 Your ST is burned. No fee on redemption.
 
@@ -54,9 +58,9 @@ Your ST is burned. No fee on redemption.
 
 ## Selling Before Maturity
 
-Sell ST on the orderbook at any time during the active epoch. You receive vTokens. This is a market sale, not redemption — you get whatever price the market offers.
+Sell ST on the orderbook at any time before maturity. You receive vTokens. This is a market sale, not redemption — you get whatever price the market offers.
 
-As the epoch approaches maturity, ST price tends to converge toward NAV.
+As the series approaches maturity, ST price tends to converge toward NAV (in $) or **1 vToken**.
 
 ---
 
@@ -66,7 +70,7 @@ As the epoch approaches maturity, ST price tends to converge toward NAV.
 |---|---|
 | EPT demand | More EPT buying means more capital paying for the points portion, widening the ST discount |
 | Yield seeker demand | Absorbs ST supply, narrowing the discount |
-| Time to maturity | Price converges toward NAV as the epoch ends |
-| Vault NAV | Higher NAV means higher redemption value |
+| Time to maturity | Price converges toward NAV as the series ends |
+| Vault NAV | Higher NAV increases the absolute redemption value, but does not by itself change the ST discount |
 
 The ST discount reflects the cost of points. When points are in high demand, EPT buyers pay more for the points portion, widening the ST discount. Yield seekers buy ST at that discount and earn a higher effective return.

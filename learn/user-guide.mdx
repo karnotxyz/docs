@@ -1,6 +1,6 @@
 ---
 title: "User Guide"
-description: "Step-by-step: deposit for vTokens, buy EPT or ST on the orderbook, withdraw, and redeem after maturity."
+description: "Step-by-step: deposit for vTokens, buy EPT or ST on the orderbook, withdraw, and manage positions through series maturity."
 icon: "compass"
 ---
 
@@ -28,46 +28,56 @@ Everything starts with depositing USDC for vTokens. From there, you choose your 
 
 If you want isolated exposure, use your vTokens to buy on the orderbook.
 
+Start by selecting a **series** with the maturity date you want. The same vToken can have multiple series open at different maturities.
+
+Read [Orderbook Guide](/learn/orderbook-guide) if you want a full mental model for how APR, market orders, and limit orders work before trading.
+
 <Tabs>
   <Tab title="Points Farmer" icon="chart-line">
     You want leveraged points exposure.
 
     <Steps>
+      <Step title="Select a series">
+        Choose the series you want to trade. The same vToken can have multiple series with different maturity dates.
+      </Step>
       <Step title="Open the EPT orderbook">
-        Navigate to the EPT orderbook for the vault you're in.
+        Navigate to the EPT orderbook for that series.
       </Step>
       <Step title="Place a buy order">
-        Set your APR and quantity. You're paying with vTokens. At \$0.02 per EPT, 100 vTokens buys 5,000 EPT — 50x points leverage. The UI shows both APR and leverage.
+        Set your APR and quantity. You're paying with vTokens. At 0.02 vToken per EPT, 100 vTokens buys 5,000 EPT — 50x points leverage. The UI shows APR.
       </Step>
       <Step title="Order fills">
         Your order matches and EPT lands in your wallet.
       </Step>
       <Step title="Hold and earn">
-        Credits accrue automatically while you hold EPT. No action needed. Earlier holders earn more — your early weeks are locked in.
+        Credits accrue automatically while you hold EPT. No action needed.
       </Step>
-      <Step title="Claim after maturity">
-        Epoch matures. Claim your PointsTokens based on your credit share.
+      <Step title="Claim points">
+        Claim your PointsTokens based on your credit share as points are distributed.
       </Step>
     </Steps>
   </Tab>
   <Tab title="Yield Seeker" icon="vault">
-    You want fixed USDC returns.
+    You want principal + yield exposure.
 
     <Steps>
+      <Step title="Select a series">
+        Choose the series you want to trade. The same vToken can have multiple series with different maturity dates.
+      </Step>
       <Step title="Open the ST orderbook">
-        Navigate to the ST orderbook for the vault you're in.
+        Navigate to the ST orderbook for that series.
       </Step>
       <Step title="Place a buy order">
-        Buy ST below NAV with your vTokens. The vault pays 12% net APR. The discount on top is your bonus.
+        Buy ST below 1 vToken with your vTokens. The vault already has a base APR, and the ST orderbook adds another APR on top through the discount. You can see the APR on the orderbook and either take a market order if there is enough liquidity or place a limit order.
       </Step>
       <Step title="Order fills">
         Your order matches and ST lands in your wallet.
       </Step>
-      <Step title="Hold through the epoch">
-        ST tracks the vault's NAV. NAV grows at the fixed rate. Monitor on the dashboard.
+      <Step title="Hold through maturity">
+        Hold ST through maturity to collect the principal + yield side of that series.
       </Step>
-      <Step title="Redeem after maturity">
-        Epoch matures. Redeem ST for USDC at the final NAV.
+      <Step title="Redeem at maturity">
+        When the series matures, redeem ST back into vToken.
       </Step>
     </Steps>
   </Tab>
@@ -77,7 +87,7 @@ If you want isolated exposure, use your vTokens to buy on the orderbook.
 
 ## Exiting Before Maturity
 
-You don't have to wait. Sell your tokens on the orderbook at any time during the active epoch.
+You don't have to wait. Sell your tokens on the orderbook at any time before maturity.
 
 - **Sell EPT** → receive vTokens. Seller keeps all accrued credits. Buyer starts from zero.
 - **Sell ST** → receive vTokens.
@@ -105,7 +115,7 @@ Withdrawals convert vTokens to USDC in two steps:
 
 ## After Maturity
 
-When an epoch reaches **MATURED**, final NAV and total points are locked in. No deadline to redeem — do it whenever you're ready.
+When a series reaches maturity, final NAV is locked in. No deadline to redeem — do it whenever you're ready.
 
 <Tabs>
   <Tab title="vToken Holders" icon="wallet">
@@ -114,7 +124,7 @@ When an epoch reaches **MATURED**, final NAV and total points are locked in. No 
     - **PointsTokens** based on your credit share
   </Tab>
   <Tab title="ST Holders" icon="vault">
-    Redeem ST for USDC at the final NAV. Your ST is burned.
+    Redeem ST back into vToken at the final NAV. Your ST is burned.
   </Tab>
   <Tab title="EPT Holders" icon="star">
     Claim PointsTokens based on your accumulated credit share. A 25% claim fee is deducted from your PointsTokens.
@@ -129,15 +139,15 @@ PointsTokens represent actual exchange points. Hold them until the exchange cond
 
 ## Quick Reference
 
-| Action | <Badge color="green">ACTIVE</Badge> | <Badge color="orange">SETTLING</Badge> | <Badge color="red">MATURED</Badge> |
-|---|---|---|---|
-| Deposit USDC for vTokens | Yes | No | No |
-| Buy/sell EPT on orderbook | Yes | Secondary only | No |
-| Buy/sell ST on orderbook | Yes | Secondary only | No |
-| Credits accruing | Yes | Stopped | Final |
-| Withdraw vTokens | Yes | Yes | Yes |
-| Redeem ST for USDC | No | No | **Yes** |
-| Claim EPT for PointsTokens | No | No | **Yes** |
+| Action | Before maturity | At or after maturity |
+|---|---|---|
+| Deposit USDC for vTokens | Yes | Yes |
+| Buy/sell EPT on orderbook | Yes | No |
+| Buy/sell ST on orderbook | Yes | No |
+| Credits accruing on EPT | Yes | No |
+| Withdraw vTokens | Yes | Yes |
+| Redeem ST into vToken | No | **Yes** |
+| Claim EPT for PointsTokens | As points are distributed | **Yes** |
 | Claim vToken (both) | No | No | **Yes** |
 
 ---

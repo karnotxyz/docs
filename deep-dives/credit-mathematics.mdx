@@ -1,140 +1,229 @@
 ---
 title: "Credit Mathematics"
-description: "How the credit system distributes points fairly across holders, weighted by capital and time."
+description: "How credits determine each holder's share of points across periods, using capital multiplied by time."
 icon: "calculator"
 ---
 
-Credits determine your share of points. Points are distributed weekly, not as a single lump sum at epoch end. This page explains how credits accumulate and how weekly distribution rewards early holders.
+Credits determine your share of points. Points are distributed period by period, not as a single lump sum at the end of a series. This page explains how credits work, why periods exist, and how GCI lets the protocol track credits on-chain.
 
-**Prerequisites:** [What is ArcX?](/learn/protocol-overview), [vToken](/learn/vtoken)
+**Prerequisites:** [What is ArcX?](/learn/protocol-overview), [vToken](/learn/vtoken), [Series Lifecycle](/learn/series-lifecycle)
 
 ---
 
 ## Why Credits Exist
 
-Without credits, points distribution would be trivially gameable. A naive design that distributes points proportional to token balance at epoch end lets anyone deposit one second before maturity and claim the same share as a day-one holder.
+Without credits, points distribution would be trivially gameable. A naive design that distributes points proportional to token balance right before points are distributed lets anyone deposit one second before distribution and claim the same share as a day-one holder.
 
-Credits prevent this by tracking **how much you held** and **for how long**. Your share of points is proportional to your cumulative credit balance, not a single end-of-epoch snapshot. A last-second depositor accumulates nearly zero credits and receives a negligible share of points.
+Credits prevent that by tracking not just what you hold, but how long you held it for.
 
 ---
 
-## How Credits Accumulate
+## Series and Credit Periods
 
-Credits are computed on-chain from the vault's NAV using the **Global Credit Index (GCI)**. No oracle. Fully deterministic.
+A **series** is a fixed-maturity market built on top of a vToken. Each series has a maturity date and its own ST and EPT tokens.
 
-### The GCI Formula
+Each series is divided into equal-sized **credit periods**. These periods are chosen to match the point distribution frequency on the underlying exchange.
 
-The GCI tracks credits earned per share. For any time interval:
+So if an exchange distributes points every week, the protocol uses one-week credit periods on-chain.
 
-$$\text{GCI increment} = \frac{\text{NAV}_{start} + \text{NAV}_{end}}{2} \times \text{days}$$
+> A credit period is the on-chain period whose accumulated credits receive the points earned for the corresponding exchange period.
 
-This is the average NAV over the interval multiplied by the duration. Geometrically, it's the area of a trapezoid: because NAV grows linearly (fixed-rate yield), the capital curve is a straight line, and the area under it equals the credits.
+---
+
+## Why Periods Are Shifted
+
+There is one important nuance: on-chain periods are shifted by a fixed amount relative to the exchange periods.
+
+The reason is operational. Capital deposited on-chain is not instantly live on the exchange. It takes time for capital to move from the chain into the market maker's exchange positions.
+
+For example, suppose:
+
+- the deployment delay is **1 day**
+- the exchange gives points from **Monday to Monday**
+
+Then the capital that was actually active on the exchange for that Monday-to-Monday period was capital that had already arrived on-chain by the previous **Sunday**.
+
+Capital that showed up on-chain after that Sunday was too late to be deployed before the exchange measured points for that week.
+
+So the period tracked on-chain is shifted relative to the period used off-chain by the exchange.
+
+```mermaid
+gantt
+    title Shift Between On-Chain Credit Periods and Exchange Point Periods
+    dateFormat  YYYY-MM-DD
+    axisFormat  %a
+
+    section On-chain credit period
+    Period 1 credits :a1, 2026-01-04, 7d
+    Period 2 credits :a2, 2026-01-11, 7d
+
+    section Exchange point period
+    Period 1 points :b1, 2026-01-05, 7d
+    Period 2 points :b2, 2026-01-12, 7d
+```
+
+In this example, when an on-chain period ends, the corresponding off-chain exchange points are received one day later and distributed back to that on-chain period.
+
+---
+
+## How Credits Are Calculated
+
+Credits are a way to track what share of total points you should receive at the end of every period.
+
+From the protocol's perspective, the fair way to allocate points is to measure:
+
+$$
+\text{capital} \times \text{time}
+$$
+
+We do not know the exact way each exchange calculates points internally. But for the protocol, capital multiplied by time is the cleanest approximation of fair participation.
+
+---
+
+## Calculating Credits
+
+Your capital is not constant over time, because NAV grows as the underlying strategy earns yield.
+
+So mathematically, capital multiplied by time becomes:
+
+$$
+\text{area under the capital-time curve}
+$$
+
+If your capital was constant, this would just be a rectangle. But because NAV grows, the curve slopes upward, so the area is a trapezoid.
+
+That area is what credits are trying to track.
+
+We cannot recompute area-under-the-curve for every user on-chain as time passes. So instead, the protocol tracks a global accumulator called **GCI**.
+
+---
+
+## What GCI Is
+
+**GCI** stands for **Global Credit Index**.
+
+GCI is the amount of credits earned **per EPT share** over time. The point of tracking GCI is that the protocol does not need to store a full capital-time history for every user.
+
+Instead, when a user's balance changes, credits can be computed from:
+
+$$
+\text{balance} \times (\text{new GCI} - \text{previous GCI})
+$$
+
+This is the key simplification:
+
+- GCI tracks credits earned per share globally
+- each user only needs their balance and the last GCI checkpoint relevant to them
+
+For credit purposes:
+
+- `1 vToken` earns credits at the same rate as `1 EPT`
+- both contribute equally to period credit accumulation
+
+---
+
+## How GCI Is Calculated
+
+For any time interval:
+
+$$
+\text{GCI increment} = \frac{\text{NAV}_{start} + \text{NAV}_{end}}{2} \times \text{days}
+$$
+
+This is the average NAV over the interval multiplied by the duration.
 
 Equivalently:
 
-$$\text{GCI increment} = r_1 \times \Delta t + \frac{1}{2} \times \Delta t \times (r_2 - r_1)$$
+$$
+\text{GCI increment} = r_1 \times \Delta t + \frac{1}{2} \times \Delta t \times (r_2 - r_1)
+$$
 
-where $r_1$ = NAV at start, $r_2$ = NAV at end, $\Delta t$ = duration in days.
+where:
 
-### Your Credits
+- $r_1$ = NAV at the start of the interval
+- $r_2$ = NAV at the end of the interval
+- $\Delta t$ = time elapsed in days
 
-Your credits for any interval are your share balance times the GCI increment:
+Geometrically, this is the area of a trapezoid under the capital-time curve.
 
-$$\text{your credits} = \text{your balance} \times \text{GCI increment}$$
+---
 
-Where balance = your vToken holdings + your EPT holdings. Both earn credits at the same rate — 1 vToken = 1 EPT for credit purposes.
+## How User Credits Are Calculated
 
-Credits accumulate across the epoch. They are tracked per weekly period for distribution.
+Your credits over any interval are:
+
+$$
+\text{your credits} = \text{your balance} \times \text{GCI increment}
+$$
+
+More generally, whenever your balance changes, the protocol can settle the credits earned since your last checkpoint by multiplying your balance by the change in GCI over that interval.
+
+That is why GCI is useful: it turns a continuous capital-times-time problem into a simple checkpointing problem.
 
 ---
 
 ## Fresh Credits on Transfer
 
-When tokens change hands — whether through the orderbook or through a transfer — the new holder's credit counter starts from zero at the moment of acquisition.
+When tokens change hands, the new holder starts fresh from that moment.
 
-- **Orderbook purchase:** You buy EPT. You start with zero credits. The seller retains all credits they accrued.
-- **Minting:** You deposit USDC and receive freshly minted vTokens. They start at zero credits.
-- **No credit inheritance.** Credits are non-transferable. The buyer never receives the seller's accumulated credits.
+- **Orderbook purchase:** you buy EPT and start with zero prior credits
+- **Minting:** you deposit USDC and receive freshly minted vTokens that start from zero prior credits
+- **No credit inheritance:** the buyer does not receive the seller's previously accumulated credits
 
----
-
-## Weekly Points Distribution
-
-Points are not distributed as a single lump sum at epoch end. Each week's points are distributed separately among that week's credit holders:
-
-$$\text{yourPoints} = \sum_{w=1}^{W} \frac{\text{yourCredits}_w}{\text{totalCredits}_w} \times \text{points}_w$$
-
-where $W$ is the number of weeks, $\text{yourCredits}_w$ is your credits during week $w$, $\text{totalCredits}_w$ is the sum of all holders' credits for that week, and $\text{points}_w$ is the points earned during that week.
-
-### Why Weekly Matters
-
-Weekly distribution rewards early holders. When the platform is new and few people hold tokens, the denominator ($\text{totalCredits}_w$) is small. Early holders get a larger share of those early weeks' points. As more holders join in later weeks, the denominator grows — but the early weeks are already locked in.
+Credits are non-transferable. Only future holding time counts for the new owner.
 
 ---
 
-## Worked Examples
+## Period-by-Period Points Distribution
 
-<Tabs>
-  <Tab title="Early-Holder Advantage" icon="users">
-    **Setup:** 10-week epoch. Strategy earns 500 points per week (5,000 total).
-    - Alice holds 100 vTokens from week 1
-    - Bob buys 100 EPT at week 7
+Points are distributed period by period:
 
-    **Weekly distribution:**
+$$
+\text{yourPoints} = \sum_{p=1}^{P} \frac{\text{yourCredits}_p}{\text{totalCredits}_p} \times \text{points}_p
+$$
 
-    | Week | Alice credits | Bob credits | Total credits | Alice's share | Bob's share |
-    |------|-------------|------------|--------------|--------------|------------|
-    | 1-6  | 100 each week | 0 | 100 | 100% | 0% |
-    | 7-10 | 100 each week | 100 each week | 200 | 50% | 50% |
+where:
 
-    **Points:**
+- $P$ = number of credit periods
+- $\text{yourCredits}_p$ = your credits during period $p$
+- $\text{totalCredits}_p$ = all credits during period $p$
+- $\text{points}_p$ = points assigned to that period
 
-    | Holder | Weeks 1-6 | Weeks 7-10 | Total | Share |
-    |--------|-----------|------------|-------|-------|
-    | Alice  | 3,000 (100%) | 1,000 (50%) | **4,000** | **80%** |
-    | Bob    | 0 | 1,000 (50%) | **1,000** | **20%** |
+This is why early participation matters. If it is easier to get points in the early days of an exchange, early holders get that upside. Later entrants do not dilute those earlier periods.
 
-    Alice gets 80% of total points even though Bob held the same amount for 40% of the epoch. The early weeks — when Alice was the sole holder — are locked in at 100%.
-  </Tab>
+---
 
-  <Tab title="Late Entrants" icon="chart-mixed">
-    **Setup:** 10-week epoch. Strategy earns 500 points per week (5,000 total).
-    - Alice holds 100 vTokens from week 1
-    - 9 other holders each buy 100 EPT at week 6
+## Worked Example
 
-    **Weekly distribution:**
+The objective of this example is to show that an early holder can keep a large advantage even when a later user brings in enough capital to match the same total capital x time.
 
-    | Period | Alice credits | Others (total) | Alice's share of that period |
-    |--------|-------------|---------------|---------------------------|
-    | Weeks 1-5 | 100 | 0 | 100% |
-    | Weeks 6-10 | 100 | 900 | 10% |
+**Setup:** 10-week series.
+- Alice holds 100 vTokens from week 1
+- Bob buys 250 EPT at week 7
+- Weeks 1-6 distribute 800 points per week
+- Weeks 7-10 distribute 200 points per week
 
-    **Points:**
+Bob brings in more capital later so that his capital x time is the same as Alice's:
 
-    | Holder | Points |
-    |--------|--------|
-    | Alice  | 2,500 (weeks 1-5 at 100%) + 250 (weeks 6-10 at 10%) = **2,750** |
-    | Each of 9 others | 250 each |
+- Alice: 100 x 10 weeks = 1,000 token-weeks
+- Bob: 250 x 4 weeks = 1,000 token-weeks
 
-    Alice earns **55%** of all points despite holding only 10% of total tokens from week 6 onward. She captured the early weeks when participation was low.
-  </Tab>
+**Weekly distribution:**
 
-  <Tab title="Last-Second Attack" icon="clock">
-    **Setup:** 10-week epoch. Strategy earns 500 points per week (5,000 total).
-    - Alice holds 100 vTokens for all 10 weeks
-    - Eve buys 100 EPT in the final week
+| Week | Alice total credits | Bob total credits | Alice's share of points |
+|------|---------------------|-------------------|-------------------------|
+| 1-6  | 100 x 6 = 600 | 0 x 6 = 0 | 600 / (600 + 0) = 100% |
+| 7-10 | 100 x 4 = 400 | 250 x 4 = 1,000 | 400 / (400 + 1,000) = 28.6% |
 
-    **Points:**
+**Points:**
 
-    | Holder | Points | Share |
-    |--------|--------|-------|
-    | Alice  | 4,500 + 250 = **4,750** | **95%** |
-    | Eve    | 250 | **5%** |
+| Holder | Weeks 1-6 | Weeks 7-10 | Total | Share |
+|--------|-----------|------------|-------|-------|
+| Alice  | 4,800 (800 x 6 weeks at 100%) | 228.6 (200 x 4 weeks x 28.6%) | **5,028.6** | **86.2%** |
+| Bob    | 0 | 571.4 (200 x 4 weeks x 71.4%) | **571.4** | **13.8%** |
 
-    Eve deposited the same dollar amount as Alice but only participates in 1 out of 10 weekly distributions. The attack is economically neutralized.
-  </Tab>
-</Tabs>
+Even though Bob contributes the same total capital x time as Alice, Alice gets far more points because the earlier weeks were richer and those periods are locked in to the early holder.
 
 <Info>
-These examples use simplified credit amounts for clarity. In production, credit amounts vary with NAV growth — the GCI formula accounts for this automatically.
+These examples use simplified credit amounts for clarity. In production, credit amounts vary with NAV growth, and GCI accounts for that automatically.
 </Info>

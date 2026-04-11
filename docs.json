@@ -70,7 +70,8 @@
             "pages": [
               "index",
               "learn/protocol-overview",
-              "learn/epoch-lifecycle"
+              "learn/series-lifecycle",
+              "learn/trust-model-and-security"
             ]
           },
           {
@@ -86,6 +87,7 @@
             "group": "Using ArcX",
             "pages": [
               "learn/user-guide",
+              "learn/orderbook-guide",
               "learn/pendle-comparison"
             ]
           }
@@ -98,8 +100,8 @@
             "group": "Technical Analysis",
             "pages": [
               "deep-dives/credit-mathematics",
-              "deep-dives/ept-pricing",
-              "deep-dives/trust-model-and-security"
+              "deep-dives/orderbook-mechanics",
+              "deep-dives/ept-pricing"
             ]
           }
         ]
