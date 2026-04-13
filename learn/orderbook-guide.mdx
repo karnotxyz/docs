@@ -6,7 +6,7 @@ icon: "chart-line"
 
 Before placing an order, start with two things:
 
-1. pick the **series** you want to trade
+1. pick the **vault** and then the **series** (maturity date) you want to trade
 2. decide whether you want **principal + yield** exposure through **ST** or **points** exposure through **EPT**
 
 The same **vToken** can have multiple series open at different maturity dates, and each series has its own **ST/vToken** and **EPT/vToken** orderbooks (though economically they are the same underlying book, as explained below).
@@ -77,7 +77,7 @@ That is the main directional rule to keep in mind when reading the book.
 The book is quoted in APR, but users still need a simple way to think about token price:
 
 - **ST** trades below **1 vToken**
-- **EPT** trades at `price per point × points received from 1 vToken until maturity` in an efficient market, and as an EPT buyer you want it to trade below that value so you have room to profit
+- **EPT** trades at `expected price per point × points received from 1 vToken until maturity` in an efficient market, and as an EPT buyer you want it to trade below that value so you have room to profit from the exchange's listed token price
 
 **As maturity gets closer, the same APR implies different ST and EPT amounts.**
 

@@ -6,12 +6,12 @@ icon: "circle-dollar-to-slot"
 
 ## What Is a vToken
 
-A vToken is a vault share. Each vault pairs a market maker with one or more perp DEXes. You deposit USDC, receive vToken shares, and earn two things:
+A vToken is a vault share. Each vault pairs a market maker with a perp DEX. You deposit USDC, receive vToken shares, and earn two things:
 
 1. **Yield** — the market maker borrows your capital and returns value through either a fixed rate or a performance-fee split
 2. **Exchange points** — the strategy's activity generates points, distributed to you based on how many vTokens you held and for how long
 
-One vToken per vault. Different vaults have different market makers, exchanges, and rates.
+Each vault has its own vToken. Different vaults have different market makers, exchanges, and rates.
 
 <Info>
 vToken is the simplest way to use ArcX. You earn yield and points without trading or managing anything. Just deposit and hold.
@@ -61,9 +61,9 @@ Withdrawals depend on two timing constraints: **lock-in** and **unwinding**.
 
 <Steps>
   <Step title="Lock-in">
-    Operators usually need deposits to stay on the exchange for a minimum period so they can put the capital to work. Because of that, each vToken has a global lock-in window.
+    Operators usually need deposits to stay on the exchange for a minimum period so they can put the capital to work. Because of that, each vault has a global lock-in window.
 
-    If the lock-in is 3 days, then the withdrawable amount is total supply minus deposits made in the last 3 days. During this lock-in period, your vTokens are **not** burned, and you continue earning yield and points.
+    If the lock-in is 3 days, the vault's total withdrawable pool is total supply minus all deposits made in the last 3 days — across all users. Withdrawals are served from this shared pool on a first-come, first-served basis. During the lock-in period, your vTokens are **not** burned, and you continue earning yield and points.
   </Step>
   <Step title="Unwinding">
     Once your position is withdrawable, the operator still needs time to unwind exchange positions and return capital to the vault contract. Your vTokens are burned during this unwinding period.
