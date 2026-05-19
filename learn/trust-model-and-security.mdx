@@ -66,7 +66,7 @@ So ArcX cannot simply route user orders to arbitrary prices, force worse APRs, c
 
 Credits are computed on-chain, but the rewards side still depends on off-chain information and market maker reward delivery.
 
-ArcX uses period weights to reflect relative point generation across credit periods. Those weights are submitted through an oracle process and are used to determine how many CreditTokens are minted for each period.
+ArcX uses period weights to reflect relative reward contribution across credit periods. Those weights are submitted through an oracle process and are used to determine how many CreditTokens are minted for each period.
 
 The oracle does not assign rewards to individual users. It reports period weights, and the contracts apply those weights to on-chain credit balances.
 
@@ -75,9 +75,8 @@ When rewards are shared, the relevant market maker funds the CreditToken distrib
 This means users are taking several risks:
 
 - the underlying protocol controls its own points program and reward allocation
-- the period weights can be wrong, delayed, disputed, or unavailable
+- period weights depend on information from the market maker
 - the market maker must receive rewards and fund the distribution contract
-- the distribution contract and claiming flow must work as intended
 
 See [Risk Disclosure](/legal/risk-disclosure) for the full list of CreditToken and reward-distribution risks.
 

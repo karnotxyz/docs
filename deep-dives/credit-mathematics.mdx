@@ -22,17 +22,17 @@ Credits prevent that by tracking not just what you hold, but how long you held i
 
 A **series** is a fixed-maturity market built on top of a vToken. Each series has a maturity date and its own ST and EPT tokens.
 
-Each series is divided into equal-sized **credit periods**. These periods are chosen to match the points cycle on the underlying exchange.
+Each series is divided into equal-sized **credit periods**. These periods are chosen to match the reward cycle on the underlying exchange.
 
-So if an exchange distributes points every week, the protocol uses one-week credit periods on-chain.
+The main purpose of periods is to give credits different weights over time. Without periods, an early user and a late user with the same final balance could end up with the same reward exposure, even though the early user contributed for longer.
 
-> A credit period is the on-chain period whose accumulated credits receive CreditTokens for the corresponding points period.
+For protocols with active points programs, you can think of these credit periods as lining up with the exchange's point cycles. If an exchange calculates points weekly, ArcX can use one-week credit periods on-chain.
 
 ---
 
 ## Why Periods Are Shifted
 
-There is one important nuance: on-chain periods are shifted by a fixed amount relative to the exchange periods.
+There is one important nuance for exchanges with active points programs: on-chain periods may be shifted by a fixed amount relative to the exchange periods.
 
 The reason is operational. Capital deposited on-chain is not instantly live on the exchange. It takes time for capital to move from the chain into the market maker's exchange positions.
 
@@ -45,7 +45,7 @@ Then the capital that was actually active on the exchange for that Monday-to-Mon
 
 Capital that showed up on-chain after that Sunday was too late to be deployed before the exchange measured points for that week.
 
-So the period tracked on-chain is shifted relative to the period used off-chain by the exchange.
+In cases like this, the period tracked on-chain is shifted relative to the period used off-chain by the exchange.
 
 ```mermaid
 gantt
@@ -190,6 +190,8 @@ where:
 - $\text{periodWeight}_p$ = the oracle-submitted weight for that period
 
 This is why early participation matters. If earlier periods carry higher weights, early holders get that upside. Later entrants do not dilute those earlier periods.
+
+For protocols with points programs, you can think of period weights as proportional or equal to the points received for the corresponding period. If one week generates more points than another, that week can receive a higher CreditToken weight.
 
 ---
 

@@ -6,27 +6,27 @@ icon: "book-open"
 
 ## The Problem
 
-Points farming on perp DEXes is capital-inefficient. You deposit capital, lock it in a strategy, earn points alongside yield, and wait to see how the points program develops. You cannot separate yield from points, and you cannot choose the exact exposure you want.
+Getting rewards on perp DEXes is capital inefficient. You deposit capital, lock it in a strategy, earn yield, and wait to see how any reward program develops. You cannot separate yield from rewards, and you cannot choose the exact exposure you want.
 
 ## The Solution
 
-We wrap perp DEX strategies into a **vToken** — a vault share that earns yield and accrues credits for supported points programs. Hold vToken for the combined exposure, or use your vTokens to buy **ST** (principal + yield) or **EPT** (rewards side) on the orderbook.
+We wrap perp DEX strategies into a **vToken** — a vault share that earns yield and accrues credits for supported reward programs. Hold vToken for the combined exposure, or use your vTokens to buy **ST** (principal + yield) or **EPT** (rewards side) on the orderbook.
 
-Points farmers buy EPT for rewards-side exposure. Yield seekers buy ST at a discount for principal + yield exposure. Each user chooses the side they want, at a price set by the market.
+Reward buyers buy EPT for rewards-side exposure. Yield seekers buy ST at a discount for principal + yield exposure. Each user chooses the side they want, at a price set by the market.
 
 ---
 
 ## Who is ArcX For?
 
 <CardGroup cols={3}>
-  <Card title="Points Farmer" icon="chart-line">
+  <Card title="Reward Buyer" icon="chart-line">
     Deposit \$100 for vTokens. Buy EPT on the orderbook. At \$0.02 per EPT, you end up holding **5,000 EPT** for concentrated rewards-side exposure.
   </Card>
   <Card title="Yield Seeker" icon="vault">
     EPT buyers pay for the rewards side of a vToken, leaving ST available below NAV. You pick it up at a discount and keep the principal + yield side.
   </Card>
   <Card title="Just Hold vToken" icon="wallet">
-    Earn yield and accrue credits for supported points programs in one token. The simplest way to use ArcX.
+    Earn yield and accrue credits for supported reward programs in one token. The simplest way to use ArcX.
   </Card>
 </CardGroup>
 
@@ -67,7 +67,7 @@ flowchart LR
 
 <Steps>
   <Step title="Deposit USDC">
-    Deposit USDC into a vault. You receive **vToken** shares at the current NAV. Your vToken earns yield and accrues credits for supported points programs.
+    Deposit USDC into a vault. You receive **vToken** shares at the current NAV. Your vToken earns yield and accrues credits for supported reward programs.
   </Step>
   <Step title="Trade (for power users)">
     Use your vTokens to buy **EPT** (rewards-side exposure) or **ST** (principal + yield exposure) on the orderbook.
@@ -83,18 +83,18 @@ flowchart LR
   </Step>
 </Steps>
 
-### Where Do Yield and Points Come From?
+### Where Do Yield and Rewards Come From?
 
 When users deposit into a vault, that capital is packaged into **vToken** and lent out to professional market makers. Those market makers run strategies on perp DEXes and return value to the vault through either a fixed rate or a performance-fee split. That return flows back into the vault, and the **NAV** of the vToken tracks it over time.
 
-At the same time, those market maker strategies generate points on the underlying venues. ArcX tracks user credits on-chain. Those credits generate CreditTokens, and market makers can share rewards received from the underlying protocol with CreditToken holders.
+At the same time, those market maker strategies can participate in reward programs on the underlying venues. ArcX tracks user credits on-chain. Those credits generate CreditTokens, and market makers can share rewards received from the underlying protocol with CreditToken holders.
 
 Yield and credits are handled differently:
 
 - **Yield** is reflected in vToken NAV. Your balance multiplied by NAV determines what your yield position is worth.
 - **Credits** are based on holding time, not just balance. Both vToken and EPT track user holding time through credits. Those credits generate CreditTokens according to the credit period weights.
 
-See [Credit Mathematics →](/deep-dives/credit-mathematics) for the details of how credits accrue and how CreditTokens are split across users. See [Risk Disclosure →](/legal/risk-disclosure) for points-program and reward-distribution risks.
+See [Credit Mathematics →](/deep-dives/credit-mathematics) for the details of how credits accrue and how CreditTokens are split across users. See [Risk Disclosure →](/legal/risk-disclosure) for reward-program and distribution risks.
 
 ---
 

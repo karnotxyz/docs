@@ -18,7 +18,6 @@ There is no guarantee that:
 - a market maker funds the distribution contract
 - CreditTokens convert to reward tokens at any fixed ratio
 - rewards have market value
-- rewards are transferable when received
 
 CreditTokens are not exchange points and do not give holders a direct claim against any underlying protocol.
 
@@ -51,9 +50,9 @@ Market maker selection is part of the risk users take when choosing a vault or s
 
 ## Oracle Weight Risk
 
-CreditToken minting uses period weights submitted through an oracle process. Period weights are intended to reflect relative point generation across credit periods.
+CreditToken minting uses period weights submitted through an oracle process. Period weights are intended to reflect relative reward contribution across credit periods.
 
-Oracle weights can be wrong, delayed, disputed, unavailable, or affected by incomplete off-chain information. Incorrect weights can affect how many CreditTokens are minted for each period.
+Period weights depend on market maker information and other off-chain inputs. Incomplete or incorrect information can affect how many CreditTokens are minted for each period.
 
 ---
 
@@ -75,7 +74,7 @@ EPT pricing depends on time remaining, expected CreditToken generation, expected
 
 ## Regulatory And Access Risk
 
-ArcX access may be restricted by jurisdiction, sanctions screening, or interface rules. Regulatory treatment of DeFi, points exposure, CreditTokens, and reward distributions can change.
+ArcX access may be restricted by jurisdiction, sanctions screening, or interface rules. Regulatory treatment of DeFi, reward exposure, CreditTokens, and reward distributions can change.
 
 Users are responsible for understanding whether they may access ArcX and whether participating has tax, legal, or reporting consequences in their jurisdiction.
 
